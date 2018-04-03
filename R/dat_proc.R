@@ -13,12 +13,39 @@ library(proj4shortcut)
 
 prj <- geo_wgs84
 
+dsn <- 'L:/Santa Cruz_fish trends_MB/Data/RawData/Steelhead_Monitoring_Data/2b6251fed87a403f880eb87ee4ed0951.gdb'
+# ogrListLayers(dsn)
+
 ##
 # steelhead annual site data
 
-dsn <- 'L:/Santa Cruz_fish trends_MB/Data/RawData/Steelhead_Monitoring_Data/2b6251fed87a403f880eb87ee4ed0951.gdb'
 fishdat <- readOGR(dsn = dsn, layer = 'Site_Annual_Data') %>% 
   spTransform(prj) %>% 
   st_as_sf
 
 save(fishdat, file = 'data/fishdat.RData')
+
+##
+# habitat 
+
+habidat <- sf::st_read(dsn = dsn, layer = 'Tb_Habitat')
+
+save(habidat, file = 'data/habidat.RData')
+
+## 
+# all streams, only useful for mapping
+
+stream <- readOGR(dsn = dsn, layer = 'Stream') %>% 
+  spTransform(prj) %>% 
+  st_as_sf
+
+save(stream, file = 'data/stream.RData')
+  
+##
+# segments with a monitoring site
+
+segment <- readOGR(dsn = dsn, layer = 'Segment') %>% 
+  spTransform(prj) %>% 
+  st_as_sf
+
+save(segment, file = 'data/segment.RData')
