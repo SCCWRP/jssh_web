@@ -28,9 +28,9 @@ save(fishdat, file = 'data/fishdat.RData')
 ##
 # habitat 
 
-habidat <- sf::st_read(dsn = dsn, layer = 'Tb_Habitat')
+habitat <- sf::st_read(dsn = dsn, layer = 'Tb_Habitat')
 
-save(habidat, file = 'data/habidat.RData')
+save(habitat, file = 'data/habitat.RData')
 
 ## 
 # all streams, only useful for mapping

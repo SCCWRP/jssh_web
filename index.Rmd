@@ -1,0 +1,125 @@
+---
+title: "Exploration of JSSH database"
+output: 
+  html_document:
+    code_folding: hide
+self_contained: yes
+runtime: shiny
+---
+
+```{r, message = F, warning = F, results = 'hide', echo = T}
+# globals
+library(knitr)
+opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = 'transparent'), eval = T, echo = T)
+
+library(tidyverse)
+library(shiny)
+library(sf)
+library(raster)
+library(mapview)
+library(proj4shortcut)
+library(plotly)
+
+prj_geo <- geo_wgs84
+prj_pro <- utm_wgs84('11s')
+
+data(habidat)
+data(fishdat)
+```
+
+Each fall, the Juvenile Steelhead & Stream Habitat (JSSH) monitoring program measures population density and assesses habitat quality for steelhead across four watersheds in Santa Cruz county. Data have been collected annually in the from 1994 to present, with one survey available in 1981. The exploratory analysis of the JSSH Database (see [here](https://www.arcgis.com/home/item.html?id=6d9b81bf5b2b4b309f5ff097e0edcfaa#overview)) is driven by the following questions:
+
+* What is the status of the steelhead population in these four watersheds?
+
+* What is the status of the coho salmon population in these four watersheds? 
+
+* Where do fish and wildlife species occur in these four watersheds? 
+
+* What are stream habitat conditions in these four watersheds?
+
+* How can information about the steelhead and coho salmon populations and stream habitat conditions inform conservation and restoration efforts?  
+
+Data from the compiled geodatabase were extracted for exploratory analysis:
+
+* `fishdat` spatial data of steelhead and coho salmon surveys, steelhead density is recorded for two size classes (shorter than 75mm, 75mm or longer)
+
+* `habitat` data frame of habitat survey data
+
+* `segment` spatial data for stream segments with fish data
+
+* `stream` spatial data for complete hydrography for the four watersheds with fish and habitat data
+
+```{r, fig.cap = 'Steelhead density by size classes across all sampled reaches by watershed.', fig.height = 7}
+toplo <- fishdat
+st_geometry(toplo) <- NULL
+toplo <- toplo%>% 
+  dplyr::select(Year, SiteID, Watershed, Dens_S1, Dens_S2) %>% 
+  gather('Size class', 'density', Dens_S1, Dens_S2) %>% 
+  mutate(Year = factor(Year)) %>% 
+  filter(!is.na(Year))
+
+p <- ggplot(toplo, aes(x = Year, y = density, fill = `Size class`)) + 
+  geom_boxplot() + 
+  facet_wrap(~Watershed, ncol = 1) + 
+  scale_y_continuous('Density (fish/100ft)', trans = 'log10') + 
+  theme_bw() + 
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1), 
+    strip.background = element_blank(), 
+    axis.title.x = element_blank(), 
+    legend.position = 'top'
+  )
+p
+```
+
+Are densities changing by watershed?
+
+```{r}
+# remove 1981 all watersheds
+# remove 1994 from PAJ and SAQ
+toeval <- fishdat %>% 
+  filter(Year > 1981) %>% 
+  filter(!(Year == 1994 & Watershed %in% c('PAJ', 'SOQ')))
+
+# get averages across stations
+st_geometry(toeval) <- NULL
+toeval <- toeval %>% 
+  gather('Size class', 'density', Dens_S1, Dens_S2) %>% 
+  mutate(density = log10(1 + density)) %>% 
+  group_by(Watershed, `Size class`, Year) %>% 
+  summarise(
+    density = mean(density, na.rm = T)
+    ) %>% 
+  ungroup %>% 
+  mutate(
+    density_df = density - mean(density, na.rm = T)
+  )
+
+pbase <- theme(
+  panel.grid.major = element_blank(), 
+  panel.grid.minor = element_blank(), 
+  axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
+  axis.text.y = element_text(size = 8),
+  legend.position = c(0.5, 1.12),
+  legend.direction = 'horizontal',
+  plot.margin = unit(c(4,4,0,0), "lines"),
+  strip.background = element_blank(), 
+  strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
+  panel.background = element_rect(fill = 'black')
+  ) 
+
+ggplot(toeval) + 
+  geom_tile(aes(y = var1, x = var2, fill = cor), colour = 'black') + 
+  pbase +
+  scale_y_discrete('', expand = c(0, 0), labels = parse(text = rev(labs))) + 
+  scale_x_discrete('', expand = c(0, 0), labels = parse(text = rev(labs))) +
+  scale_fill_gradient2('Correlation', low = muted("blue"), mid = "white", high = muted("red"), midpoint = 0) +
+  guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
+  geom_hline(yintercept = 6.5, size = 1.5) +
+  geom_hline(yintercept = 14.5, size = 1.5) +
+  geom_vline(xintercept = 6.5, size = 1.5) +
+  geom_vline(xintercept = 14.5, size = 1.5) 
+```
+
+
+
