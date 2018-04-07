@@ -72,9 +72,9 @@ p <- ggplot(toplo, aes(x = Year, y = density, fill = `Size class`)) +
 p
 ```
 
-Are densities changing by watershed?
+Are densities changing by watershed? This plot shows changes from the long-term average by wateshed and density.  Differences are based on the average across all years in a watershed and density class, log-scale.
 
-```{r}
+```{r, fig.height = 5, fig.width = 8}
 # remove 1981 all watersheds
 # remove 1994 from PAJ and SAQ
 toeval <- fishdat %>% 
@@ -90,35 +90,33 @@ toeval <- toeval %>%
   summarise(
     density = mean(density, na.rm = T)
     ) %>% 
-  ungroup %>% 
+  group_by(Watershed, `Size class`) %>% 
   mutate(
     density_df = density - mean(density, na.rm = T)
   )
 
-pbase <- theme(
-  panel.grid.major = element_blank(), 
-  panel.grid.minor = element_blank(), 
-  axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
-  axis.text.y = element_text(size = 8),
-  legend.position = c(0.5, 1.12),
-  legend.direction = 'horizontal',
-  plot.margin = unit(c(4,4,0,0), "lines"),
-  strip.background = element_blank(), 
-  strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
-  panel.background = element_rect(fill = 'black')
+pbase <- theme_bw(base_family = 'serif') +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
+    axis.text.y = element_text(size = 8),
+    legend.position = 'top',
+    legend.direction = 'horizontal',
+    # plot.margin = unit(c(4,4,0,0), "lines"),
+    strip.background = element_blank(), 
+    strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
+    panel.background = element_rect(fill = 'black')
   ) 
 
 ggplot(toeval) + 
-  geom_tile(aes(y = var1, x = var2, fill = cor), colour = 'black') + 
+  geom_tile(aes(x = Year, y = Watershed, fill = density_df), colour = 'black') + 
   pbase +
-  scale_y_discrete('', expand = c(0, 0), labels = parse(text = rev(labs))) + 
-  scale_x_discrete('', expand = c(0, 0), labels = parse(text = rev(labs))) +
-  scale_fill_gradient2('Correlation', low = muted("blue"), mid = "white", high = muted("red"), midpoint = 0) +
+  scale_x_continuous('', expand = c(0, 0)) + 
+  scale_y_discrete('', expand = c(0, 0)) +
+  scale_fill_gradient2('Difference from average,\nby watershed, density', low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0) +
   guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
-  geom_hline(yintercept = 6.5, size = 1.5) +
-  geom_hline(yintercept = 14.5, size = 1.5) +
-  geom_vline(xintercept = 6.5, size = 1.5) +
-  geom_vline(xintercept = 14.5, size = 1.5) 
+  facet_wrap(~ `Size class`, ncol = 1)
 ```
 
 
