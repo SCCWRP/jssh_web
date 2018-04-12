@@ -1,0 +1,37 @@
+---
+title: "Objectives and timeline for analysis of JSSH database"
+output: 
+  bookdown::word_document2:
+    reference_docx: my_styles.docx
+author: "Prepared by Marcus W. Beck, Eric D. Stein, SCCWRP"
+urlcolor: blue
+link-citations: true
+---
+
+### Overview
+
+The Juvenile Salmonid and Stream Habitat (JSSH) database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California.  Data have been collected every fall since 1994, with one survey available in 1981.  Salmonid data include steelhead density in two size classes and presence/absence of Coho salmon. Additional presence/absence data are available for select species of fish, amphibians, and reptiles.  Stream morphometry, riparian, and bed characteristics are measured in each reach separately for pools, runs, or riffles.  All data have been combined in a geodatabase with spatially referenced information for each survey.  
+
+### Objectives and approach
+
+The JSSH monitoring program is driven by the following general questions:
+
+* What is the status of the steelhead and coho populations in these four watersheds?
+* Where do fish and wildlife species occur in these four watersheds? 
+* What are stream habitat conditions in these four watersheds?
+* How can information about the steelhead and coho salmon populations and stream habitat conditions inform conservation and restoration efforts?  
+
+The analysis will be exploratory to address the general questions and to provide information for follow-up analysis. Our approach will begin by addressing each question in sequence as a means to address the final question.  Unless noted otherwise, all analyses will be separate for each watershed. 
+
+1) Comparison of annual trends in salmonid density by size class and individual sites
+1) Community analysis of each watershed using species presence/absence early and later in the time series
+1) Analysis of habitat differences between riffle, runs, and pools, changes over time
+1) Multivariate analysis of association between habitat measurements and community composition early and later in the time series
+1) Predictive modelling of salmonid density as a function of habitat measurements and time
+
+All analyses will be delivered as an online document that includes text descriptions, analysis code, tables/figures, and interactive options for viewing results.  Analyses will also be under version control for documenting provenance of the results. 
+
+### Timeline
+
+Project completion and delivery of final products will occur by Fall, 2018. Monthly updates on progress will occur until completion.
+
