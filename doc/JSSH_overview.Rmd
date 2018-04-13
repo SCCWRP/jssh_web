@@ -27,11 +27,11 @@ The analysis will be exploratory to address the general questions and to provide
 1) Community analysis of each watershed using species presence/absence early and later in the time series
 1) Analysis of habitat differences between riffle, runs, and pools, changes over time
 1) Multivariate analysis of association between habitat measurements and community composition early and later in the time series
-1) Predictive modelling of salmonid density as a function of habitat measurements and time
+1) Linear or additive modelling of salmonid density to identify important habitat variables
 
 All analyses will be delivered as an online document that includes text descriptions, analysis code, tables/figures, and interactive options for viewing results.  Analyses will also be under version control for documenting provenance of the results. 
 
 ### Timeline
 
-Project completion and delivery of final products will occur by Fall, 2018. Monthly updates on progress will occur until completion.
+Project completion and delivery of final products will occur by Fall, 2018. Updates on progress will occur as needed until completion.
 
