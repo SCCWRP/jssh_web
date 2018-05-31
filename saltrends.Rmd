@@ -24,8 +24,10 @@ data(fishdat)
 data(stream)
 ```
 
-```{r}
-mapview(stream)
+This map shows the stream network and sample sites by watershed.  Click on a stream reach or sample site for additional information.
+```{r, width = 9}
+mapview(stream, label = stream$STREAM_NM) +
+  mapview(fishdat, zcol = 'Watershed', legend = T)
 ```
 
 ```{r, fig.cap = 'Steelhead density by size classes across all sampled reaches by watershed.', fig.height = 7}

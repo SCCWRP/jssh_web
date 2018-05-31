@@ -1,6 +1,6 @@
 # README
 
-Materials for steelhead monitoring data, Santa Cruz region
+Materials for JSSH analysis website https://fawda123.github.io/jssh_web/index
 
 ## Data
 
