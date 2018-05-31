@@ -221,7 +221,7 @@ $(document).ready(function () {
 <h2>Salmonid status and trends</h2>
 <pre class="r"><code># globals
 library(knitr)
-opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = &#39;transparent&#39;), eval = T, echo = T, fig.path = &#39;../imgs/&#39;)
+opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = &#39;transparent&#39;), eval = T, echo = T, fig.path = &#39;imgs/&#39;)
 
 library(tidyverse)
 library(shiny)
@@ -257,7 +257,7 @@ p &lt;- ggplot(toplo, aes(x = Year, y = density, fill = `Size class`)) +
   )
 p</code></pre>
 <div class="figure">
-<img src="../imgs/unnamed-chunk-2-1.png" alt="Steelhead density by size classes across all sampled reaches by watershed." width="672" />
+<img src="imgs/unnamed-chunk-2-1.png" alt="Steelhead density by size classes across all sampled reaches by watershed." width="672" />
 <p class="caption">
 Steelhead density by size classes across all sampled reaches by watershed.
 </p>
@@ -305,7 +305,7 @@ ggplot(toeval) +
   scale_fill_gradient2(&#39;Difference from average,\nby watershed, density&#39;, low = &#39;tomato1&#39;, mid = &quot;white&quot;, high = &#39;lightgreen&#39;, midpoint = 0) +
   guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
   facet_wrap(~ `Size class`, ncol = 1)</code></pre>
-<p><img src="../imgs/unnamed-chunk-3-1.png" width="768" /></p>
+<p><img src="imgs/unnamed-chunk-3-1.png" width="768" /></p>
 </div>
 
 

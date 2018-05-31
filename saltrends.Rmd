@@ -3,7 +3,6 @@ title: ""
 output: 
   html_document:
     code_folding: hide
-self_contained: yes
 ---
 <br>
 
@@ -12,7 +11,7 @@ self_contained: yes
 ```{r, message = F, warning = F, results = 'hide', echo = T}
 # globals
 library(knitr)
-opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = 'transparent'), eval = T, echo = T, fig.path = '../imgs/')
+opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = 'transparent'), eval = T, echo = T, fig.path = 'imgs/')
 
 library(tidyverse)
 library(shiny)
