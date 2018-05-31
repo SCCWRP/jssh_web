@@ -30,7 +30,10 @@ mapview(stream, label = stream$STREAM_NM) +
   mapview(fishdat, zcol = 'Watershed', legend = T)
 ```
 
-```{r, fig.cap = 'Steelhead density by size classes across all sampled reaches by watershed.', fig.height = 7}
+<br>
+
+Salmonid density (fish/100ft) at each site is measured as S1 and S2 for different size classes, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are likely to migrate the following spring. The boxplots show the distribution of the density estimates across all sites for a given year, by watershed. 
+```{r, fig.height = 7}
 toplo <- fishdat
 st_geometry(toplo) <- NULL
 toplo <- toplo%>% 
@@ -53,7 +56,9 @@ p <- ggplot(toplo, aes(x = Year, y = density, fill = `Size class`)) +
 p
 ```
 
-Are densities changing by watershed? This plot shows changes from the long-term average by wateshed and density.  Differences are based on the average across all years in a watershed and density class, log-scale.
+<br>
+
+Are densities changing by watershed? This plot shows changes from the long-term average by watershed and density.  Differences are based on the average across all years in a watershed and density class, log-scale.
 
 ```{r, fig.height = 5, fig.width = 8}
 # remove 1981 all watersheds
