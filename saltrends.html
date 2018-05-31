@@ -187,7 +187,7 @@ $(document).ready(function () {
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
         <li>
-  <a href="index.html">home</a>
+  <a href="index.html">Home</a>
 </li>
 <li>
   <a href="saltrends.html">Salmonid status and trends</a>
@@ -216,6 +216,9 @@ $(document).ready(function () {
 </div>
 
 
+<p><br></p>
+<div id="salmonid-status-and-trends" class="section level2">
+<h2>Salmonid status and trends</h2>
 <pre class="r"><code># globals
 library(knitr)
 opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = &#39;transparent&#39;), eval = T, echo = T, fig.path = &#39;../imgs/&#39;)
@@ -231,23 +234,8 @@ library(plotly)
 prj_geo &lt;- geo_wgs84
 prj_pro &lt;- utm_wgs84(&#39;11s&#39;)
 
-data(habidat)
+data(habitat)
 data(fishdat)</code></pre>
-<p>Each fall, the Juvenile Steelhead &amp; Stream Habitat (JSSH) monitoring program measures population density and assesses habitat quality for steelhead across four watersheds in Santa Cruz county. Data have been collected annually in the from 1994 to present, with one survey available in 1981. The exploratory analysis of the JSSH Database (see <a href="https://www.arcgis.com/home/item.html?id=6d9b81bf5b2b4b309f5ff097e0edcfaa#overview">here</a>) is driven by the following questions:</p>
-<ul>
-<li><p>What is the status of the steelhead population in these four watersheds?</p></li>
-<li><p>What is the status of the coho salmon population in these four watersheds?</p></li>
-<li><p>Where do fish and wildlife species occur in these four watersheds?</p></li>
-<li><p>What are stream habitat conditions in these four watersheds?</p></li>
-<li><p>How can information about the steelhead and coho salmon populations and stream habitat conditions inform conservation and restoration efforts?</p></li>
-</ul>
-<p>Data from the compiled geodatabase were extracted for exploratory analysis:</p>
-<ul>
-<li><p><code>fishdat</code> spatial data of steelhead and coho salmon surveys, steelhead density is recorded for two size classes (shorter than 75mm, 75mm or longer)</p></li>
-<li><p><code>habitat</code> data frame of habitat survey data</p></li>
-<li><p><code>segment</code> spatial data for stream segments with fish data</p></li>
-<li><p><code>stream</code> spatial data for complete hydrography for the four watersheds with fish and habitat data</p></li>
-</ul>
 <pre class="r"><code>toplo &lt;- fishdat
 st_geometry(toplo) &lt;- NULL
 toplo &lt;- toplo%&gt;% 
@@ -318,6 +306,7 @@ ggplot(toeval) +
   guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
   facet_wrap(~ `Size class`, ncol = 1)</code></pre>
 <p><img src="../imgs/unnamed-chunk-3-1.png" width="768" /></p>
+</div>
 
 
 

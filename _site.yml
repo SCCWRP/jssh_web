@@ -2,7 +2,7 @@ name: "JSSH web"
 navbar:
   title: "JSSH web"
   left:
-    - text: "home"
+    - text: "Home"
       href: index.html
     - text: "Salmonid status and trends"
       href: saltrends.html

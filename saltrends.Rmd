@@ -3,7 +3,11 @@ title: ""
 output: 
   html_document:
     code_folding: hide
+self_contained: yes
 ---
+<br>
+
+## Salmonid status and trends
 
 ```{r, message = F, warning = F, results = 'hide', echo = T}
 # globals
@@ -21,31 +25,9 @@ library(plotly)
 prj_geo <- geo_wgs84
 prj_pro <- utm_wgs84('11s')
 
-data(habidat)
+data(habitat)
 data(fishdat)
 ```
-
-Each fall, the Juvenile Steelhead & Stream Habitat (JSSH) monitoring program measures population density and assesses habitat quality for steelhead across four watersheds in Santa Cruz county. Data have been collected annually in the from 1994 to present, with one survey available in 1981. The exploratory analysis of the JSSH Database (see [here](https://www.arcgis.com/home/item.html?id=6d9b81bf5b2b4b309f5ff097e0edcfaa#overview)) is driven by the following questions:
-
-* What is the status of the steelhead population in these four watersheds?
-
-* What is the status of the coho salmon population in these four watersheds? 
-
-* Where do fish and wildlife species occur in these four watersheds? 
-
-* What are stream habitat conditions in these four watersheds?
-
-* How can information about the steelhead and coho salmon populations and stream habitat conditions inform conservation and restoration efforts?  
-
-Data from the compiled geodatabase were extracted for exploratory analysis:
-
-* `fishdat` spatial data of steelhead and coho salmon surveys, steelhead density is recorded for two size classes (shorter than 75mm, 75mm or longer)
-
-* `habitat` data frame of habitat survey data
-
-* `segment` spatial data for stream segments with fish data
-
-* `stream` spatial data for complete hydrography for the four watersheds with fish and habitat data
 
 ```{r, fig.cap = 'Steelhead density by size classes across all sampled reaches by watershed.', fig.height = 7}
 toplo <- fishdat
