@@ -8,6 +8,12 @@ navbar:
       href: saltrends.html
     - text: "Community analysis"
       href: comman.html
+    - text: "Habitat analysis"
+      href: haban.html
+    - text: "Community and habitat analysis"
+      href: commhaban.html
+    - text: "Variable importance"
+      href: varimp.html
 output_dir: "."
 output:
   html_document:

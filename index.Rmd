@@ -33,6 +33,10 @@ The analysis will be exploratory to address the general questions and to provide
 
 1) __Habitat analysis__: Analysis of habitat differences between riffle, runs, and pools, changes over time
 
-1) __Habitat and community analysis__: Multivariate analysis of association between habitat measurements and community composition early and later in the time series
+1) __Community and habitat analysis__: Multivariate analysis of association between habitat measurements and community composition early and later in the time series
 
 1) __Variable importance__: Linear or additive modelling of salmonid density to identify important habitat variables
+
+### Attribution
+
+All site content and analyses by [Marcus Beck](mailto:marcusb@sccwrp.org). Raw data collected and graciously provided by the [JSSH monitoring program](http://scceh.com/steelhead.aspx) in Santa Cruz County, California.
