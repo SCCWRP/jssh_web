@@ -15,18 +15,17 @@ library(knitr)
 opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = 'transparent'), eval = T, echo = T, fig.path = 'imgs/')
 
 library(tidyverse)
-library(shiny)
 library(sf)
-library(raster)
 library(mapview)
-library(proj4shortcut)
 library(plotly)
-
-prj_geo <- geo_wgs84
-prj_pro <- utm_wgs84('11s')
 
 data(habitat)
 data(fishdat)
+data(stream)
+```
+
+```{r}
+mapview(stream)
 ```
 
 ```{r, fig.cap = 'Steelhead density by size classes across all sampled reaches by watershed.', fig.height = 7}
