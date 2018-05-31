@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>saltrends.utf8</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 45px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+
+.section h2 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h3 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h4 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h5 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h6 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
+
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">JSSH web</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">home</a>
+</li>
+<li>
+  <a href="saltrends.html">Salmonid status and trends</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
+</ul>
+</div>
+
+
+
+
+</div>
+
+
+<pre class="r"><code># globals
+library(knitr)
+opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = &#39;transparent&#39;), eval = T, echo = T, fig.path = &#39;../imgs/&#39;)
+
+library(tidyverse)
+library(shiny)
+library(sf)
+library(raster)
+library(mapview)
+library(proj4shortcut)
+library(plotly)
+
+prj_geo &lt;- geo_wgs84
+prj_pro &lt;- utm_wgs84(&#39;11s&#39;)
+
+data(habidat)
+data(fishdat)</code></pre>
+<p>Each fall, the Juvenile Steelhead &amp; Stream Habitat (JSSH) monitoring program measures population density and assesses habitat quality for steelhead across four watersheds in Santa Cruz county. Data have been collected annually in the from 1994 to present, with one survey available in 1981. The exploratory analysis of the JSSH Database (see <a href="https://www.arcgis.com/home/item.html?id=6d9b81bf5b2b4b309f5ff097e0edcfaa#overview">here</a>) is driven by the following questions:</p>
+<ul>
+<li><p>What is the status of the steelhead population in these four watersheds?</p></li>
+<li><p>What is the status of the coho salmon population in these four watersheds?</p></li>
+<li><p>Where do fish and wildlife species occur in these four watersheds?</p></li>
+<li><p>What are stream habitat conditions in these four watersheds?</p></li>
+<li><p>How can information about the steelhead and coho salmon populations and stream habitat conditions inform conservation and restoration efforts?</p></li>
+</ul>
+<p>Data from the compiled geodatabase were extracted for exploratory analysis:</p>
+<ul>
+<li><p><code>fishdat</code> spatial data of steelhead and coho salmon surveys, steelhead density is recorded for two size classes (shorter than 75mm, 75mm or longer)</p></li>
+<li><p><code>habitat</code> data frame of habitat survey data</p></li>
+<li><p><code>segment</code> spatial data for stream segments with fish data</p></li>
+<li><p><code>stream</code> spatial data for complete hydrography for the four watersheds with fish and habitat data</p></li>
+</ul>
+<pre class="r"><code>toplo &lt;- fishdat
+st_geometry(toplo) &lt;- NULL
+toplo &lt;- toplo%&gt;% 
+  dplyr::select(Year, SiteID, Watershed, Dens_S1, Dens_S2) %&gt;% 
+  gather(&#39;Size class&#39;, &#39;density&#39;, Dens_S1, Dens_S2) %&gt;% 
+  mutate(Year = factor(Year)) %&gt;% 
+  filter(!is.na(Year))
+
+p &lt;- ggplot(toplo, aes(x = Year, y = density, fill = `Size class`)) + 
+  geom_boxplot() + 
+  facet_wrap(~Watershed, ncol = 1) + 
+  scale_y_continuous(&#39;Density (fish/100ft)&#39;, trans = &#39;log10&#39;) + 
+  theme_bw() + 
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1), 
+    strip.background = element_blank(), 
+    axis.title.x = element_blank(), 
+    legend.position = &#39;top&#39;
+  )
+p</code></pre>
+<div class="figure">
+<img src="../imgs/unnamed-chunk-2-1.png" alt="Steelhead density by size classes across all sampled reaches by watershed." width="672" />
+<p class="caption">
+Steelhead density by size classes across all sampled reaches by watershed.
+</p>
+</div>
+<p>Are densities changing by watershed? This plot shows changes from the long-term average by wateshed and density. Differences are based on the average across all years in a watershed and density class, log-scale.</p>
+<pre class="r"><code># remove 1981 all watersheds
+# remove 1994 from PAJ and SAQ
+toeval &lt;- fishdat %&gt;% 
+  filter(Year &gt; 1981) %&gt;% 
+  filter(!(Year == 1994 &amp; Watershed %in% c(&#39;PAJ&#39;, &#39;SOQ&#39;)))
+
+# get averages across stations
+st_geometry(toeval) &lt;- NULL
+toeval &lt;- toeval %&gt;% 
+  gather(&#39;Size class&#39;, &#39;density&#39;, Dens_S1, Dens_S2) %&gt;% 
+  mutate(density = log10(1 + density)) %&gt;% 
+  group_by(Watershed, `Size class`, Year) %&gt;% 
+  summarise(
+    density = mean(density, na.rm = T)
+    ) %&gt;% 
+  group_by(Watershed, `Size class`) %&gt;% 
+  mutate(
+    density_df = density - mean(density, na.rm = T)
+  )
+
+pbase &lt;- theme_bw(base_family = &#39;serif&#39;) +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
+    axis.text.y = element_text(size = 8),
+    legend.position = &#39;top&#39;,
+    legend.direction = &#39;horizontal&#39;,
+    # plot.margin = unit(c(4,4,0,0), &quot;lines&quot;),
+    strip.background = element_blank(), 
+    strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
+    panel.background = element_rect(fill = &#39;black&#39;)
+  ) 
+
+ggplot(toeval) + 
+  geom_tile(aes(x = Year, y = Watershed, fill = density_df), colour = &#39;black&#39;) + 
+  pbase +
+  scale_x_continuous(&#39;&#39;, expand = c(0, 0)) + 
+  scale_y_discrete(&#39;&#39;, expand = c(0, 0)) +
+  scale_fill_gradient2(&#39;Difference from average,\nby watershed, density&#39;, low = &#39;tomato1&#39;, mid = &quot;white&quot;, high = &#39;lightgreen&#39;, midpoint = 0) +
+  guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
+  facet_wrap(~ `Size class`, ncol = 1)</code></pre>
+<p><img src="../imgs/unnamed-chunk-3-1.png" width="768" /></p>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+name: "JSSH web"
+navbar:
+  title: "JSSH web"
+  left:
+    - text: "home"
+      href: index.html
+    - text: "Salmonid status and trends"
+      href: saltrends.html
+output_dir: "."
+output:
+  html_document:
+    theme: yeti

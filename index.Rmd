@@ -1,37 +1,23 @@
 ---
-title: "Exploration of JSSH database"
-output: 
-  html_document:
-    code_folding: hide
-self_contained: yes
-runtime: shiny
+title: ""
+output: html_document
 ---
+<br>
 
-```{r, message = F, warning = F, results = 'hide', echo = T}
-# globals
-library(knitr)
-opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = 'transparent'), eval = T, echo = T)
 
-library(tidyverse)
-library(shiny)
-library(sf)
-library(raster)
-library(mapview)
-library(proj4shortcut)
-library(plotly)
+![](./imgs/sites.jpg)  
 
-prj_geo <- geo_wgs84
-prj_pro <- utm_wgs84('11s')
+<br>
 
-data(habidat)
-data(fishdat)
-```
+### Overview
 
-Each fall, the Juvenile Steelhead & Stream Habitat (JSSH) monitoring program measures population density and assesses habitat quality for steelhead across four watersheds in Santa Cruz county. Data have been collected annually in the from 1994 to present, with one survey available in 1981. The exploratory analysis of the JSSH Database (see [here](https://www.arcgis.com/home/item.html?id=6d9b81bf5b2b4b309f5ff097e0edcfaa#overview)) is driven by the following questions:
+The Juvenile Salmonid and Stream Habitat (JSSH) database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California.  Data have been collected every fall since 1994, with one survey available in 1981.  Salmonid data include steelhead density in two size classes and presence/absence of Coho salmon. Additional presence/absence data are available for select species of fish, amphibians, and reptiles.  Stream morphometry, riparian, and bed characteristics are measured in each reach separately for pools, runs, or riffles.  All data have been combined in a geodatabase with spatially referenced information for each survey.  
 
-* What is the status of the steelhead population in these four watersheds?
+### Objectives and approach 
 
-* What is the status of the coho salmon population in these four watersheds? 
+Analysis of the JSSH Database (see [here](https://www.arcgis.com/home/item.html?id=6d9b81bf5b2b4b309f5ff097e0edcfaa#overview)) is driven by the following questions:
+
+* What is the status and trends of the steelhead and coho populations in these four watersheds?
 
 * Where do fish and wildlife species occur in these four watersheds? 
 
@@ -39,85 +25,14 @@ Each fall, the Juvenile Steelhead & Stream Habitat (JSSH) monitoring program mea
 
 * How can information about the steelhead and coho salmon populations and stream habitat conditions inform conservation and restoration efforts?  
 
-Data from the compiled geodatabase were extracted for exploratory analysis:
+The analysis will be exploratory to address the general questions and to provide information for follow-up analysis. Our approach will begin by addressing each question in sequence as a means to address the final question.  Unless noted otherwise, all analyses will be separate for each watershed. __The tabs on the top link to each step described below.__
 
-* `fishdat` spatial data of steelhead and coho salmon surveys, steelhead density is recorded for two size classes (shorter than 75mm, 75mm or longer)
+1) Comparison of status and annual trends in salmonid density by size class and individual sites
 
-* `habitat` data frame of habitat survey data
+1) Community analysis of each watershed using species presence/absence early and later in the time series
 
-* `segment` spatial data for stream segments with fish data
+1) Analysis of habitat differences between riffle, runs, and pools, changes over time
 
-* `stream` spatial data for complete hydrography for the four watersheds with fish and habitat data
+1) Multivariate analysis of association between habitat measurements and community composition early and later in the time series
 
-```{r, fig.cap = 'Steelhead density by size classes across all sampled reaches by watershed.', fig.height = 7}
-toplo <- fishdat
-st_geometry(toplo) <- NULL
-toplo <- toplo%>% 
-  dplyr::select(Year, SiteID, Watershed, Dens_S1, Dens_S2) %>% 
-  gather('Size class', 'density', Dens_S1, Dens_S2) %>% 
-  mutate(Year = factor(Year)) %>% 
-  filter(!is.na(Year))
-
-p <- ggplot(toplo, aes(x = Year, y = density, fill = `Size class`)) + 
-  geom_boxplot() + 
-  facet_wrap(~Watershed, ncol = 1) + 
-  scale_y_continuous('Density (fish/100ft)', trans = 'log10') + 
-  theme_bw() + 
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1), 
-    strip.background = element_blank(), 
-    axis.title.x = element_blank(), 
-    legend.position = 'top'
-  )
-p
-```
-
-Are densities changing by watershed? This plot shows changes from the long-term average by wateshed and density.  Differences are based on the average across all years in a watershed and density class, log-scale.
-
-```{r, fig.height = 5, fig.width = 8}
-# remove 1981 all watersheds
-# remove 1994 from PAJ and SAQ
-toeval <- fishdat %>% 
-  filter(Year > 1981) %>% 
-  filter(!(Year == 1994 & Watershed %in% c('PAJ', 'SOQ')))
-
-# get averages across stations
-st_geometry(toeval) <- NULL
-toeval <- toeval %>% 
-  gather('Size class', 'density', Dens_S1, Dens_S2) %>% 
-  mutate(density = log10(1 + density)) %>% 
-  group_by(Watershed, `Size class`, Year) %>% 
-  summarise(
-    density = mean(density, na.rm = T)
-    ) %>% 
-  group_by(Watershed, `Size class`) %>% 
-  mutate(
-    density_df = density - mean(density, na.rm = T)
-  )
-
-pbase <- theme_bw(base_family = 'serif') +
-  theme(
-    panel.grid.major = element_blank(), 
-    panel.grid.minor = element_blank(), 
-    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
-    axis.text.y = element_text(size = 8),
-    legend.position = 'top',
-    legend.direction = 'horizontal',
-    # plot.margin = unit(c(4,4,0,0), "lines"),
-    strip.background = element_blank(), 
-    strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
-    panel.background = element_rect(fill = 'black')
-  ) 
-
-ggplot(toeval) + 
-  geom_tile(aes(x = Year, y = Watershed, fill = density_df), colour = 'black') + 
-  pbase +
-  scale_x_continuous('', expand = c(0, 0)) + 
-  scale_y_discrete('', expand = c(0, 0)) +
-  scale_fill_gradient2('Difference from average,\nby watershed, density', low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0) +
-  guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
-  facet_wrap(~ `Size class`, ncol = 1)
-```
-
-
-
+1) Linear or additive modelling of salmonid density to identify important habitat variables

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>lessons.utf8</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 45px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+
+.section h2 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h3 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h4 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h5 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+.section h6 {
+  padding-top: 50px;
+  margin-top: -50px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">JSSH web</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">home</a>
+</li>
+<li>
+  <a href="analyses/lessons.html">lessons</a>
+</li>
+<li>
+  <a href="analyses/before.html">logistics</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+
+</div>
+
+
+<p><br></p>
+<div id="lessons" class="section level2">
+<h2><strong>Lessons</strong></h2>
+<p><a href="https://github.com/NCEAS/oss-lessons">All lessons provided by NCEAS and collaborators here on GitHub.</a></p>
+<p><br></p>
+</div>
+<div id="lessons-by-day" class="section level2">
+<h2><strong>Lessons by Day</strong></h2>
+<p><br></p>
+<div id="day-1-mon-jul-10" class="section level3">
+<h3>Day 1: Mon Jul 10</h3>
+<ul>
+<li><a href="https://nceas.github.io/oss-lessons/course-overview/course-overview.html#/">Course Overview</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/servers-networks-command-line/1-servers-net.html">Networks and Servers</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/servers-networks-command-line/2-commandline-intro.html">Unix Command Line</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/thinking-preferences/thinking-preferences.html#/">Thinking Preferences</a></li>
+<li><a href="https://github.com/NCEAS/oss-lessons/blob/gh-pages/rmarkdown-rstudio/rmarkdown-rstudio.Rmd">R Markdown and R studio</a></li>
+</ul>
+</div>
+<div id="day-2-tue-jul-11" class="section level3">
+<h3>Day 2: Tue Jul 11</h3>
+<ul>
+<li><a href="https://nceas.github.io/oss-lessons/version-control/1-git-basics.html">Version control: git basics</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/version-control/2-git-remote-collaboration.html">Version control: remote collaboration with git and GitHub</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/version-control/3-git-advanced.html">Version control: branches and merge conflicts</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/version-control/4-getting-started-with-git-in-RStudio.html">Version control: Rstudio and git</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/message-box/message-box.html#/">The message box</a></li>
+</ul>
+</div>
+<div id="day-3-wed-jul-12" class="section level3">
+<h3>Day 3: Wed Jul 12</h3>
+<ul>
+<li><a href="https://nceas.github.io/oss-lessons/servers-networks-command-line/2-commandline-intro.html">Unix tools</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/servers-networks-command-line/3-bash-loops.html">Bash shell scripts</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/r-review-and-assessment/r-review-and-assessment.html">R Review &amp; Assessment</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/data-repositories/data-repositories.html">Data management and repositories</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/publishing-data/upload-data.html">Data publishing</a></li>
+</ul>
+</div>
+<div id="day-4-thu-jul-13" class="section level3">
+<h3>Day 4: Thu Jul 13</h3>
+<ul>
+<li><a href="https://nceas.github.io/oss-lessons/ecological-metadata/ecological-metadata.html">Ecological metadata</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/open-data-in-r/open-data-in-R.html">Open data</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/data-liberation/intro-webscraping.html">Data liberation - Web scraping</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/data-liberation/intro-text-mining.html">Data liberation - Text mining</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/regular-expressions/regular-expressions.html">Regular expressions</a></li>
+</ul>
+</div>
+<div id="day-5-fri-jul-14" class="section level3">
+<h3>Day 5: Fri Jul 14</h3>
+<ul>
+<li>Collaboration</li>
+<li><a href="https://nceas.github.io/oss-lessons/meeting-facilitation/meeting-facilitation.html#/">Facilitation techniques</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/data-wrangling/tidyverse.html">Data wrangling: Tidyverse</a></li>
+<li>Data Munging</li>
+</ul>
+</div>
+<div id="day-6-mon-jul-17" class="section level3">
+<h3>Day 6: Mon Jul 17</h3>
+<ul>
+<li><a href="https://nceas.github.io/oss-lessons/meta-analysis/index.html">Meta analysis intro</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/meta-analysis/step1.html">Meta analysis I</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/meta-analysis/step2.html">Meta analysis II</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/meta-analysis/step3.html">Meta analysis III</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/meta-analysis/step4.html">Meta analysis IV</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/meta-analysis/step5.html">Meta analysis V</a></li>
+</ul>
+</div>
+<div id="day-7-tue-jul-18" class="section level3">
+<h3>Day 7: Tue Jul 18</h3>
+<ul>
+<li><a href="https://nceas.github.io/oss-lessons/sql-database/01-sql-database-intro.html">Good enough data modeling</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/sql-database/02-sql-start.html">Start SQL with PostgresQL</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/sql-database-access-in-r/sql-database-access-in-r.html">SQL and database access in R</a></li>
+</ul>
+</div>
+<div id="day-8-wed-jul-19" class="section level3">
+<h3>Day 8: Wed Jul 19</h3>
+<ul>
+<li><a href="https://nceas.github.io/oss-lessons/data-munging-qa-qc-cleaning/data-munging-qa-qc-cleaning.html">Data wrangling</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/creating-r-functions/creating-r-functions.html">Creating R Functions</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/creating-r-packages/creating-r-packages.html">Creating R packages</a></li>
+<li>Testing R code</li>
+</ul>
+</div>
+<div id="day-9-thu-jul-20" class="section level3">
+<h3>Day 9: Thu Jul 20</h3>
+<ul>
+<li><a href="https://github.com/NCEAS/oss-lessons/tree/gh-pages/publishing-data">Publishing Data</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/reproducible-papers-with-rmd/reproducible-papers-with-rmd.html">Reproducible Papers with RMarkdown</a></li>
+</ul>
+</div>
+<div id="day-10-fri-jul-21" class="section level3">
+<h3>Day 10: Fri Jul 21</h3>
+<ul>
+<li><a href="https://nceas.github.io/oss-lessons/metagenomics/">Metagenomics</a></li>
+</ul>
+</div>
+<div id="day-11-mon-jul-24" class="section level3">
+<h3>Day 11: Mon Jul 24</h3>
+<ul>
+<li>GIS and geopspatial concepts
+<ul>
+<li><a href="https://nceas.github.io/oss-lessons/spatial-data-gis-law/1-mon-spatial-data-intro.html">Intro to spatial data concepts</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/spatial-data-gis-law/2-mon-intro-to-open-gis-qgis.html">QGIS - an open alternative to ArcGIS</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/spatial-data-gis-law/3-mon-intro-gis-in-r.html">Plot &amp; manage raster and vector data in R</a></li>
+</ul></li>
+<li><a href="https://nceas.github.io/oss-lessons/publishing-maps-to-the-web-in-r/publishing-maps-to-the-web-in-r.html">Publishing maps to the web in R</a></li>
+<li><a href="https://github.com/NCEAS/oss-lessons/tree/gh-pages/publication-ready-maps-in-r">Publication ready maps in R</a> (R scripts examples)</li>
+</ul>
+</div>
+<div id="day-12-tue-jul-25" class="section level3">
+<h3>Day 12: Tue Jul 25</h3>
+<ul>
+<li><a href="https://nceas.github.io/oss-lessons/spatial-data-gis-law/4-tues-spatial-analysis-in-r.html">Getting started with spatial analysis in R</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/spatial-data-gis-law/5-tues-intro-hierarchical-formats.html">NetCDF and HDF5</a></li>
+</ul>
+</div>
+<div id="day-13-wed-jul-26" class="section level3">
+<h3>Day 13: Wed Jul 26</h3>
+<ul>
+<li><a href="https://nceas.github.io/oss-lessons/dataviz-and-interactive-tools/dataviz-and-interactive-tools.html">Dataviz and Interactive Tools</a>
+<ul>
+<li><a href="https://nceas.github.io/oss-lessons/dataviz-and-interactive-tools/module-1-ggplot2.html">Submodule: ggplot2</a></li>
+<li><a href="https://nceas.github.io/oss-lessons/dataviz-and-interactive-tools/module-2-shiny.html">Submodule: Shiny</a></li>
+</ul></li>
+<li><a href="https://nceas.github.io/oss-lessons/why-python/python-the-why.html">Perfunctory Python</a></li>
+</ul>
+</div>
+<div id="day-14-thu-jul-27" class="section level3">
+<h3>Day 14: Thu Jul 27</h3>
+<ul>
+<li><a href="https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html">Parallel Computing in R</a></li>
+<li><a href="https://speakerdeck.com/cjlortie/open-science-and-the-spells-that-you-ought-to-know">Open Science</a></li>
+</ul>
+</div>
+<div id="day-15-fri-jul-28" class="section level3">
+<h3>Day 15: Fri Jul 28</h3>
+<ul>
+<li>Group Presentations</li>
+</ul>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
