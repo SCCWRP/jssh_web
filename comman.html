@@ -11,7 +11,7 @@
 
 
 
-<title>saltrends.utf8</title>
+<title>comman.utf8</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,7 +20,6 @@
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
-<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
@@ -160,14 +159,6 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
-<style type="text/css">
-.code-folding-btn { margin-bottom: 4px; }
-</style>
-<script>
-$(document).ready(function () {
-  window.initializeCodeFolding("hide" === "show");
-});
-</script>
 
 
 
@@ -205,14 +196,6 @@ $(document).ready(function () {
 
 <div class="fluid-row" id="header">
 
-<div class="btn-group pull-right">
-<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
-<ul class="dropdown-menu" style="min-width: 50px;">
-<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
-<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
-</ul>
-</div>
-
 
 
 
@@ -220,95 +203,9 @@ $(document).ready(function () {
 
 
 <p><br></p>
-<div id="salmonid-status-and-trends" class="section level2">
-<h2>Salmonid status and trends</h2>
-<pre class="r"><code># globals
-library(knitr)
-opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = &#39;transparent&#39;), eval = T, echo = T, fig.path = &#39;imgs/&#39;)
-
-library(tidyverse)
-library(shiny)
-library(sf)
-library(raster)
-library(mapview)
-library(proj4shortcut)
-library(plotly)
-
-prj_geo &lt;- geo_wgs84
-prj_pro &lt;- utm_wgs84(&#39;11s&#39;)
-
-data(habitat)
-data(fishdat)</code></pre>
-<pre class="r"><code>toplo &lt;- fishdat
-st_geometry(toplo) &lt;- NULL
-toplo &lt;- toplo%&gt;% 
-  dplyr::select(Year, SiteID, Watershed, Dens_S1, Dens_S2) %&gt;% 
-  gather(&#39;Size class&#39;, &#39;density&#39;, Dens_S1, Dens_S2) %&gt;% 
-  mutate(Year = factor(Year)) %&gt;% 
-  filter(!is.na(Year))
-
-p &lt;- ggplot(toplo, aes(x = Year, y = density, fill = `Size class`)) + 
-  geom_boxplot() + 
-  facet_wrap(~Watershed, ncol = 1) + 
-  scale_y_continuous(&#39;Density (fish/100ft)&#39;, trans = &#39;log10&#39;) + 
-  theme_bw() + 
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1), 
-    strip.background = element_blank(), 
-    axis.title.x = element_blank(), 
-    legend.position = &#39;top&#39;
-  )
-p</code></pre>
-<div class="figure">
-<img src="imgs/unnamed-chunk-2-1.png" alt="Steelhead density by size classes across all sampled reaches by watershed." width="672" />
-<p class="caption">
-Steelhead density by size classes across all sampled reaches by watershed.
-</p>
-</div>
-<p>Are densities changing by watershed? This plot shows changes from the long-term average by wateshed and density. Differences are based on the average across all years in a watershed and density class, log-scale.</p>
-<pre class="r"><code># remove 1981 all watersheds
-# remove 1994 from PAJ and SAQ
-toeval &lt;- fishdat %&gt;% 
-  filter(Year &gt; 1981) %&gt;% 
-  filter(!(Year == 1994 &amp; Watershed %in% c(&#39;PAJ&#39;, &#39;SOQ&#39;)))
-
-# get averages across stations
-st_geometry(toeval) &lt;- NULL
-toeval &lt;- toeval %&gt;% 
-  gather(&#39;Size class&#39;, &#39;density&#39;, Dens_S1, Dens_S2) %&gt;% 
-  mutate(density = log10(1 + density)) %&gt;% 
-  group_by(Watershed, `Size class`, Year) %&gt;% 
-  summarise(
-    density = mean(density, na.rm = T)
-    ) %&gt;% 
-  group_by(Watershed, `Size class`) %&gt;% 
-  mutate(
-    density_df = density - mean(density, na.rm = T)
-  )
-
-pbase &lt;- theme_bw(base_family = &#39;serif&#39;) +
-  theme(
-    panel.grid.major = element_blank(), 
-    panel.grid.minor = element_blank(), 
-    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
-    axis.text.y = element_text(size = 8),
-    legend.position = &#39;top&#39;,
-    legend.direction = &#39;horizontal&#39;,
-    # plot.margin = unit(c(4,4,0,0), &quot;lines&quot;),
-    strip.background = element_blank(), 
-    strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
-    panel.background = element_rect(fill = &#39;black&#39;)
-  ) 
-
-ggplot(toeval) + 
-  geom_tile(aes(x = Year, y = Watershed, fill = density_df), colour = &#39;black&#39;) + 
-  pbase +
-  scale_x_continuous(&#39;&#39;, expand = c(0, 0)) + 
-  scale_y_discrete(&#39;&#39;, expand = c(0, 0)) +
-  scale_fill_gradient2(&#39;Difference from average,\nby watershed, density&#39;, low = &#39;tomato1&#39;, mid = &quot;white&quot;, high = &#39;lightgreen&#39;, midpoint = 0) +
-  guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
-  facet_wrap(~ `Size class`, ncol = 1)</code></pre>
-<p><img src="imgs/unnamed-chunk-3-1.png" width="768" /></p>
+<div id="community-analysis" class="section level2">
+<h2>Community analysis</h2>
+<p>Informative text</p>
 </div>
 
 

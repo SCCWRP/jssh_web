@@ -6,6 +6,8 @@ navbar:
       href: index.html
     - text: "Salmonid status and trends"
       href: saltrends.html
+    - text: "Community analysis"
+      href: comman.html
 output_dir: "."
 output:
   html_document:
