@@ -11,7 +11,7 @@ runtime: shiny_prerendered
 ```{r setup, context = "setup", include = FALSE}
 # globals
 library(knitr)
-opts_chunk$set(echo = F, message = F, warning = F)
+opts_chunk$set(echo = F, message = F, warning = F, fig.path = './images/')
 
 library(tidyverse)
 library(sf)
