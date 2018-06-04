@@ -1,14 +1,14 @@
 ---
 title: ""
 self_contained: yes
-runtime: shiny_prerendered
+runtime: shiny
 ---
 
 <br></br>
 
 ## Salmonid status and trends
 
-```{r setup, context = "setup", include = FALSE}
+```{r setup, include = FALSE}
 # globals
 library(knitr)
 opts_chunk$set(echo = F, message = F, warning = F, fig.path = './images/')
@@ -26,7 +26,7 @@ data(stream)
 ```
 
 This map shows the stream network and sample sites by watershed.  Click on a stream reach or sample site for additional information.
-```{r mapviewshed, out.width="100%", context = "setup"}
+```{r mapviewshed, out.width="100%"}
 mapview(stream, label = stream$STREAM_NM) +
   mapview(fishdat, zcol = 'Watershed', legend = T)
 ```
@@ -35,13 +35,13 @@ mapview(stream, label = stream$STREAM_NM) +
 
 Select a year and size class to view on the map:
 
-```{r mapviewsel, context = "render"}
+```{r mapviewsel}
 
 selectInput("cls", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2'))
 
 selectInput("yr", "Choose a year to plot:", fishdat$Year %>% unique %>% na.omit)
 ```
-```{r, context = "server"}
+```{r}
 
 mapout <- reactive({
   
@@ -56,7 +56,7 @@ mapout <- reactive({
 })
 output$mapout <- renderLeaflet({mapout()@map})
 ```
-```{r, context = "render"}
+```{r}
 leafletOutput('mapout')
 ```
 
@@ -64,7 +64,7 @@ leafletOutput('mapout')
 
 Salmonid density (fish/100ft) at each site is measured as S1 and S2 for different size classes, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are likely to migrate the following spring. The boxplots show the distribution of the density estimates across all sites for a given year, by watershed. 
 
-```{r densbox, fig.height = 7, fig.width = 6, context = "setup"}
+```{r densbox, fig.height = 7, fig.width = 6, fig.show = 'hide'}
 toplo <- fishdat
 st_geometry(toplo) <- NULL
 toplo <- toplo%>% 
@@ -87,12 +87,15 @@ p <- ggplot(toplo, aes(x = Year, y = density, fill = `Size class`)) +
 
 p
 ```
+```{r}
+knitr::include_graphics('./images/densbox-1.png')
+```
 
 <br></br>
 
 Are densities changing by watershed? This plot shows changes from the long-term average by watershed and density.  Differences are based on the average across all years in a watershed and density class, log-scale.
 
-```{r denstile, fig.height = 4, fig.width = 7, context = "setup"}
+```{r denstile, fig.height = 4, fig.width = 7, fig.show = 'hide'}
 # remove 1981 all watersheds
 # remove 1994 from PAJ and SAQ
 toeval <- fishdat %>% 
@@ -136,5 +139,9 @@ p <- ggplot(toeval) +
   guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
   facet_wrap(~ `Size class`, ncol = 1)
 
-print(p)
+p
 ```
+```{r}
+knitr::include_graphics('./images/denstile-1.png')
+```
+
