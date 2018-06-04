@@ -1,23 +1,25 @@
 ---
 title: ""
 output: 
-  html_document:
-    code_folding: hide
+  html_document
 self_contained: true
+runtime: shiny
 ---
 <br>
 
 ## Salmonid status and trends
 
-```{r, message = F, warning = F, results = 'hide', echo = T}
+```{r, message = F, warning = F, results = 'hide', echo = F}
 # globals
 library(knitr)
-opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = 'transparent'), eval = T, echo = T, fig.path = 'imgs/')
+opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = 'transparent'), eval = T, echo = F, fig.path = 'imgs/')
 
 library(tidyverse)
 library(sf)
 library(mapview)
 library(plotly)
+library(shiny)
+library(leaflet)
 
 data(habitat)
 data(fishdat)
@@ -25,9 +27,35 @@ data(stream)
 ```
 
 This map shows the stream network and sample sites by watershed.  Click on a stream reach or sample site for additional information.
-```{r, width = 9}
+```{r, out.width="100%"}
 mapview(stream, label = stream$STREAM_NM) +
   mapview(fishdat, zcol = 'Watershed', legend = T)
+```
+
+<br>
+
+Select a year and size class to view on the map:
+
+```{r}
+
+selectInput("cls", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2'))
+
+selectInput("yr", "Choose a year to plot:", fishdat$Year %>% unique %>% na.omit)
+
+mapout <- reactive({
+  
+  toplo <- fishdat %>% 
+    filter(Year %in% input$yr)
+  
+  out <- mapview(stream, label = stream$STREAM_NM) +
+    mapview(toplo, zcol = 'Watershed', cex = input$cls, legend = T)
+   
+  return(out)
+  
+})
+
+renderLeaflet({mapout()@map})
+
 ```
 
 <br>
