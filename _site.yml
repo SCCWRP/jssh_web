@@ -14,7 +14,7 @@ navbar:
       href: commhaban.Rmd
     - text: "Variable importance"
       href: varimp.Rmd
-output_dir: "."
+output_dir: "./www/"
 output:
   html_document:
     theme: yeti
