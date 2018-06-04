@@ -11,7 +11,7 @@
 
 
 
-<title>README.utf8</title>
+<title>haban.utf8</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -20,6 +20,7 @@
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script src="site_libs/navigation-1.1/codefolding.js"></script>
 <link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
@@ -159,6 +160,14 @@ $(document).ready(function () {
 </script>
 
 <!-- code folding -->
+<style type="text/css">
+.code-folding-btn { margin-bottom: 4px; }
+</style>
+<script>
+$(document).ready(function () {
+  window.initializeCodeFolding("hide" === "show");
+});
+</script>
 
 
 
@@ -205,25 +214,24 @@ $(document).ready(function () {
 
 <div class="fluid-row" id="header">
 
-
-
-
-</div>
-
-
-<div id="readme" class="section level1">
-<h1>README</h1>
-<p>Materials for JSSH analysis website <a href="https://fawda123.github.io/jssh_web/index" class="uri">https://fawda123.github.io/jssh_web/index</a></p>
-<div id="data" class="section level2">
-<h2>Data</h2>
-<p>Data from the compiled geodatabase were extracted for exploratory analysis:</p>
-<ul>
-<li><p><code>fishdat</code> spatial data of steelhead and coho salmon surveys, steelhead density is recorded for two size classes (shorter than 75mm, 75mm or longer)</p></li>
-<li><p><code>habitat</code> data frame of habitat survey data</p></li>
-<li><p><code>segment</code> spatial data for stream segments with fish data</p></li>
-<li><p><code>stream</code> spatial data for complete hydrography for the four watersheds with fish and habitat data</p></li>
+<div class="btn-group pull-right">
+<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu" style="min-width: 50px;">
+<li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
+<li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
 </ul>
 </div>
+
+
+
+
+</div>
+
+
+<p><br></p>
+<div id="habitat-analysis" class="section level2">
+<h2>Habitat analysis</h2>
+<p>Informative text</p>
 </div>
 
 
