@@ -1,6 +1,6 @@
 ---
 title: ""
-runtime: shiny_prerendered
+output: html_document
 self_contained: yes
 ---
 
