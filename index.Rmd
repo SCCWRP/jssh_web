@@ -9,7 +9,7 @@ self_contained: yes
 <br>
 
 
-![](./imgs/sites.jpg)  
+![](./sites.jpg)  
 
 <br>
 

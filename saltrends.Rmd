@@ -11,7 +11,7 @@ runtime: shiny
 ```{r, message = F, warning = F, results = 'hide', echo = F}
 # globals
 library(knitr)
-opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = 'transparent'), eval = T, echo = F, fig.path = './imgs/')
+opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = 'transparent'), eval = T, echo = F, fig.path = './www/')
 
 library(tidyverse)
 library(sf)
