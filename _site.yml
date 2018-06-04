@@ -3,7 +3,7 @@ navbar:
   title: "JSSH web"
   left:
     - text: "Home"
-      href: index.Rmd
+      href: index.html
     - text: "Salmonid status and trends"
       href: saltrends.Rmd
     - text: "Community analysis"
