@@ -3,7 +3,7 @@ title: ""
 output: 
   html_document:
     code_folding: hide
-self_contained: true
+self_contained: yes
 runtime: shiny
 ---
 
