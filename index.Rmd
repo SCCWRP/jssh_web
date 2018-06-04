@@ -9,7 +9,7 @@ runtime: shiny
 <br>
 
 
-![](./images/sites.JPG)  
+![](./sites.JPG)  
 
 <br>
 
