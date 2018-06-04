@@ -1,5 +1,9 @@
 ---
 title: ""
+author: ""
+output: 
+  html_document:
+    code_folding: hide
 self_contained: yes
 runtime: shiny
 ---
@@ -10,7 +14,7 @@ runtime: shiny
 ```{r, message = F, warning = F, results = 'hide', echo = F}
 # globals
 library(knitr)
-opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = 'transparent'), eval = T, echo = F, fig.path = './www/')
+opts_chunk$set(warning = FALSE, message = FALSE, dev.args = list(bg = 'transparent'), eval = T, echo = F)
 
 library(tidyverse)
 library(sf)
@@ -25,7 +29,7 @@ data(stream)
 ```
 
 This map shows the stream network and sample sites by watershed.  Click on a stream reach or sample site for additional information.
-```{r mapview1, out.width="100%"}
+```{r, out.width="100%"}
 mapview(stream, label = stream$STREAM_NM) +
   mapview(fishdat, zcol = 'Watershed', legend = T)
 ```
@@ -34,7 +38,7 @@ mapview(stream, label = stream$STREAM_NM) +
 
 Select a year and size class to view on the map:
 
-```{r mapview2}
+```{r}
 
 selectInput("cls", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2'))
 
@@ -59,7 +63,7 @@ renderLeaflet({mapout()@map})
 <br>
 
 Salmonid density (fish/100ft) at each site is measured as S1 and S2 for different size classes, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are likely to migrate the following spring. The boxplots show the distribution of the density estimates across all sites for a given year, by watershed. 
-```{r boxdens, fig.height = 7}
+```{r, fig.height = 7}
 toplo <- fishdat
 st_geometry(toplo) <- NULL
 toplo <- toplo%>% 
@@ -86,7 +90,7 @@ p
 
 Are densities changing by watershed? This plot shows changes from the long-term average by watershed and density.  Differences are based on the average across all years in a watershed and density class, log-scale.
 
-```{r tiledens, fig.height = 5, fig.width = 8}
+```{r, fig.height = 5, fig.width = 8}
 # remove 1981 all watersheds
 # remove 1994 from PAJ and SAQ
 toeval <- fishdat %>% 
@@ -121,7 +125,7 @@ pbase <- theme_bw(base_family = 'serif') +
     panel.background = element_rect(fill = 'black')
   ) 
 
-ggplot(toeval) + 
+p <- ggplot(toeval) + 
   geom_tile(aes(x = Year, y = Watershed, fill = density_df), colour = 'black') + 
   pbase +
   scale_x_continuous('', expand = c(0, 0)) + 
@@ -129,6 +133,8 @@ ggplot(toeval) +
   scale_fill_gradient2('Difference from average,\nby watershed, density', low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0) +
   guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
   facet_wrap(~ `Size class`, ncol = 1)
+
+p
 ```
 
 
