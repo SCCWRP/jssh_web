@@ -19,4 +19,5 @@ output:
   html_document:
     theme: yeti
     css: styles.css
+  runtime: shiny
     

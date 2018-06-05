@@ -1,11 +1,9 @@
 ---
-title: ""
+title: "Salmonid status and trends"
 runtime: shiny
 ---
 
 <br></br>
-
-## Salmonid status and trends
 
 ```{r setup, include = FALSE}
 # globals
