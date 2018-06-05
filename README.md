@@ -1,6 +1,6 @@
 # README
 
-Materials for JSSH analysis website https://fawda123.github.io/jssh_web/index
+Materials for JSSH analysis website http://http://162.243.131.102:3838/jssh_web/index.Rmd
 
 ## Data
 
