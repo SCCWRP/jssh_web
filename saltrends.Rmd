@@ -59,10 +59,9 @@ mapout <- reactive({
   return(out)
   
 })
-output$mapout <- renderLeaflet({mapout()@map})
 ```
 ```{r}
-leafletOutput('mapout')
+renderLeaflet({mapout()@map})
 ```
 
 <br></br>
@@ -202,10 +201,6 @@ totabs1 <- reactive({
   return(totabs1)
   
 })
-output$totabs1 <- renderText({
-  stargazer(totabs1()$res, type = 'html', column.labels = as.character(totabs1()$Watershed),
-            dep.var.labels = 'Density (fish/100ft)')
-  })
 
 # table data kendall test from plot 1, s1
 totabs1kn <- reactive({
@@ -235,10 +230,6 @@ totabs1kn <- reactive({
   return(totabs1kn)
   
 })
-output$totabs1kn <- renderText({
-  knitr::kable(totabs1kn(), format = 'html') %>% 
-    kable_styling(full_width = T, font_size = 14)
-  })
 
 # table data from plot input, s2
 totabs2 <- reactive({
@@ -260,10 +251,6 @@ totabs2 <- reactive({
   return(totabs2)
   
 })
-output$totabs2 <- renderText({
-  stargazer(totabs2()$res, type = 'html', column.labels = as.character(totabs2()$Watershed),
-            dep.var.labels = 'Density (fish/100ft)')
-  })
 
 # table data kendall test from plot 1, s2
 totabs2kn <- reactive({
@@ -293,10 +280,6 @@ totabs2kn <- reactive({
   return(totabs2kn)
   
 })
-output$totabs2kn <- renderText({
-  knitr::kable(totabs2kn(), format = 'html') %>% 
-    kable_styling(full_width = T, font_size = 14)
-  })
 
 ```
 
@@ -331,7 +314,10 @@ renderPlot({
 Summary of regression results for each watershed: 
 
 ```{r, results = 'asis'}
-htmlOutput('totabs1')
+renderUI({
+  HTML(stargazer(totabs1()$res, type = 'html', column.labels = as.character(totabs1()$Watershed),
+            dep.var.labels = 'Density (fish/100ft)'))
+  })
 ```
 
 <br></br>
@@ -339,7 +325,10 @@ htmlOutput('totabs1')
 Results from Kendall tests evaluating magnitude, direction, and significance of the trend between the selected years. 
 
 ```{r, results = 'asis'}
-htmlOutput('totabs1kn')
+renderUI({
+  HTML(knitr::kable(totabs1kn(), format = 'html') %>% 
+    kable_styling(full_width = T, font_size = 14))
+  })
 ```
 
 ### S2 year class
@@ -371,7 +360,10 @@ renderPlot({
 Summary of regression results for each watershed: 
 
 ```{r, results = 'asis'}
-htmlOutput('totabs2')
+renderUI({
+  HTML(stargazer(totabs2()$res, type = 'html', column.labels = as.character(totabs2()$Watershed),
+            dep.var.labels = 'Density (fish/100ft)'))
+  })
 ```
 
 <br></br>
@@ -379,7 +371,10 @@ htmlOutput('totabs2')
 Results from Kendall tests evaluating magnitude, direction, and significance of the trend between the selected years. 
 
 ```{r, results = 'asis'}
-htmlOutput('totabs2kn')
+renderUI({
+  HTML(knitr::kable(totabs2kn(), format = 'html') %>% 
+    kable_styling(full_width = T, font_size = 14))
+  })
 ```
 
 ```{r test}

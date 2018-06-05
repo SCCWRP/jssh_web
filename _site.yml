@@ -3,19 +3,20 @@ navbar:
   title: "JSSH web"
   left:
     - text: "Home"
-      href: index.Rmd
+      href: index.html
     - text: "Salmonid status and trends"
-      href: saltrends.Rmd
+      href: saltrends.html
     - text: "Community analysis"
-      href: comman.Rmd
+      href: comman.html
     - text: "Habitat analysis"
-      href: haban.Rmd
+      href: haban.html
     - text: "Community and habitat analysis"
-      href: commhaban.Rmd
+      href: commhaban.html
     - text: "Variable importance"
-      href: varimp.Rmd
+      href: varimp.html
 output_dir: "."
 output:
   html_document:
     theme: yeti
+    css: styles.css
     
