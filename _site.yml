@@ -1,6 +1,6 @@
-name: "JSSH web"
+name: ""
 navbar:
-  title: "JSSH web"
+  title: ""
   left:
     - text: "Home"
       href: index.Rmd
