@@ -23,9 +23,8 @@ library(leaflet)
 library(stargazer)
 library(EnvStats)
 library(kableExtra)
-library(proj4shortcut)
 
-prj <- geo_wgs84
+prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
 source('R/funcs.R')
 
