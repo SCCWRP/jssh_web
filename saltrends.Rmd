@@ -1,9 +1,12 @@
 ---
 title: "Salmonid status and trends"
 runtime: shiny
+output: 
+  html_document:
+    toc: true
+    toc_float: 
+       collapsed: false
 ---
-
-<br></br>
 
 ```{r setup, include = FALSE}
 # globals
@@ -26,7 +29,10 @@ source('R/funcs.R')
 data(habitat)
 data(fishdat)
 data(stream)
+data(trndst_prep)
 ```
+
+## Overview maps
 
 This map shows the stream network and sample sites by watershed.  Click on a stream reach or sample site for additional information.
 ```{r mapviewshed, out.width="100%"}
@@ -63,6 +69,8 @@ renderLeaflet({mapout()@map})
 ```
 
 <br></br>
+
+## Overview plots
 
 Salmonid density (fish/100ft) at each site is measured as S1 and S2 for different size classes, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are likely to migrate the following spring. The boxplots show the distribution of the density estimates across all sites for a given year, by watershed. 
 
@@ -142,6 +150,8 @@ p
 ```
 
 <br></br>
+
+## Trend statistics, by watershed {.tabset}
 
 These plots show a more formal evaluation of the trends as measured by the significance of the regression through the trend anomalies. All sites in a watershed are grouped. 
 
@@ -281,8 +291,6 @@ totabs2kn <- reactive({
 
 ```
 
-## {.tabset}
-
 ### S1 year class
 
 ```{r s1trnd, fig.height = 4, fig.width = 8, out.width = "100%"}
@@ -373,6 +381,63 @@ renderUI({
   HTML(knitr::kable(totabs2kn(), format = 'html') %>% 
     kable_styling(full_width = T, font_size = 14))
   })
+```
+
+## Trend statistics by site
+
+```{r sitetrnd, eval = F}
+##
+# reactive inputs for plots, tables 
+
+selectInput("clsst", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2'))
+
+# year slider
+sliderInput("yearsst", label = 'Select year ranges to test:',  
+      min = 1994, max = 2017, 
+      value = c(1994, 2017),
+      sep = '', ticks = FALSE
+    )
+
+mapdatst <- reactive({
+  
+  toplo <- trndst_prep %>% 
+    filter(`Size class` %in% 'Dens_S1') %>% #input$clsst) %>% 
+    mutate(trnd = purrr::map(data, function(x){
+      
+      xsub <- x %>% 
+        # filter(Year >= input$yearsst[1] & Year <= input$yearsst[2]) %>%
+        filter(Year >= 1995 & Year <= 2008) %>% 
+        mutate(
+          avedens = mean(density, na.rm = T), 
+          density = density - avedens
+          ) %>% 
+        dplyr::select(-avedens)
+      
+      # kendall sum
+      knout <- suppressWarnings(try({kendallTrendTest(density ~ Year, xsub)}, silent = T))
+      if(inherits(knout, 'try-error')) return(NA)
+      kpval <- knout$p.value
+      kest <- knout$estimate
+      out <- c(kpval, kest) %>% 
+        as.list %>% 
+        data.frame
+      
+      return(out)
+
+      })
+    ) %>% 
+    dplyr::select(-data) 
+  drp <- map(toplo$trnd, is.na)
+
+  out <- mapview(stream, label = stream$STREAM_NM) +
+    mapview(toplo, zcol = 'Watershed', cex = input$cls, legend = T)
+   
+  return(out)
+  
+})
+```
+```{r}
+renderLeaflet({mapout()@map})
 ```
 
 ```{r test}

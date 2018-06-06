@@ -49,3 +49,31 @@ segment <- readOGR(dsn = dsn, layer = 'Segment') %>%
   st_as_sf
 
 save(segment, file = 'data/segment.RData')
+
+##
+# prepping site, size class density for trend eval
+
+# remove 1981 all watersheds
+# remove 1994 from PAJ and SAQ
+trndst_prep <- fishdat %>% 
+  filter(Year > 1981) %>% 
+  filter(!(Year == 1994 & Watershed %in% c('PAJ', 'SOQ')))
+
+# separate crds tibble for later joing
+crds <- st_coordinates(trndst_prep) %>% 
+  as.tibble
+st_geometry(trndst_prep) <- NULL
+crds <- trndst_prep %>% 
+  dplyr::select(SiteID) %>% 
+  bind_cols(crds)
+
+# get trends by station, size class
+trndst_prep <- trndst_prep %>% 
+  dplyr::select(Year, SiteID, Dens_S1, Dens_S2) %>% 
+  gather('Size class', 'density', Dens_S1, Dens_S2) %>% 
+  mutate(density = log10(1 + density)) %>% 
+  group_by(`Size class`, SiteID) %>% 
+  nest 
+
+save(trndst_prep, file = 'data/trndst_prep.RData', compress = 'xz')
+
