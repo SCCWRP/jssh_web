@@ -385,9 +385,9 @@ renderUI({
   })
 ```
 
-## Trend statistics by site
+## Trend statistics, by site
 
-Select the year range and size density class to evaluate trends at each site.  Trends are shown as the magnitude and direction of the change between the selected years. 
+Select the year range and size density class to evaluate trends at each site.  Trends are shown as the magnitude and direction of the change between the selected years.  Note that not all sites include data in the full range of selected years.  Click an individual site to see the years within the selected range. 
 
 ```{r sitetrnd}
 ##
@@ -412,13 +412,16 @@ mapdatst <- reactive({
       
       xsub <- x %>% 
         filter(Year >= input$yearsst[1] & Year <= input$yearsst[2]) %>%
-        # filter(Year >= 1995 & Year <= 2008) %>% 
         mutate(
           avedens = mean(density, na.rm = T), 
           density = density - avedens
           ) %>% 
         dplyr::select(-avedens)
       
+      # get unique years tested
+      yrs <- unique(xsub$Year) %>% 
+        paste(collapse = ', ')
+   
       # kendall sum
       knout <- suppressWarnings(try({kendallTrendTest(density ~ Year, xsub)}, silent = T))
       if(inherits(knout, 'try-error')) return(NA)
@@ -426,14 +429,15 @@ mapdatst <- reactive({
       kest <- knout$estimate
       out <- c(kpval, kest) %>% 
         as.list %>% 
-        data.frame
-      
+        data.frame %>% 
+        mutate(yrs = yrs)
+         
       return(out)
 
       })
     ) %>% 
     dplyr::select(-data) %>% 
-    filter(map_lgl(trnd, ~ !anyNA(.x))) %>% 
+    filter(map_lgl(trnd, ~ !anyNA(.x))) %>% # this!
     unnest %>% 
     dplyr::select(-intercept) %>% 
     mutate(
