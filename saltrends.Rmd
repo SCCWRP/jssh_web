@@ -23,6 +23,9 @@ library(leaflet)
 library(stargazer)
 library(EnvStats)
 library(kableExtra)
+library(proj4shortcut)
+
+prj <- geo_wgs84
 
 source('R/funcs.R')
 
@@ -385,7 +388,9 @@ renderUI({
 
 ## Trend statistics by site
 
-```{r sitetrnd, eval = F}
+Select the year range and size density class to evaluate trends at each site.  Trends are shown as the magnitude and direction of the change between the selected years. 
+
+```{r sitetrnd}
 ##
 # reactive inputs for plots, tables 
 
@@ -398,15 +403,17 @@ sliderInput("yearsst", label = 'Select year ranges to test:',
       sep = '', ticks = FALSE
     )
 
+# filter site data by density class, years
+# get kendall results where appropriate
 mapdatst <- reactive({
   
   toplo <- trndst_prep %>% 
-    filter(`Size class` %in% 'Dens_S1') %>% #input$clsst) %>% 
+    filter(`Size class` %in% input$clsst) %>% 
     mutate(trnd = purrr::map(data, function(x){
       
       xsub <- x %>% 
-        # filter(Year >= input$yearsst[1] & Year <= input$yearsst[2]) %>%
-        filter(Year >= 1995 & Year <= 2008) %>% 
+        filter(Year >= input$yearsst[1] & Year <= input$yearsst[2]) %>%
+        # filter(Year >= 1995 & Year <= 2008) %>% 
         mutate(
           avedens = mean(density, na.rm = T), 
           density = density - avedens
@@ -426,18 +433,36 @@ mapdatst <- reactive({
 
       })
     ) %>% 
-    dplyr::select(-data) 
-  drp <- map(toplo$trnd, is.na)
+    dplyr::select(-data) %>% 
+    filter(map_lgl(trnd, ~ !anyNA(.x))) %>% 
+    unnest %>% 
+    dplyr::select(-intercept) %>% 
+    mutate(
+      z = p_ast(z), 
+      dir = sign(tau),
+      dir = factor(dir, levels = c(-1, 1), labels =c('dec', 'inc'))
+      ) %>% 
+    mutate_if(is.numeric, round, 2) %>% 
+    rename(pval = z) %>% 
+    st_as_sf(coords = c("X", "Y"), crs =prj)
+  
+  return(toplo)
+  
+  })
+
+# create map from selected, trended data
+mapoutst <- reactive({
 
   out <- mapview(stream, label = stream$STREAM_NM) +
-    mapview(toplo, zcol = 'Watershed', cex = input$cls, legend = T)
-   
+    mapview(mapdatst(), zcol = 'dir', cex = "tau", legend = T)
+  
   return(out)
   
-})
+  })
+
 ```
 ```{r}
-renderLeaflet({mapout()@map})
+renderLeaflet({mapoutst()@map})
 ```
 
 ```{r test}

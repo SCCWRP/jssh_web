@@ -65,7 +65,14 @@ crds <- st_coordinates(trndst_prep) %>%
 st_geometry(trndst_prep) <- NULL
 crds <- trndst_prep %>% 
   dplyr::select(SiteID) %>% 
-  bind_cols(crds)
+  bind_cols(crds) %>% 
+  unique %>% 
+  group_by(SiteID) %>% 
+  summarize(
+    X = mean(X), 
+    Y = mean(Y)
+  ) %>% 
+  ungroup
 
 # get trends by station, size class
 trndst_prep <- trndst_prep %>% 
@@ -73,7 +80,8 @@ trndst_prep <- trndst_prep %>%
   gather('Size class', 'density', Dens_S1, Dens_S2) %>% 
   mutate(density = log10(1 + density)) %>% 
   group_by(`Size class`, SiteID) %>% 
-  nest 
+  nest %>% 
+  left_join(crds, by = 'SiteID')
 
 save(trndst_prep, file = 'data/trndst_prep.RData', compress = 'xz')
 
