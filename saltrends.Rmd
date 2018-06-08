@@ -442,8 +442,8 @@ mapdatst <- reactive({
     dplyr::select(-intercept) %>% 
     mutate(
       z = p_ast(z), 
-      dir = sign(tau),
-      dir = factor(dir, levels = c(-1, 1), labels =c('dec', 'inc'))
+      trend = sign(tau),
+      trend = factor(trend, levels = c(-1, 1), labels =c('dec', 'inc'))
       ) %>% 
     mutate_if(is.numeric, round, 2) %>% 
     rename(pval = z) %>% 
@@ -455,14 +455,21 @@ mapdatst <- reactive({
 
 # create map from selected, trended data
 mapoutst <- reactive({
-
-  out <- mapview(stream, label = stream$STREAM_NM) +
-    mapview(mapdatst(), zcol = 'dir', cex = "tau", legend = T)
+  
+  cols <- mapdatst() %>% 
+    mutate(
+      cols = factor(trend, levels = c('dec', 'inc'), labels = c('tomato1', 'lightgreen')),
+      cols = as.character(cols)
+    ) %>% 
+    pull(cols)
+  
+  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
+    mapview(mapdatst(), zcol = 'trend', cex = "tau", col.regions = cols, legend = T, homebutton = F)
   
   return(out)
   
   })
-
+  
 ```
 ```{r}
 renderLeaflet({mapoutst()@map})
