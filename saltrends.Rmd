@@ -473,10 +473,6 @@ mapoutst <- reactive({
 
 # render the site trend map  
 renderLeaflet({mapoutst()@map})
-
-callModule(selectMod, 'eview', mapoutst()@map)
-ns <<- shiny::NS('eview')
-selectModUI('eview')
 ```
 
 ```{r sitetrndplt, fig.height = 4, fig.width = 8, out.width = "100%"}
