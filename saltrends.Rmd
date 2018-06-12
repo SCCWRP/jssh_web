@@ -389,7 +389,7 @@ renderUI({
 
 Select the year range and size density class to evaluate trends at each site.  Trends are shown as the magnitude and direction of the change between the selected years.  Note that not all sites include data in the full range of selected years.  Click an individual site to see the years within the selected range. 
 
-```{r sitetrnd}
+```{r sitetrndmap}
 ##
 # reactive inputs for plots, tables 
 
@@ -421,7 +421,7 @@ mapdatst <- reactive({
       # get unique years tested
       yrs <- unique(xsub$Year) %>% 
         paste(collapse = ', ')
-   
+
       # kendall sum
       knout <- suppressWarnings(try({kendallTrendTest(density ~ Year, xsub)}, silent = T))
       if(inherits(knout, 'try-error')) return(NA)
@@ -455,25 +455,86 @@ mapdatst <- reactive({
 
 # create map from selected, trended data
 mapoutst <- reactive({
-  
+
   cols <- mapdatst() %>% 
     mutate(
       cols = factor(trend, levels = c('dec', 'inc'), labels = c('tomato1', 'lightgreen')),
       cols = as.character(cols)
     ) %>% 
     pull(cols)
-  
+
   out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
-    mapview(mapdatst(), zcol = 'trend', cex = "tau", col.regions = cols, legend = T, homebutton = F)
+    mapview(mapdatst(), zcol = 'trend', cex = "tau", label = paste(mapdatst()$SiteID, ': ', mapdatst()$trend), col.regions = cols, legend = F, homebutton = F)
   
   return(out)
   
   })
-  
-```
-```{r}
+
+# render the site trend map  
 renderLeaflet({mapoutst()@map})
 ```
+
+```{r sitetrndplt, fig.height = 4, fig.width = 8, out.width = "100%"}
+
+# dynamic ui that changes with year selections on map, differents sites depending on year combos
+renderUI({
+
+  sts <- mapdatst()$SiteID %>% unique %>% sort
+  selectInput("st", "Select station to view map trends:", sts)
+
+})
+
+# filter site data by years, individual site
+trndatst <- reactive({
+  
+  yrsel <- input$yearsst
+  stsel <- input$st
+  
+  req(!is.null(stsel))
+  
+  toplo <- trndst_prep %>% 
+    filter(SiteID %in% stsel) %>% 
+    unnest %>% 
+    filter(Year >= yrsel[1] & Year <= yrsel[2]) %>% 
+    group_by(`Size class`) %>% 
+    mutate(
+      avedens = mean(density, na.rm = T), 
+      density_df = density - avedens
+      ) %>% 
+    dplyr::select(-avedens)
+  
+  return(toplo)
+
+  })
+
+# plot of year trends at a site
+renderPlot({
+  
+  toplo <- trndatst()
+  stsel <- input$st
+
+  req(!is.null(stsel))
+  
+  p <- ggplot(toplo, aes(x = Year, y = density_df, fill = density_df)) + 
+    geom_bar(stat = 'identity', colour = 'grey') + 
+    scale_fill_gradient2('', low = 'tomato1', mid = 'white', high = 'lightgreen', midpoint = 0) +
+    facet_wrap(~ `Size class`, ncol = 2) + 
+    geom_smooth(method = 'lm', se = F, linetype = 'dashed', color = 'black') + 
+    theme_bw(base_family = 'serif', base_size = 14) +
+    theme(
+      strip.background = element_blank(),
+      panel.grid = element_blank()
+    ) + 
+    scale_y_continuous('Density (fish/100ft)') +
+    geom_hline(yintercept = 0) + 
+    ggtitle(paste0('Trends at ', stsel))
+  
+  return(p)
+  
+})
+
+```
+
 
 ```{r test}
 plot(rnorm(100))
