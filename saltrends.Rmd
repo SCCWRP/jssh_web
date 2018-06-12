@@ -23,6 +23,7 @@ library(leaflet)
 library(stargazer)
 library(EnvStats)
 library(kableExtra)
+library(mapedit)
 
 prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
@@ -61,7 +62,7 @@ mapout <- reactive({
   
   out <- mapview(stream, label = stream$STREAM_NM) +
     mapview(toplo, zcol = 'Watershed', cex = input$cls, legend = T)
-   
+  
   return(out)
   
 })
@@ -464,15 +465,22 @@ mapoutst <- reactive({
     pull(cols)
   
   out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
-    mapview(mapdatst(), zcol = 'trend', cex = "tau", col.regions = cols, legend = T, homebutton = F)
+    mapview(mapdatst(), zcol = 'trend', cex = "tau", col.regions = cols, legend = T, homebutton = F, 
+            label = mapdatst()$SiteID,
+            layerId = mapdatst()$SiteID) 
   
   return(out)
+  
   
   })
   
 ```
 ```{r}
 renderLeaflet({mapoutst()@map})
+
+callModule(selectMod, 'eview', mapoutst()@map)
+ns <<- shiny::NS('eview')
+selectModUI('eview')
 ```
 
 ```{r test}
