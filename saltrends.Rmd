@@ -389,7 +389,7 @@ renderUI({
 
 Select the year range and size density class to evaluate trends at each site.  Trends are shown as the magnitude and direction of the change between the selected years.  Note that not all sites include data in the full range of selected years.  Click an individual site to see the years within the selected range. 
 
-```{r sitetrndmap}
+```{r sitetrndmapprp}
 ##
 # reactive inputs for plots, tables 
 
@@ -470,12 +470,13 @@ mapoutst <- reactive({
   
   
   })
-
+```
+```{r sitetrndmap}
 # render the site trend map  
 renderLeaflet({mapoutst()@map})
 ```
 
-```{r sitetrndplt, fig.height = 4, fig.width = 8, out.width = "100%"}
+```{r sitetrndpltprp}
 
 # dynamic ui that changes with year selections on map, differents sites depending on year combos
 renderUI({
@@ -507,7 +508,9 @@ trndatst <- reactive({
   return(toplo)
 
   })
+```
 
+```{r sitetrndplt, fig.height = 4, fig.width = 8, out.width = "100%"}
 # plot of year trends at a site
 renderPlot({
   
@@ -535,7 +538,6 @@ renderPlot({
 })
 
 ```
-
 
 ```{r test}
 plot(rnorm(100))

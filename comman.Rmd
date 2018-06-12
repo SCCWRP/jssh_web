@@ -1,10 +1,14 @@
 ---
-title: ""
-self_contained: yes
+title: "Community analysis"
 runtime: shiny
+output: 
+  html_document:
+    toc: true
+    toc_float: 
+       collapsed: false
 ---
 
-```{r setup, include = FALSE}
+```{r setupcomman, include = FALSE}
 # globals
 library(knitr)
 opts_chunk$set(echo = F, message = F, warning = F)
@@ -27,26 +31,28 @@ source('R/funcs.R')
 data(habitat)
 data(fishdat)
 data(stream)
-```
 
-<br>
-
-## Community analysis
-
-This map shows species presence/absence in the four watersheds.  Sites that were sampled in a given year are shown on the map with small points showing a species was not found and large points showing a species was found.
-
-```{r}
+# prep species data, long format 
 spdat <- fishdat %>% 
   select(Year, SiteID, matches('^Sp_')) %>% 
   gather('species', 'pa', -Year, -SiteID, -geometry) %>% 
   mutate(
     species = gsub('^Sp_', '', species)
   )
+```
 
+<br>
+
+## Overview maps
+
+This map shows species presence/absence in the four watersheds.  Sites that were sampled in a given year are shown on the map with small points showing a species was not found and large points showing a species was found.
+
+```{r sppinput}
 selectInput('yr', 'Select a year:', sort(unique(spdat$Year)))
 selectInput('sp', 'Select a species:', sort(unique(spdat$species)))
 ```
-```{r mapspyr}
+
+```{r prepmapsp}
 # subset year and species,  map
 mapspyr <- reactive({
   
@@ -65,11 +71,17 @@ mapspyr <- reactive({
    
   return(out)
 })
+```
 
+```{r mapsp}
 renderLeaflet({mapspyr()@map})
-
 ```
 
 Plot of percent sites over time with a species, by watershed, n number of sites sampled in a year at the top.
 
 Multivariate analysis of sites over time.
+
+```{r test2}
+plot(rnorm(100))
+```
+
