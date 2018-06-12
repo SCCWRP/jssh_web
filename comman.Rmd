@@ -4,8 +4,72 @@ self_contained: yes
 runtime: shiny
 ---
 
+```{r setup, include = FALSE}
+# globals
+library(knitr)
+opts_chunk$set(echo = F, message = F, warning = F)
+
+library(tidyverse)
+library(sf)
+library(mapview)
+library(plotly)
+library(shiny)
+library(scales)
+library(leaflet)
+library(stargazer)
+library(EnvStats)
+library(kableExtra)
+
+prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+source('R/funcs.R')
+
+data(habitat)
+data(fishdat)
+data(stream)
+```
+
 <br>
 
 ## Community analysis
 
-Informative text
+This map shows species presence/absence in the four watersheds.  Sites that were sampled in a given year are shown on the map with small points showing a species was not found and large points showing a species was found.
+
+```{r}
+spdat <- fishdat %>% 
+  select(Year, SiteID, matches('^Sp_')) %>% 
+  gather('species', 'pa', -Year, -SiteID, -geometry) %>% 
+  mutate(
+    species = gsub('^Sp_', '', species)
+  )
+
+selectInput('yr', 'Select a year:', sort(unique(spdat$Year)))
+selectInput('sp', 'Select a species:', sort(unique(spdat$species)))
+```
+```{r mapspyr}
+# subset year and species,  map
+mapspyr <- reactive({
+  
+  yr <- input$yr
+  sp <- input$sp
+  
+  toplo <- spdat %>% 
+    filter(Year == yr & species == sp) %>% 
+    mutate(
+      cexv = ifelse(pa == 1, 7, 3), 
+      pa = ifelse(pa == 1, 'present', 'absent')
+      )
+  
+  out <- mapview(stream, label = stream$STREAM_NM) +
+    mapview(toplo, zcol = 'pa', cex = toplo$cexv, legend = F)
+   
+  return(out)
+})
+
+renderLeaflet({mapspyr()@map})
+
+```
+
+Plot of percent sites over time with a species, by watershed, n number of sites sampled in a year at the top.
+
+Multivariate analysis of sites over time.
