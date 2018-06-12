@@ -23,7 +23,6 @@ library(leaflet)
 library(stargazer)
 library(EnvStats)
 library(kableExtra)
-library(mapedit)
 
 prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
@@ -465,13 +464,7 @@ mapoutst <- reactive({
     pull(cols)
 
   out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
-<<<<<<< HEAD
     mapview(mapdatst(), zcol = 'trend', cex = "tau", label = paste(mapdatst()$SiteID, ': ', mapdatst()$trend), col.regions = cols, legend = F, homebutton = F)
-=======
-    mapview(mapdatst(), zcol = 'trend', cex = "tau", col.regions = cols, legend = T, homebutton = F, 
-            label = mapdatst()$SiteID,
-            layerId = mapdatst()$SiteID) 
->>>>>>> 131f896e350df80866f3d3192436c366d4c8a3fd
   
   return(out)
   
