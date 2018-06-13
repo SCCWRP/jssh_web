@@ -16,13 +16,11 @@ opts_chunk$set(echo = F, message = F, warning = F)
 library(tidyverse)
 library(sf)
 library(mapview)
-library(plotly)
 library(shiny)
 library(scales)
 library(leaflet)
-library(stargazer)
-library(EnvStats)
-library(kableExtra)
+library(ggord)
+library(vegan)
 
 prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
@@ -157,7 +155,7 @@ renderPlot({
       legend.position = 'none'
     ) + 
     scale_y_continuous(paste0('% sites with ', sptm), limits = c(0, 100)) + 
-    geom_text(aes(label = nsites), vjust = 0.4, size = 4, color = 'black') + 
+    geom_text(aes(label = nsites), vjust = 0.5, size = 4, color = 'black') + 
     scale_fill_gradientn(colors = c('tomato1', 'lightgreen'), limits = c(0, 100))
 
   return(p)
@@ -171,7 +169,58 @@ renderPlot({
 
 Multivariate analysis of sites over time.
 
-```{r test2}
-# plot(rnorm(100))
+```{r mltsetup}
+mltdat <- spdat
+st_geometry(mltdat) <- NULL
+
+# select a year
+column(width = 6, 
+       selectInput('yrmlt', 'Select a year:', sort(unique(mltdat$Year)), selected = 2017)
+       )
+```
+
+```{r ord1}
+# data for ordination first year
+mltdatyr <- reactive({
+  
+  # inputs
+  yrmlt <- input$yrmlt
+  
+  toord <- mltdat %>% 
+    filter(Year == yrmlt) %>% 
+    dplyr::select(SiteID, Watershed, species, pa) %>% 
+    spread(species, pa)
+
+  return(toord)
+  
+})
+
+# wshed groups for ggord
+wshdord1 <- reactive({
+  
+  mltdatyr() %>% pull(Watershed)
+  
+})
+
+# ordination year 1
+ord1 <- reactive({
+  
+  toord <- mltdatyr() %>% 
+    select(-Watershed) %>% 
+    column_to_rownames('SiteID')
+  
+  # metaMDS
+  ord <- metaMDS(toord)
+  
+  return(ord)
+  
+})
+```
+
+```{r ord1plt, out.width = "100%"}
+renderPlot({
+  ggord(ord1(), grp_in = as.character(wshdord1()), vec_ext = 1, alpha = 0.8, size = 2, txt = 4, arrow = 0.2) + 
+    theme_bw(base_family = 'serif', base_size= 20)
+}, width = 850, height = 850)
 ```
 
