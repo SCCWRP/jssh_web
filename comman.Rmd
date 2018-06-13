@@ -34,22 +34,30 @@ data(stream)
 
 # prep species data, long format 
 spdat <- fishdat %>% 
-  select(Year, SiteID, matches('^Sp_')) %>% 
-  gather('species', 'pa', -Year, -SiteID, -geometry) %>% 
+  select(Year, Watershed, SiteID, matches('^Sp_')) %>% 
+  gather('species', 'pa', -Year, -SiteID, -Watershed, -geometry) %>% 
   mutate(
     species = gsub('^Sp_', '', species)
-  )
+  ) %>% 
+  filter(!is.na(Year))
 ```
 
 <br>
 
 ## Overview maps
 
-This map shows species presence/absence in the four watersheds.  Sites that were sampled in a given year are shown on the map with small points showing a species was not found and large points showing a species was found.
+This map shows species presence/absence in the four watersheds.  Sites that were sampled in a given year are shown on the map with small red points indicating a species was not found and large green points indicating a species was found.
 
 ```{r sppinput}
-selectInput('yr', 'Select a year:', sort(unique(spdat$Year)))
-selectInput('sp', 'Select a species:', sort(unique(spdat$species)))
+# select a species
+column(width = 6,
+ selectInput('sp', 'Select a species:', sort(unique(spdat$species)), selected = 'Sthd')
+)
+
+# select a year
+column(width = 6, 
+       selectInput('yr', 'Select a year:', sort(unique(spdat$Year)))
+       )
 ```
 
 ```{r prepmapsp}
@@ -63,25 +71,107 @@ mapspyr <- reactive({
     filter(Year == yr & species == sp) %>% 
     mutate(
       cexv = ifelse(pa == 1, 7, 3), 
-      pa = ifelse(pa == 1, 'present', 'absent')
+      pa = factor(pa, levels = c('1', '0'), labels = c('present', 'absent')), 
+      cols = ifelse(pa == 'present', 'lightgreen', 'tomato1')
       )
   
-  out <- mapview(stream, label = stream$STREAM_NM) +
-    mapview(toplo, zcol = 'pa', cex = toplo$cexv, legend = F)
+  # colors must be passed as vector
+  cols <- toplo$cols
+  
+  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
+    mapview(toplo, zcol = 'pa', cex = toplo$cexv, legend = F, homebutton = F, col.region = cols)
    
   return(out)
+  
 })
 ```
 
 ```{r mapsp}
 renderLeaflet({mapspyr()@map})
 ```
+<br>
 
-Plot of percent sites over time with a species, by watershed, n number of sites sampled in a year at the top.
+## Percent occupied sites over time
+
+Plot of percent of sampled sites over time with a selected species by watershed.  The total number of sites samples in a year is shown inside the point.
+
+```{r tmsel}
+# select a species
+column(width = 6,
+ selectInput('sptm', 'Select a species:', sort(unique(spdat$species)), selected = 'Sthd')
+)
+
+# year slider
+column(width = 6, 
+  sliderInput("yrs", label = 'Select year ranges to plot:',  
+        min = 1994, max = 2017, 
+        value = c(1994, 2017),
+        sep = '', ticks = FALSE
+      )
+)
+```
+
+```{r spyragg}
+# percent of sites where species was observed, by watershed, year
+spyragg <- reactive({
+  
+  # inputs
+  sp <- input$sptm
+  yrs <- input$yrs
+  
+  # tabulate percent sites occupied
+  out <- spdat
+  st_geometry(out) <- NULL
+  out <- out %>% 
+    filter(species %in% sp) %>% 
+    filter(Year >= yrs[1] & Year <= yrs[2]) %>% 
+    group_by(Watershed, Year) %>% 
+    summarize(
+      nprs = sum(pa),
+      nsites = n()
+    ) %>% 
+    mutate(
+      prcsit = 100 * nprs / nsites
+    )
+  
+  return(out)
+  
+})
+```
+
+```{r prsplo, fig.height = 6, fig.width = 8, out.width = "100%"}
+renderPlot({
+  
+  # inputs
+  toplo <- spyragg()
+  sptm <- input$sptm
+  
+  p <- ggplot(toplo, aes(y = prcsit, x = Year)) + 
+    geom_line() + 
+    geom_point(pch = 21, aes(fill = prcsit), size = 8) +
+    facet_wrap(~Watershed, ncol = 2) + 
+    theme_bw(base_family = 'serif', base_size = 18) +
+    theme(
+      strip.background = element_blank(),
+      axis.title.x = element_blank(), 
+      legend.position = 'none'
+    ) + 
+    scale_y_continuous(paste0('% sites with ', sptm), limits = c(0, 100)) + 
+    geom_text(aes(label = nsites), vjust = 0.4, size = 4, color = 'black') + 
+    scale_fill_gradientn(colors = c('tomato1', 'lightgreen'), limits = c(0, 100))
+
+  return(p)
+                       
+},width = 900, height = 600)
+
+```
+<br>
+
+## Multivariate community analysis
 
 Multivariate analysis of sites over time.
 
 ```{r test2}
-plot(rnorm(100))
+# plot(rnorm(100))
 ```
 
