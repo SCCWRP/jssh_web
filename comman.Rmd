@@ -22,6 +22,7 @@ library(leaflet)
 library(ggord)
 library(vegan)
 
+# data, funcs, globals
 prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
 source('R/funcs.R')
@@ -30,6 +31,30 @@ data(habitat)
 data(fishdat)
 data(stream)
 
+# map colors
+cols <- mapviewGetOption("vector.palette")(4)
+
+colgrp <- data.frame(
+  Watershed = c('APT', 'PAJ', 'SLR', 'SOQ'), 
+  cols = cols, 
+  stringsAsFactors = F
+)
+
+# ggplot base 
+pbase <- theme_bw(base_family = 'serif') +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
+    axis.text.y = element_text(size = 8),
+    legend.position = 'top',
+    legend.direction = 'horizontal',
+    # plot.margin = unit(c(4,4,0,0), "lines"),
+    strip.background = element_blank(), 
+    strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
+    panel.background = element_rect(fill = 'black')
+  ) 
+
 # prep species data, long format 
 spdat <- fishdat %>% 
   select(Year, Watershed, SiteID, matches('^Sp_')) %>% 
@@ -37,7 +62,16 @@ spdat <- fishdat %>%
   mutate(
     species = gsub('^Sp_', '', species)
   ) %>% 
-  filter(!is.na(Year))
+  filter(!is.na(Year)) %>% 
+  unique
+
+# site, wshed lookup
+siteshd <- fishdat
+st_geometry(siteshd) <- NULL
+siteshd <- siteshd %>% 
+  select(SiteID, Watershed) %>% 
+  unique %>% 
+  mutate_if(is.factor, as.character)
 ```
 
 <br>
@@ -137,7 +171,7 @@ spyragg <- reactive({
 })
 ```
 
-```{r prsplo, fig.height = 6, fig.width = 8, out.width = "100%"}
+```{r prsplo, out.width = "100%"}
 renderPlot({
   
   # inputs
@@ -175,22 +209,41 @@ st_geometry(mltdat) <- NULL
 
 # select a year
 column(width = 6, 
-       selectInput('yrmlt', 'Select a year:', sort(unique(mltdat$Year)), selected = 2017)
+       selectInput('yrmlt1', 'Select a year for first comparison:', sort(unique(mltdat$Year)), selected = 2016)
+       )
+
+# remove species at less than x sites
+column(width = 6, 
+       selectInput('remrr', 'Remove species occurring at n sites or less:', selected = 1, choices = seq(0, 20))
        )
 ```
 
+<br>
+
 ```{r ord1}
 # data for ordination first year
-mltdatyr <- reactive({
+mltdatyr1 <- reactive({
   
   # inputs
-  yrmlt <- input$yrmlt
-  
-  toord <- mltdat %>% 
-    filter(Year == yrmlt) %>% 
-    dplyr::select(SiteID, Watershed, species, pa) %>% 
-    spread(species, pa)
+  yrmlt1 <- input$yrmlt1
+  remrr <- input$remrr
 
+  # create species pa mat after filtering species at less than remrr sites
+  toord <- mltdat %>% 
+    filter(Year == yrmlt1) %>% 
+    dplyr::select(SiteID, Watershed, species, pa) %>% 
+    group_by(species) %>% 
+    mutate(totsp = sum(pa)) %>% 
+    filter(totsp > remrr) %>% 
+    select(-totsp) %>% 
+    spread(species, pa) %>% 
+    data.frame(stringsAsFactors = F) %>% 
+    column_to_rownames('SiteID')
+
+  # remove sites with nothing found after rare spp removed
+  torm <- rowSums(toord[, !names(toord) %in% c('Watershed')])
+  toord <- toord[torm > 0, ]
+  
   return(toord)
   
 })
@@ -198,29 +251,160 @@ mltdatyr <- reactive({
 # wshed groups for ggord
 wshdord1 <- reactive({
   
-  mltdatyr() %>% pull(Watershed)
+  mltdatyr1() %>% pull(Watershed)
+  
+})
+
+# dismat year 1
+dis1 <- reactive({
+  
+  toord <- mltdatyr1() %>% 
+    select(-Watershed) 
+  
+  # metaMDS
+  dis <- toord %>% 
+    vegdist(method = 'jaccard')
+  
+  return(dis)
   
 })
 
 # ordination year 1
 ord1 <- reactive({
   
-  toord <- mltdatyr() %>% 
-    select(-Watershed) %>% 
-    column_to_rownames('SiteID')
+  toord <- mltdatyr1() %>% 
+    select(-Watershed) 
   
   # metaMDS
-  ord <- metaMDS(toord)
+  ord <- toord %>% 
+    metaMDS(distance = 'jaccard')
   
   return(ord)
   
 })
 ```
 
+## {.tabset}
+
+### Ordination biplot
+
+```{r}
+# some chatty stuff about the ordination
+renderText({
+  
+  # input
+  toprnt <- ord1()
+  
+  strs <- toprnt %>% .$stress %>% round(2)
+  cnvr <- toprnt %>% .$converged
+  
+  if(cnvr)
+    txt <- paste0('Ordination converged, final stess value: ', strs)
+  else 
+    txt <- paste0('Ordination did not converge, final stess value: ', strs)
+  
+  return(txt)
+
+})
+```
+
 ```{r ord1plt, out.width = "100%"}
 renderPlot({
-  ggord(ord1(), grp_in = as.character(wshdord1()), vec_ext = 1, alpha = 0.8, size = 2, txt = 4, arrow = 0.2) + 
-    theme_bw(base_family = 'serif', base_size= 20)
-}, width = 850, height = 850)
+  
+  # subset colors by actual wsheds in ord
+  colsub <- colgrp %>% 
+    filter(Watershed %in% unique(wshdord1()))
+
+  pord1 <- ggord(ord1(), grp_in = as.character(wshdord1()), vec_ext = 1, col = colsub$cols, 
+        alpha = 1, alpha_el = 0.2, size = 4, txt = 5, arrow = 0.5, repel = F, coord_fix = F) + 
+    theme_bw(base_family = 'serif', base_size = 16) +
+    theme(legend.position = 'top')
+  
+  return(pord1)
+  
+}, width = 550, height = 600)
+```
+
+### Dissimilarity matrix
+
+```{r clstpl}
+clst <- reactive({
+  
+  out <- dis1() %>% 
+    hclust(method = 'average')
+  
+  return(out)
+  
+})
+
+```
+
+```{r}
+selectInput('byclst', 'Order by clusters?', selected = T, choices = c(T, F))
+```
+
+```{r dis1plt, out.width = "100%"}
+renderPlot({
+  
+  # inputs
+  byclst <- as.logical(input$byclst)
+  dis1 <- dis1()
+  clst <- clst()
+
+  # prep distance data to plot
+  # long format of dist matrix, joind with wshed
+  toplo <- dis1 %>% 
+    as.matrix %>% 
+    as.data.frame %>%
+    rownames_to_column('SiteID') %>% 
+    gather('SiteID2', 'dist', -SiteID) %>% 
+    left_join(siteshd, by = 'SiteID') %>% 
+    arrange(Watershed, dist) %>% 
+    mutate(
+      Watershed = factor(Watershed, levels = unique(Watershed)), 
+      dist = ifelse(SiteID == SiteID2, NA, dist)
+      )
+  
+  # get site order levels based on clustering
+  if(byclst){
+    
+    sitfc <- clst$labels[clst$order]
+    toplo <- toplo %>% 
+      mutate(
+        SiteID = factor(SiteID, levels = sitfc), 
+        SiteID2 = factor(SiteID2, levels = sitfc)
+      )
+    
+  } 
+  
+  # plot
+  p <- ggplot(toplo) + 
+    geom_tile(aes(x = SiteID, y = SiteID2, fill = dist), colour = 'black') +
+    scale_x_discrete('', expand = c(0, 0)) + 
+    scale_y_discrete('', expand = c(0, 0)) +
+    scale_fill_gradient2('Dissimilarity between sites\nby species p/a', low = 'white', mid = 'lightblue', high = 'tomato1', midpoint = 0.5) +
+    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 10, label.theme = element_text(size = 10, angle = 0))) + 
+    pbase
+  
+  if(!byclst){
+      
+    # index values of watershed divisions in plot
+    wshdbrk <- toplo %>% 
+      spread(SiteID2, dist) %>% 
+      pull(Watershed) %>% 
+      duplicated %>% 
+      `!` %>% 
+      which %>% 
+      `-` (0.5)
+  
+    p <- p + 
+      geom_vline(xintercept = wshdbrk, size = 1.5) +
+      geom_hline(yintercept = wshdbrk, size = 1.5)
+  
+  }
+    
+  return(p)
+  
+}, width = 650, height = 700)
 ```
 

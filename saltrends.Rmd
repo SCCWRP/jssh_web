@@ -47,13 +47,10 @@ mapview(stream, label = stream$STREAM_NM) +
 Select a year and size class to view on the map:
 
 ```{r mapviewsel}
-column(width = 6, 
-  selectInput("cls", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2'))
-)
 
-column(width = 6, 
-  selectInput("yr", "Choose a year to plot:", fishdat$Year %>% unique %>% na.omit)
-)
+selectInput("cls", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2'))
+
+selectInput("yr", "Choose a year to plot:", fishdat$Year %>% unique %>% na.omit)
 ```
 ```{r}
 
@@ -79,7 +76,7 @@ renderLeaflet({mapout()@map})
 
 Salmonid density (fish/100ft) at each site is measured as S1 and S2 for different size classes, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are likely to migrate the following spring. The boxplots show the distribution of the density estimates across all sites for a given year, by watershed. 
 
-```{r densbox, fig.height = 7, fig.width = 7, out.width = "100%", fig.align="center"}
+```{r densbox, fig.height = 6, fig.width = 6, out.width = "80%", fig.align="center"}
 toplo <- fishdat
 st_geometry(toplo) <- NULL
 toplo <- toplo%>% 
@@ -396,18 +393,14 @@ Select the year range and size density class to evaluate trends at each site.  T
 ##
 # reactive inputs for plots, tables 
 
-column(width= 6,
-  selectInput("clsst", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2'))
-)
+selectInput("clsst", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2'))
 
 # year slider
-column(width = 6, 
-  sliderInput("yearsst", label = 'Select year ranges to test:',  
-        min = 1994, max = 2017, 
-        value = c(1994, 2017),
-        sep = '', ticks = FALSE
-      )
-)
+sliderInput("yearsst", label = 'Select year ranges to test:',  
+      min = 1994, max = 2017, 
+      value = c(1994, 2017),
+      sep = '', ticks = FALSE
+    )
 
 # filter site data by density class, years
 # get kendall results where appropriate
