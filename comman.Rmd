@@ -237,7 +237,9 @@ mltdatyr1 <- reactive({
     filter(totsp > remrr) %>% 
     select(-totsp) %>% 
     spread(species, pa) %>% 
-    data.frame(stringsAsFactors = F) %>% 
+    data.frame(stringsAsFactors = F)
+  rownames(toord) <- NULL
+  toord <- toord %>% 
     column_to_rownames('SiteID')
 
   # remove sites with nothing found after rare spp removed
