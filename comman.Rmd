@@ -21,6 +21,8 @@ library(scales)
 library(leaflet)
 library(ggord)
 library(vegan)
+library(ggdendro)
+library(dendextend)
 
 # data, funcs, globals
 prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
@@ -209,13 +211,20 @@ st_geometry(mltdat) <- NULL
 
 # select a year
 column(width = 6, 
-       selectInput('yrmlt1', 'Select a year for first comparison:', sort(unique(mltdat$Year)), selected = 2016)
+       selectInput('yrmlt1', 'Select a year for first comparison:', sort(unique(mltdat$Year)), selected = 2017)
        )
 
 # remove species at less than x sites
 column(width = 6, 
        selectInput('remrr', 'Remove species occurring at n sites or less:', selected = 1, choices = seq(0, 20))
        )
+
+# select dissimilarity measure
+column(width = 12, 
+       selectInput('distyp', 'Select dissimilarity measure for ordination/clustering', 
+                   selected = 'jaccard', choices = c('jaccard', 'bray', 'euclidean', 'raup'))
+       )
+
 ```
 
 <br>
@@ -260,12 +269,15 @@ wshdord1 <- reactive({
 # dismat year 1
 dis1 <- reactive({
   
+  # input
+  distyp <- input$distyp
+  
   toord <- mltdatyr1() %>% 
     select(-Watershed) 
   
   # metaMDS
   dis <- toord %>% 
-    vegdist(method = 'jaccard')
+    vegdist(method = distyp)
   
   return(dis)
   
@@ -329,27 +341,23 @@ renderPlot({
 
 ### Dissimilarity matrix
 
-```{r clstpl}
-clst <- reactive({
-  
-  out <- dis1() %>% 
-    hclust(method = 'average')
-  
-  return(out)
-  
-})
-
-```
-
 ```{r}
-selectInput('byclst', 'Order by clusters?', selected = T, choices = c(T, F))
+# select matrix order type
+column(width = 6,
+  selectInput('byclst', 'Order by?', selected = 'Watershed', choices = c('Watershed', 'Clusters'))
+)
+
+# show cluster method if matrix order type is cluster
+column(width = 6, 
+       renderText({if(input$byclst == 'Clusters') paste0('Cluster method: ', input$clsttyp)})
+)
 ```
 
 ```{r dis1plt, out.width = "100%"}
 renderPlot({
   
   # inputs
-  byclst <- as.logical(input$byclst)
+  byclst <- input$byclst
   dis1 <- dis1()
   clst <- clst()
 
@@ -368,7 +376,7 @@ renderPlot({
       )
   
   # get site order levels based on clustering
-  if(byclst){
+  if(byclst == 'Clusters'){
     
     sitfc <- clst$labels[clst$order]
     toplo <- toplo %>% 
@@ -388,7 +396,7 @@ renderPlot({
     guides(fill = guide_colourbar(barheight = 0.5, barwidth = 10, label.theme = element_text(size = 10, angle = 0))) + 
     pbase
   
-  if(!byclst){
+  if(byclst == 'Watershed'){
       
     # index values of watershed divisions in plot
     wshdbrk <- toplo %>% 
@@ -408,5 +416,44 @@ renderPlot({
   return(p)
   
 }, width = 650, height = 700)
+```
+
+### Cluster analysis
+
+```{r clsttyp}
+# select cluster type
+selectInput('clsttyp', 'Select cluster type:', selected = 'average', choices = c('ward.D', 'ward.D2', 'single', 'complete', 'average', 'mcquitty', 'median', 'centroid'))
+```
+
+```{r clstpl}
+clst <- reactive({
+  
+  # inputs
+  clsttyp <- input$clsttyp
+  
+  out <- dis1() %>% 
+    hclust(method = clsttyp)
+  
+  return(out)
+  
+})
+```
+
+```{r dend}
+# cluster dendrogram
+renderPlot({
+  
+  # input
+  clst <- clst()
+
+  p1 <- clst %>% 
+    as.dendrogram %>% 
+    # set("branches_k_color", k = ngrps) %>%
+    # set("labels_colors", k = ngrps) %>%
+    set("labels_cex", 0.8) 
+  
+  plot(p1)
+  
+})
 ```
 
