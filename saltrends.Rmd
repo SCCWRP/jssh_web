@@ -34,9 +34,19 @@ data(stream)
 data(trndst_prep)
 ```
 
+The objective of these analyses are to evaluate the status and trends of Steelhead salmon in the four watersheds:
+
+* APT: Aptos
+* PAJ: Pajaro
+* SLR: San Lorenzo
+* SOQ: Soquel
+
+Maps and summary plots show the changes in density (fish/100ft) over time of the differente size classes (`Dens_S1` or `Dens_S2`). Salmonid density (fish/100ft) at each site is measured as S1 and S2, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are likely to migrate the following spring. Trend statistics of the different size classes for aggregated watershed data and by site are also provided.  The trend analyses only evaluate a monotonic change between selected years.
+
 ## Overview maps
 
-This map shows the stream network and sample sites by watershed.  Click on a stream reach or sample site for additional information.
+This map shows the stream network and sample sites by watershed.  Click on a stream reach or sample site for additional information.  All sites with data collected during any of the sample years are shown. 
+
 ```{r mapviewshed, out.width="100%"}
 mapview(stream, label = stream$STREAM_NM) +
   mapview(fishdat, zcol = 'Watershed', legend = T)
@@ -44,7 +54,7 @@ mapview(stream, label = stream$STREAM_NM) +
 
 <br></br>
 
-Select a year and size class to view on the map:
+This map shows the density of S1 or S2 individuals for a chosen year where data are availabl.  Select a year and size class to view on the map.  The size of the point shows the relative density at a sampled site. 
 
 ```{r mapviewsel}
 
@@ -74,7 +84,7 @@ renderLeaflet({mapout()@map})
 
 ## Overview plots
 
-Salmonid density (fish/100ft) at each site is measured as S1 and S2 for different size classes, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are likely to migrate the following spring. The boxplots show the distribution of the density estimates across all sites for a given year, by watershed. 
+The boxplots show the distribution of the density estimates across all sites for a given year, by watershed. 
 
 ```{r densbox, fig.height = 6, fig.width = 6, out.width = "80%", fig.align="center"}
 toplo <- fishdat
@@ -102,7 +112,7 @@ p
 
 <br></br>
 
-Are densities changing by watershed? This plot shows changes from the long-term average by watershed and density.  The colors show the differences of each year from the long-term average across all years and sites for each watershed and density class, log-scale.
+This plot shows the changes from the long-term average by watershed and size class.  The colors show the differences of each year from the long-term average (trend anomaly) across all years and sites for each watershed and density class, log-scale.  It can be used to evaluate an approximate change over time relative to the long-term average.
 
 ```{r denstile, fig.height = 4, fig.width = 7, out.width = "100%"}
 # remove 1981 all watersheds
@@ -155,7 +165,7 @@ p
 
 ## Trend statistics, by watershed {.tabset}
 
-These plots show a more formal evaluation of the trends as measured by the significance of the regression through the trend anomalies. All sites in a watershed are grouped. 
+These plots provide a formal evaluation of the trends as measured by the significance of the regression through the trend anomalies. All sites in a watershed are grouped. The slider can be used to adjust the range of years that are evaluated, e.g., a trend may be observed for one range but not another.
 
 ```{r trendevalrct}
 
@@ -319,7 +329,7 @@ renderPlot({
 
 <br></br>
 
-Summary of regression results for each watershed: 
+This table shows the regression results from the above plots. 
 
 ```{r, results = 'asis'}
 renderUI({
@@ -330,7 +340,7 @@ renderUI({
 
 <br></br>
 
-Results from Kendall tests evaluating magnitude, direction, and significance of the trend between the selected years. 
+Kendall tests also provide an indication of a trend by by evaluating magnitude, direction, and significance of a change in density between the selected years.  The test is a non-parametric equivalent to the regression analysis above.  The value for tau ranges from -1 to 1 and provides a measure of trend direcdtion.  The slope is the estimated change per year in density and the p-value shows the significance of the test. 
 
 ```{r, results = 'asis'}
 renderUI({
@@ -365,7 +375,7 @@ renderPlot({
 
 <br></br>
 
-Summary of regression results for each watershed: 
+This table shows the regression results from the above plots. 
 
 ```{r, results = 'asis'}
 renderUI({
@@ -376,7 +386,7 @@ renderUI({
 
 <br></br>
 
-Results from Kendall tests evaluating magnitude, direction, and significance of the trend between the selected years. 
+Kendall tests also provide an indication of a trend by by evaluating magnitude, direction, and significance of a change in density between the selected years.  The test is a non-parametric equivalent to the regression analysis above.  The value for tau ranges from -1 to 1 and provides a measure of trend direcdtion.  The slope is the estimated change per year in density and the p-value shows the significance of the test. 
 
 ```{r, results = 'asis'}
 renderUI({
@@ -387,7 +397,7 @@ renderUI({
 
 ## Trend statistics, by site
 
-Select the year range and size density class to evaluate trends at each site.  Trends are shown as the magnitude and direction of the change between the selected years.  Note that not all sites include data in the full range of selected years.  Click an individual site to see the years within the selected range. 
+This section evaluates status and trends of salmonid density at individual sites, rather than aggregated by watershed as above.  Select the year range and size density class to evaluate the trends.  The map shows the value for tau (direction of trend) for a Kendall test of density changes within the selected years, green for increasing and red for decreasing.  Size of the point is the magnitude of the estimated change. Note that some site may not have data spanning the full range of selected years.  Click an individual site on the mape to see the years within the selected range. 
 
 ```{r sitetrndmapprp}
 ##
@@ -475,6 +485,8 @@ mapoutst <- reactive({
 # render the site trend map  
 renderLeaflet({mapoutst()@map})
 ```
+
+A regression through the trend anomalies for the size class densities at a selected site is shown below.  These plots can confirm the results shown in the map. 
 
 ```{r sitetrndpltprp}
 

@@ -78,9 +78,11 @@ siteshd <- siteshd %>%
 
 <br>
 
+The objective of these analyes are to evaluate changes in community composition over time using the presence/absence data for all species.  The first two sections show general changes by species and the third section is a formal multivariate analysis showing ordination and clustering results of the communities for a selected year.  Changes over time can be assessed by comparing the results between years. 
+
 ## Overview maps
 
-This map shows species presence/absence in the four watersheds.  Sites that were sampled in a given year are shown on the map with small red points indicating a species was not found and large green points indicating a species was found.
+This map shows species presence/absence in the four watersheds.  Sites that were sampled for the selected year are shown on the map with small red points indicating a selected species was not found and large green points indicating a species was found at a site.
 
 ```{r sppinput}
 # select a species
@@ -127,7 +129,7 @@ renderLeaflet({mapspyr()@map})
 
 ## Percent occupied sites over time
 
-Plot of percent of sampled sites over time with a selected species by watershed.  The total number of sites samples in a year is shown inside the point.
+These plots show the percent of sampled sites over time that are occupied with a selected species, grouped by watershed.  The total number of sites that were sampled in each watershed, year combination is shown inside the point.
 
 ```{r tmsel}
 # select a species
@@ -203,7 +205,14 @@ renderPlot({
 
 ## Multivariate community analysis
 
-Multivariate analysis of sites over time.
+This section can be used to evaluate community changes over time by showing natural groupings between sites using speices presence/absence data.  Some questions to consider when evaluating the data are:
+
+1) Do the results differ when evaluating the results between years?
+2) Can the results be explained by community differences between the watersheds?
+3) If not, are there other natural groupings in the data that can describe community differences?
+4) How does the chosen method of analysis affect the results (i.e., how robust are the conclusions with changes in the methods)?
+
+There are several options to consider when exploring the data.  Results from multivariate analyses can change depending on presence of rare species (those that occur at fewer than n sites), the measure used to evaluate dissimilarity between sites, the clustering algorithm, and how groups are defined from the clustering results.  All of these options can be changed with the sliders.  
 
 ```{r mltsetup}
 mltdat <- spdat
