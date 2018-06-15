@@ -1,0 +1,10 @@
+name: jssh_web
+title:
+username:
+account: beckmw
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 361741
+bundleId: 1432280
+url: https://beckmw.shinyapps.io/jssh_web/
+when: 1529100984.39875

@@ -1,6 +1,6 @@
 ---
 title: "Salmonid status and trends"
-runtime: shiny_prerendered
+runtime: shiny
 output: 
   html_document:
     toc: true
@@ -27,9 +27,7 @@ library(kableExtra)
 prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
 source('R/funcs.R')
-```
 
-```{r data}
 data(habitat)
 data(fishdat)
 data(stream)
@@ -64,7 +62,7 @@ selectInput("cls", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2
 
 selectInput("yr", "Choose a year to plot:", fishdat$Year %>% unique %>% na.omit)
 ```
-```{r, context = 'server'}
+```{r}
 
 mapout <- reactive({
   
@@ -180,9 +178,7 @@ sliderInput("years", label = 'Select year ranges to test:',
       value = c(1994, 2017),
       sep = '', ticks = FALSE
     )
-```
 
-```{r context = 'server'}
 # plot data from year input, s1
 toplos1 <- reactive({
   
@@ -415,8 +411,7 @@ sliderInput("yearsst", label = 'Select year ranges to test:',
       value = c(1994, 2017),
       sep = '', ticks = FALSE
     )
-```
-```{r context = 'server'}
+
 # filter site data by density class, years
 # get kendall results where appropriate
 mapdatst <- reactive({
@@ -502,8 +497,7 @@ renderUI({
   selectInput("st", "Select station to view map trends:", sts)
 
 })
-```
-```{r context = 'server'}
+
 # filter site data by years, individual site
 trndatst <- reactive({
   
