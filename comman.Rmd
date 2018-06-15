@@ -90,7 +90,7 @@ column(width = 6,
 
 # select a year
 column(width = 6, 
-       selectInput('yr', 'Select a year:', sort(unique(spdat$Year)))
+       selectInput('yr', 'Select a year:', selected = 2017, choices = sort(unique(spdat$Year)))
        )
 ```
 
@@ -113,7 +113,7 @@ mapspyr <- reactive({
   cols <- toplo$cols
   
   out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
-    mapview(toplo, zcol = 'pa', cex = toplo$cexv, legend = F, homebutton = F, col.region = cols)
+    mapview(toplo, zcol = 'pa', cex = toplo$cexv, label = paste0(toplo$SiteID, ': ', toplo$pa), legend = F, homebutton = F, col.region = cols)
    
   return(out)
   
@@ -220,10 +220,20 @@ column(width = 6,
        )
 
 # select dissimilarity measure
-column(width = 12, 
+column(width = 6, 
        selectInput('distyp', 'Select dissimilarity measure for ordination/clustering', 
                    selected = 'jaccard', choices = c('jaccard', 'bray', 'euclidean', 'raup'))
        )
+
+# select cluster type
+column(width = 6, 
+       selectInput('clsttyp', 'Select cluster type:', selected = 'average', choices = c('ward.D', 'ward.D2', 'single', 'complete', 'average', 'mcquitty', 'median', 'centroid'))
+)
+
+# select cluster cuts
+column(width = 12, 
+       selectInput('clstcut', 'Select cluster groups:', selected = 2, choices = c(1:10))
+)
 
 ```
 
@@ -286,12 +296,15 @@ dis1 <- reactive({
 # ordination year 1
 ord1 <- reactive({
   
+  # input
+  distyp <- input$distyp
+  
   toord <- mltdatyr1() %>% 
     select(-Watershed) 
   
   # metaMDS
   ord <- toord %>% 
-    metaMDS(distance = 'jaccard')
+    metaMDS(distance = distyp)
   
   return(ord)
   
@@ -325,11 +338,28 @@ renderText({
 ```{r ord1plt, out.width = "100%"}
 renderPlot({
   
-  # subset colors by actual wsheds in ord
-  colsub <- colgrp %>% 
-    filter(Watershed %in% unique(wshdord1()))
+  # input
+  clstcut <- as.numeric(input$clstcut)
+  clstgrps <- clstgrps()
+  
+  # use watersheds as groups if clstcut is one, otherwise cluster groups
+  if(clstcut == 1){
+    
+    grpin <- as.character(wshdord1())
+    
+    # subset colors by actual wsheds in ord
+    colsub <- colgrp %>% 
+      filter(Watershed %in% unique(wshdord1())) %>% 
+      pull(cols)
+    
+  } else {
+    
+    grpin <- as.character(clstgrps)
+    colsub <-  mapviewGetOption("vector.palette")(clstcut)
+    
+  }
 
-  pord1 <- ggord(ord1(), grp_in = as.character(wshdord1()), vec_ext = 1, col = colsub$cols, 
+  pord1 <- ggord(ord1(), grp_in = grpin, vec_ext = 1, col = colsub, 
         alpha = 1, alpha_el = 0.2, size = 4, txt = 5, arrow = 0.5, repel = F, coord_fix = F) + 
     theme_bw(base_family = 'serif', base_size = 16) +
     theme(legend.position = 'top')
@@ -420,12 +450,8 @@ renderPlot({
 
 ### Cluster analysis
 
-```{r clsttyp}
-# select cluster type
-selectInput('clsttyp', 'Select cluster type:', selected = 'average', choices = c('ward.D', 'ward.D2', 'single', 'complete', 'average', 'mcquitty', 'median', 'centroid'))
-```
-
 ```{r clstpl}
+# cluster analysis
 clst <- reactive({
   
   # inputs
@@ -437,6 +463,20 @@ clst <- reactive({
   return(out)
   
 })
+
+# get cluster groups
+clstgrps <- reactive({
+  
+  # input
+  clst <- clst()
+  clstcut <- input$clstcut
+
+  # get cut groups
+  grps <- cutree(clst, k = clstcut)
+  
+  return(grps)
+  
+})
 ```
 
 ```{r dend}
@@ -445,11 +485,14 @@ renderPlot({
   
   # input
   clst <- clst()
-
+  clstcut <- input$clstcut
+  
+  # cols <- mapviewGetOption("vector.palette")(clstgrps)
+  
   p1 <- clst %>% 
     as.dendrogram %>% 
-    # set("branches_k_color", k = ngrps) %>%
-    # set("labels_colors", k = ngrps) %>%
+    set("branches_k_color", k = clstcut) %>%
+    set("labels_colors", k = clstcut) %>%
     set("labels_cex", 0.8) 
   
   plot(p1)
@@ -457,3 +500,34 @@ renderPlot({
 })
 ```
 
+### Cluster map
+
+```{r mapclstprp}
+# subset year and species,  map
+mapclst <- reactive({
+  
+  # inputs
+  clstgrps <- clstgrps()
+  
+  # clstgrps dataframe
+  clstgrps <- clstgrps %>% 
+    data.frame(clstgrps = .) %>% 
+    rownames_to_column('SiteID')
+  
+  toplo <- spdat %>%
+    select(SiteID) %>% 
+    unique %>% 
+    mutate(SiteID = as.character(SiteID)) %>% 
+    inner_join(clstgrps, by = 'SiteID')
+
+  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
+    mapview(toplo, zcol = 'clstgrps', legend = F, homebutton = F)
+
+  return(out)
+  
+})
+```
+
+```{r mapclst}
+renderLeaflet({mapclst()@map})
+```
