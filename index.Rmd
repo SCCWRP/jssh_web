@@ -31,9 +31,9 @@ Analysis of the JSSH Database (see [here](https://www.arcgis.com/home/item.html?
 
 The analysis will be exploratory to address the general questions and to provide information for follow-up analysis. Our approach will begin by addressing each question in sequence as a means to address the final question.  Unless noted otherwise, all analyses will be separate for each watershed. __The tabs above link to each step described below.__
 
-1) __Salmonid status and trends__: Comparison of status and annual trends in salmonid density by size class and individual sites
+1) [__Salmonid status and trends__](saltrends.Rmd): Comparison of status and annual trends in salmonid density by size class and individual sites
 
-1) __Community analysis__: Community analysis of each watershed using species presence/absence early and later in the time series
+1) [__Community analysis__](comman.Rmd): Community analysis of each watershed using species presence/absence early and later in the time series
 
 1) __Habitat analysis__: Analysis of habitat differences between riffle, runs, and pools, changes over time
 

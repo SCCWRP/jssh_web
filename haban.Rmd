@@ -1,13 +1,89 @@
 ---
-title: ""
+title: "Habitat analysis"
 output: 
   html_document:
     code_folding: hide
 self_contained: true
 ---
 
+---
+title: "Community analysis"
+runtime: shiny
+output: 
+  html_document:
+    toc: true
+    toc_float: 
+       collapsed: false
+---
+
+```{r setupcomman, include = FALSE}
+# globals
+library(knitr)
+opts_chunk$set(echo = F, message = F, warning = F)
+
+library(tidyverse)
+library(sf)
+library(mapview)
+library(shiny)
+library(scales)
+library(leaflet)
+library(ggord)
+library(vegan)
+library(ggdendro)
+library(dendextend)
+
+# data, funcs, globals
+prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+source('R/funcs.R')
+
+data(habitat)
+data(fishdat)
+data(stream)
+
+# map colors
+cols <- mapviewGetOption("vector.palette")(4)
+
+colgrp <- data.frame(
+  Watershed = c('APT', 'PAJ', 'SLR', 'SOQ'), 
+  cols = cols, 
+  stringsAsFactors = F
+)
+
+# ggplot base 
+pbase <- theme_bw(base_family = 'serif') +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
+    axis.text.y = element_text(size = 8),
+    legend.position = 'top',
+    legend.direction = 'horizontal',
+    # plot.margin = unit(c(4,4,0,0), "lines"),
+    strip.background = element_blank(), 
+    strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
+    panel.background = element_rect(fill = 'black')
+  ) 
+
+# prep species data, long format 
+spdat <- fishdat %>% 
+  select(Year, Watershed, SiteID, matches('^Sp_')) %>% 
+  gather('species', 'pa', -Year, -SiteID, -Watershed, -geometry) %>% 
+  mutate(
+    species = gsub('^Sp_', '', species)
+  ) %>% 
+  filter(!is.na(Year)) %>% 
+  unique
+
+# site, wshed lookup
+siteshd <- fishdat
+st_geometry(siteshd) <- NULL
+siteshd <- siteshd %>% 
+  select(SiteID, Watershed) %>% 
+  unique %>% 
+  mutate_if(is.factor, as.character)
+```
+
 <br>
 
-## Habitat analysis
-
-Informative text
+The objective of these analyes is to evaluate changes in measured habitat data over time.   

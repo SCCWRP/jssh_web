@@ -78,12 +78,13 @@ siteshd <- siteshd %>%
 
 <br>
 
-The objective of these analyes are to evaluate changes in community composition over time using the presence/absence data for all species.  The first two sections show general changes by species and the third section is a formal multivariate analysis showing ordination and clustering results of the communities for a selected year.  Changes over time can be assessed by comparing the results between years. 
+These analyses can be used to evaluate changes in community composition over time using the presence/absence data for all species.  The first two sections show general changes by species and the third section is a formal multivariate analysis showing ordination and clustering results of the communities for a selected year.  Changes over time can be assessed by comparing the results between years. 
 
 ## Overview maps
 
 This map shows species presence/absence in the four watersheds.  Sites that were sampled for the selected year are shown on the map with small red points indicating a selected species was not found and large green points indicating a species was found at a site.
 
+__If data were collected at a site, were steelhead observed (green: yes, red: no)?__
 ```{r sppinput}
 # select a species
 column(width = 6,
@@ -399,6 +400,7 @@ renderPlot({
   byclst <- input$byclst
   dis1 <- dis1()
   clst <- clst()
+  clstgrps <- clstgrps()
 
   # prep distance data to plot
   # long format of dist matrix, joind with wshed
@@ -435,23 +437,37 @@ renderPlot({
     guides(fill = guide_colourbar(barheight = 0.5, barwidth = 10, label.theme = element_text(size = 10, angle = 0))) + 
     pbase
   
+  # add vline/hline
   if(byclst == 'Watershed'){
       
     # index values of watershed divisions in plot
-    wshdbrk <- toplo %>% 
+    brks <- toplo %>% 
       spread(SiteID2, dist) %>% 
       pull(Watershed) %>% 
       duplicated %>% 
       `!` %>% 
       which %>% 
-      `-` (0.5)
+      `-` (0.5) %>% 
+      .[-1]
   
-    p <- p + 
-      geom_vline(xintercept = wshdbrk, size = 1.5) +
-      geom_hline(yintercept = wshdbrk, size = 1.5)
-  
+  } else {
+    
+    # index values of watershed divisions in plot
+    brks <- clstgrps %>% 
+      .[clst$order] %>% 
+      duplicated %>% 
+      `!` %>% 
+      which %>% 
+      `-` (0.5) %>% 
+      .[-1]
+    
   }
     
+  # add watershed or cluster breaks to the plot
+  p <- p + 
+    geom_vline(xintercept = brks, size = 1.5) +
+    geom_hline(yintercept = brks, size = 1.5)
+  
   return(p)
   
 }, width = 650, height = 700)
