@@ -84,7 +84,7 @@ These analyses can be used to evaluate changes in community composition over tim
 
 This map shows species presence/absence in the four watersheds.  Sites that were sampled for the selected year are shown on the map with small red points indicating a selected species was not found and large green points indicating a species was found at a site.
 
-__If data were collected at a site, were steelhead observed (green: yes, red: no)?__
+__If data were collected at a site, was the selected species observed (green: yes, red: no)?__
 ```{r sppinput}
 # select a species
 column(width = 6,

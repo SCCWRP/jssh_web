@@ -6,16 +6,6 @@ output:
 self_contained: true
 ---
 
----
-title: "Community analysis"
-runtime: shiny
-output: 
-  html_document:
-    toc: true
-    toc_float: 
-       collapsed: false
----
-
 ```{r setupcomman, include = FALSE}
 # globals
 library(knitr)

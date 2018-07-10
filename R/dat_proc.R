@@ -28,7 +28,31 @@ save(fishdat, file = 'data/fishdat.RData')
 ##
 # habitat 
 
-habitat <- sf::st_read(dsn = dsn, layer = 'Tb_Habitat')
+data(fishdat)
+
+# get coords, referenced by SiteID, to join
+SiteIDloc <- fishdat %>% 
+  dplyr::select(SiteID) %>% 
+  mutate(SiteID = as.character(SiteID))
+crds <- st_coordinates(SiteIDloc) %>% 
+  as.tibble
+SiteIDloc <- SiteIDloc %>% 
+  pull(SiteID) %>% 
+  tibble(SiteID = .) %>% 
+  bind_cols(crds) %>% 
+  unique %>% 
+  group_by(SiteID) %>% 
+  summarise(
+    X = mean(X, na.rm = T), 
+    Y = mean(Y, na.rm = T)
+    ) %>% 
+  ungroup
+
+habitat <- sf::st_read(dsn = dsn, layer = 'Tb_Habitat') %>% 
+  mutate(SiteID = as.character(SiteID)) %>% 
+  left_join(., SiteIDloc, by = 'SiteID') %>% 
+  filter(!is.na(X)) %>% 
+  st_as_sf(coords = c('X', 'Y'), crs = st_crs(fishdat))
 
 save(habitat, file = 'data/habitat.RData')
 
