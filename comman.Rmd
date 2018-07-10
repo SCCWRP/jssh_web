@@ -29,7 +29,6 @@ prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
 source('R/funcs.R')
 
-data(habitat)
 data(fishdat)
 data(stream)
 

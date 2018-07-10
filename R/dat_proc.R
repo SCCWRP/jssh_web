@@ -32,16 +32,15 @@ data(fishdat)
 
 # get coords, referenced by SiteID, to join
 SiteIDloc <- fishdat %>% 
-  dplyr::select(SiteID) %>% 
+  dplyr::select(SiteID, Watershed) %>% 
   mutate(SiteID = as.character(SiteID))
 crds <- st_coordinates(SiteIDloc) %>% 
   as.tibble
-SiteIDloc <- SiteIDloc %>% 
-  pull(SiteID) %>% 
-  tibble(SiteID = .) %>% 
+st_geometry(SiteIDloc) <- NULL
+SiteIDloc <- SiteIDloc %>%
   bind_cols(crds) %>% 
   unique %>% 
-  group_by(SiteID) %>% 
+  group_by(SiteID, Watershed) %>% 
   summarise(
     X = mean(X, na.rm = T), 
     Y = mean(Y, na.rm = T)

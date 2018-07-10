@@ -28,7 +28,6 @@ prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 source('R/funcs.R')
 
 data(habitat)
-data(fishdat)
 data(stream)
 
 # map colors
@@ -55,25 +54,49 @@ pbase <- theme_bw(base_family = 'serif') +
     panel.background = element_rect(fill = 'black')
   ) 
 
-# prep species data, long format 
-spdat <- fishdat %>% 
-  select(Year, Watershed, SiteID, matches('^Sp_')) %>% 
-  gather('species', 'pa', -Year, -SiteID, -Watershed, -geometry) %>% 
-  mutate(
-    species = gsub('^Sp_', '', species)
-  ) %>% 
-  filter(!is.na(Year)) %>% 
-  unique
+# prep habitat data, long format 
+habdat <- habitat %>% 
+  dplyr::select(-SiteYearID, -StnNumStrt, -StnNumEnd, -HabDetail, -AssessDate) %>% 
+  gather('habvar', 'habval', -Year, -SiteID, -Watershed, -geometry, -HabType)
 
 # site, wshed lookup
-siteshd <- fishdat
+siteshd <- habitat
 st_geometry(siteshd) <- NULL
 siteshd <- siteshd %>% 
-  select(SiteID, Watershed) %>% 
+  dplyr::select(SiteID, Watershed) %>% 
   unique %>% 
   mutate_if(is.factor, as.character)
 ```
 
 <br>
 
-The objective of these analyes is to evaluate changes in measured habitat data over time.   
+The objective of these analyes is to evaluate changes in measured habitat data over time.  
+
+Habitat measurement are taken separately at each site in different habitat types:
+
+* __Run__
+* __Riffle__
+* __Pool__
+
+Some habitat types are designated as combinations of the above.  These are ignored in the analysis unless the aggregated estimates are selected.  
+
+```{r habinp}
+selectInput("habtyp", "Choose a habitat type to evaluate:", c('run', 'riffle', 'pool', 'all'))
+```
+
+```{r habrct}
+habmap <- reactive({
+  
+  # input
+  habtyp <- input$habtyp
+  
+  out <- habdat %>% 
+    filter(HabType %in% habtyp)
+  
+  return(out)
+  
+})
+
+```
+
+## Overview maps
