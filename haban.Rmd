@@ -23,35 +23,16 @@ library(ggdendro)
 library(dendextend)
 library(shinyWidgets)
 
-# data, funcs, globals
-prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
-
 source('R/funcs.R')
 
 data(habitat)
 data(stream)
-
-# map colors
-cols <- mapviewGetOption("vector.palette")(4)
-
-colgrp <- data.frame(
-  Watershed = c('APT', 'PAJ', 'SLR', 'SOQ'), 
-  cols = cols, 
-  stringsAsFactors = F
-)
 
 # prep habitat data, long format 
 habdat <- habitat %>% 
   dplyr::select(-SiteYearID, -StnNumStrt, -StnNumEnd, -HabDetail, -AssessDate) %>% 
   gather('habvar', 'habval', -Year, -SiteID, -Watershed, -geometry, -HabType)
 
-# site, wshed lookup
-siteshd <- habitat
-st_geometry(siteshd) <- NULL
-siteshd <- siteshd %>% 
-  dplyr::select(SiteID, Watershed) %>% 
-  unique %>% 
-  mutate_if(is.factor, as.character)
 ```
 
 <br>
