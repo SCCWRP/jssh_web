@@ -6,7 +6,7 @@ output:
 self_contained: true
 ---
 
-```{r setupcomman, include = FALSE}
+```{r setuphaban, include = FALSE}
 # globals
 library(knitr)
 opts_chunk$set(echo = F, message = F, warning = F)
@@ -21,6 +21,7 @@ library(ggord)
 library(vegan)
 library(ggdendro)
 library(dendextend)
+library(shinyWidgets)
 
 # data, funcs, globals
 prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
@@ -38,21 +39,6 @@ colgrp <- data.frame(
   cols = cols, 
   stringsAsFactors = F
 )
-
-# ggplot base 
-pbase <- theme_bw(base_family = 'serif') +
-  theme(
-    panel.grid.major = element_blank(), 
-    panel.grid.minor = element_blank(), 
-    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
-    axis.text.y = element_text(size = 8),
-    legend.position = 'top',
-    legend.direction = 'horizontal',
-    # plot.margin = unit(c(4,4,0,0), "lines"),
-    strip.background = element_blank(), 
-    strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
-    panel.background = element_rect(fill = 'black')
-  ) 
 
 # prep habitat data, long format 
 habdat <- habitat %>% 
@@ -72,7 +58,7 @@ siteshd <- siteshd %>%
 
 The objective of these analyes is to evaluate changes in measured habitat data over time.  
 
-Habitat measurement are taken separately at each site in different habitat types:
+Habitat measurements are taken separately in different habitat types at each site:
 
 * __Run__
 * __Riffle__
@@ -80,23 +66,152 @@ Habitat measurement are taken separately at each site in different habitat types
 
 Some habitat types are designated as combinations of the above.  These are ignored in the analysis unless the aggregated estimates are selected.  
 
-```{r habinp}
-selectInput("habtyp", "Choose a habitat type to evaluate:", c('run', 'riffle', 'pool', 'all'))
-```
-
-```{r habrct}
-habmap <- reactive({
+```{r rctvs}
+# filtered habitat data by type and variable
+habrct <- reactive({
   
   # input
   habtyp <- input$habtyp
-  
+  habvr <- input$habvr
+
   out <- habdat %>% 
-    filter(HabType %in% habtyp)
+    filter(HabType %in% habtyp) %>% 
+    filter(habvar %in% habvr)
   
   return(out)
   
 })
 
+# map showing selected habitat type, variable, and year
+habmap <- reactive({
+
+  # input
+  yr <- input$yr
+  habrct <- habrct()
+
+  habrct <- habrct %>% 
+    filter(Year %in% yr)
+
+  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
+    mapview(habrct, zcol = 'Watershed', cex = 'habval', legend = T, homebutton = F)
+  
+  return(out)
+  
+})
 ```
 
 ## Overview maps
+
+This map shows the relative values for a selected habitat variable, habitat type, and year. Observations are colored by watershed and points are sized by relative values of the selected variable.
+
+```{r habinput}
+# habitat type to evaluate
+column(width = 6,
+      selectInput("habtyp", "Choose a habitat type to evaluate:", choices = c('run', 'riffle', 'pool'))
+)
+
+# select habitat variable to show
+column(width = 6,
+      selectInput('habvr', 'Select a habitat variable:', choices = sort(unique(habdat$habvar)))
+)
+
+# select year to show
+column(width = 12,
+      selectInput('yr', 'Select a year:', selected = 2017, choices = sort(unique(habdat$Year)))
+)
+```
+
+```{r}
+renderLeaflet({habmap()@map})
+```
+
+## Relative averages over time
+
+This plot shows measured habitat variables over time averaged for individuals across all sites in a given watershed. Habitat types (run, riffle, pool) can be plotted individually or together.  The numbers inside the boxes indicate the number of sites that were averaged for each year, watershed combination.
+
+```{r tmsel}
+# habitat type to evaluate
+column(width = 6, 
+pickerInput("habtyp2", label = 'Choose a habitat type to evaluate:', choices = c('run', 'riffle', 'pool'),
+                                              selected = c('run'),
+                                              multiple = TRUE
+                                  )
+)
+
+# select habitat variable to show
+column(width = 6,
+      selectInput('habvr2', 'Select a habitat variable:', choices = sort(unique(habdat$habvar)))
+)
+
+# year slider
+column(width = 12, 
+  sliderInput("yrrng", label = 'Select year ranges to plot:',  
+        min = 2001, max = 2017, 
+        value = c(2001, 2017),
+        sep = '', ticks = FALSE
+      )
+)
+```
+
+```{r habyragg}
+# average values of a selected habitat variable over time, by watershed
+habyragg <- reactive({
+  
+  # inputs
+  habvr2 <- input$habvr2
+  habtyp2 <- input$habtyp2
+  yrrng <- input$yrrng
+
+  out <- habdat
+  st_geometry(out) <- NULL
+  out <- out %>% 
+    filter(habvar %in% habvr2) %>% 
+    filter(Year >= yrrng[1] & Year <= yrrng[2]) %>% 
+    filter(HabType %in% habtyp2) %>% 
+    na.omit %>%
+    group_by(Year, HabType, Watershed) %>% 
+    summarise(
+      n = n(), 
+      avehab = mean(habval, na.rm = T)
+    ) %>% 
+    ungroup %>% 
+    mutate_if(is.factor, as.character) %>% 
+    complete(Year = full_seq(Year, 1), HabType, Watershed)
+  
+  return(out)
+  
+})
+```
+
+```{r prsplo, out.width = "100%"}
+renderPlot({
+  
+  # inputs
+  toplo <- habyragg()
+  habvr2 <- input$habvr2
+  
+  p <- ggplot(toplo, aes(y = avehab, x = Year, group = HabType, fill = HabType, label = n)) +
+    geom_line() +
+    geom_label(size = 4) +
+    facet_wrap(~Watershed, ncol = 2) +
+    theme_bw(base_family = 'serif', base_size = 18) +
+    theme(
+      strip.background = element_blank(),
+      axis.title.x = element_blank(),
+      legend.position = 'top', 
+      legend.title = element_blank()
+    ) +
+    scale_y_continuous(habvr2) 
+    # scale_fill_gradientn(colors = c('tomato1', 'lightgreen'), limits = c(0, 100))
+
+  return(p)
+
+}, width = 900, height = 600)
+
+```
+
+Site changes over time
+
+Multivariate analysis 
+
+
