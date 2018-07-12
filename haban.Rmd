@@ -41,15 +41,15 @@ names(habtycol) <- c('run', 'riffle', 'pool')
 
 <br>
 
-The objective of these analyes is to evaluate changes in measured habitat data over time.  
+These analyses can be used to evaluate changes in habitat over time, by watershed, habitat type, and habitat measurements. The first two sections show general changes by individual years and by watershed.  The third section shows more detailed changes for individual sites for selected periods of time. is a formal multivariate analysis showing ordination and clustering results of the communities for a selected year.  Changes over time can be assessed by comparing the results between years. 
 
-Habitat measurements are taken separately in different habitat types at each site:
+Habitat measurements were taken separately in different habitat types at each site:
 
 * __Run__
 * __Riffle__
 * __Pool__
 
-Some habitat types are designated as combinations of the above.  These are ignored in the analysis unless the aggregated estimates are selected.  
+The analyses are structured around these habitat types.  Some habitat types are designated as combinations of the above but these are in the minority and are not included in the analyses below.
 
 ```{r rctvs}
 # filtered habitat data by type and variable
@@ -87,22 +87,22 @@ habmap <- reactive({
 
 ## Overview maps
 
-This map shows the relative values for a selected habitat variable, habitat type, and year. Observations are colored by watershed and points are sized by relative values of the selected variable.
+This map shows the relative values for a selected habitat variable and year for the chosen habitat type. Observations are colored by watershed and points are sized by relative values of the selected variable.
 
 ```{r habinput}
-# habitat type to evaluate
-column(width = 6,
-      selectInput("habtyp", "Choose a habitat type to evaluate:", choices = c('run', 'riffle', 'pool'))
-)
-
 # select habitat variable to show
-column(width = 6,
+column(width = 4,
       selectInput('habvr', 'Select a habitat variable:', choices = sort(unique(habitat$habvar)))
 )
 
 # select year to show
-column(width = 12,
+column(width = 4,
       selectInput('yr', 'Select a year:', selected = 2017, choices = sort(unique(habitat$Year)))
+)
+
+# habitat type to evaluate
+column(width = 4,
+      selectInput("habtyp", "Choose a habitat type to evaluate:", choices = c('run', 'riffle', 'pool'))
 )
 ```
 
@@ -112,9 +112,9 @@ renderLeaflet({habmap()@map})
 
 <br>
 
-## Relative averages over time
+## Watershed averages over time
 
-This plot shows measured habitat variables over time averaged for individuals across all sites in a given watershed. Habitat types (run, riffle, pool) can be plotted individually or together.  The numbers inside the boxes indicate the number of sites that were averaged for each year, watershed combination.
+This plot shows measured habitat variables over time, averaged across all sites that were measured each year in a given watershed. Habitat types (run, riffle, pool) can be plotted individually or together.  The numbers inside the boxes indicate the number of sites that were averaged for each year, watershed combination.  Note that the number of sites that were visited in each watershed varied by year and the trends must be interpreted accordingly.
 
 ```{r tmsel}
 # habitat type to evaluate
@@ -177,6 +177,10 @@ renderPlot({
   toplo <- habyragg()
   habvr2 <- input$habvr2
   
+  # breaks on x-axis
+  yrbrks <- range(toplo$Year, na.rm = T)
+  yrbrks <- seq(yrbrks[1], yrbrks[2])
+  
   p <- ggplot(toplo, aes(y = avehab, x = Year, group = HabType, fill = HabType, color = HabType, label = n)) +
     # geom_line() +
     geom_point(size = 0) +
@@ -188,11 +192,15 @@ renderPlot({
       strip.background = element_blank(),
       axis.title.x = element_blank(),
       legend.position = 'top', 
-      legend.title = element_blank()
+      legend.title = element_blank(), 
+      panel.grid.minor = element_blank(), 
+      panel.grid.major = element_blank(), 
+      axis.text.x = element_text(angle = 50, hjust = 1, vjust = 1, size = 12)
     ) +
     scale_fill_manual(values = habtycol) +
     scale_colour_manual(values = habtycol) +
-    scale_y_continuous(habvr2) 
+    scale_y_continuous(habvr2) + 
+    scale_x_continuous(breaks = yrbrks)
 
   return(p)
 
@@ -202,7 +210,9 @@ renderPlot({
 
 <br>
 
-## Trends at by individual sites {.tabset}
+## Trends at individual sites {.tabset}
+
+This section evaluates trends in selected habitat variables at individual sites, rather than aggregated by watershed as above.  Select the habitat type, habitat variable, and year range to evaluate the trends.  The map tab shows estimated trends across all sites in the selected years and the plot tab shows individual sites in more detail. 
 
 ```{r trndsel}
 # habitat type to evaluate
@@ -228,6 +238,8 @@ column(width = 12,
 
 ### Map, all sites
 
+The points on the map show the value for tau (direction of trend) for a Kendall test of changes of the selected habitat variable within the selected years, green for increasing and red for decreasing.  Size of the point is the magnitude of the estimated change. Note that some sites may not have data spanning the full range of selected years.  Click an individual site on the map to see the available years within the selected range. 
+
 ```{r trndrcts}
 # all trends for each site, selected years, habitat type, habitat variable, for map
 mapdattrnd <- reactive({
@@ -244,7 +256,7 @@ mapdattrnd <- reactive({
 
         xsub <- x %>% 
           filter(Year >= yrrng2[1] & Year <= yrrng2[2]) %>%
-          filter(!is.na(Year)) %>% 
+          filter(!is.na(habval)) %>% 
           mutate(
             aveval = mean(habval, na.rm = T), 
             habval = habval - aveval
@@ -368,10 +380,10 @@ trndathab <- reactive({
     filter(SiteID %in% stsel) %>% 
     mutate(
       habvaldf = purrr::map(data, function(x){
-        
+
         out <- x %>% 
           filter(Year >= yrrng2[1] & Year <= yrrng2[2]) %>%
-          filter(!is.na(Year)) %>% 
+          filter(!is.na(habval)) %>% 
           mutate(
             aveval = mean(habval, na.rm = T), 
             habvaldf = habval - aveval
@@ -433,19 +445,25 @@ renderPlot({
         
   }
   
+  # for axis format
+  yrbrks <- range(toplo$Year, na.rm = T)
+  yrbrks <- seq(yrbrks[1], yrbrks[2])
+  
   p <- p +  
     facet_wrap(~ HabType, ncol = 3) + 
-    theme_bw(base_family = 'serif', base_size = 15) +
+    theme_bw(base_family = 'serif', base_size = 18) +
     theme(
       strip.background = element_blank(),
       panel.grid = element_blank(), 
-      axis.title.x = element_blank()
+      axis.title.x = element_blank(), 
+      axis.text.x = element_text(angle = 50, hjust = 1, vjust = 1, size = 12)
     ) + 
-    scale_y_continuous(habvr3)
+    scale_y_continuous(habvr3) + 
+    scale_x_continuous(breaks = yrbrks)
 
   return(p)
   
-})
+}, width = 900, height = 300)
 
 ```
 
