@@ -49,9 +49,14 @@ SiteIDloc <- SiteIDloc %>%
 
 habitat <- sf::st_read(dsn = dsn, layer = 'Tb_Habitat') %>% 
   mutate(SiteID = as.character(SiteID)) %>% 
+  dplyr::select(-SiteYearID, -StnNumStrt, -StnNumEnd, -HabDetail, -AssessDate) %>% 
+  gather('habvar', 'habval', -Year, -SiteID, -HabType) %>% 
+  group_by(Year, SiteID, HabType, habvar) %>% 
+  summarise(habval = mean(habval, na.rm = T)) %>% 
   left_join(., SiteIDloc, by = 'SiteID') %>% 
   filter(!is.na(X)) %>% 
-  st_as_sf(coords = c('X', 'Y'), crs = st_crs(fishdat))
+  st_as_sf(coords = c('X', 'Y'), crs = st_crs(fishdat)) %>% 
+  ungroup
 
 save(habitat, file = 'data/habitat.RData')
 
@@ -107,4 +112,37 @@ trndst_prep <- trndst_prep %>%
   left_join(crds, by = 'SiteID')
 
 save(trndst_prep, file = 'data/trndst_prep.RData', compress = 'xz')
+
+##
+# prep habitat site data for trends
+
+data(habitat)
+
+# prep habitat data, long format 
+trndhab_prep <- habitat
+
+# separate crds tibble for later joing
+crds <- st_coordinates(trndhab_prep) %>% 
+  as.tibble
+st_geometry(trndhab_prep) <- NULL
+crds <- trndhab_prep %>% 
+  dplyr::select(SiteID) %>% 
+  bind_cols(crds) %>% 
+  unique %>% 
+  group_by(SiteID) %>% 
+  summarize(
+    X = mean(X), 
+    Y = mean(Y)
+  ) %>% 
+  ungroup
+
+# get trends by station, size class
+trndhab_prep <- trndhab_prep %>% 
+  select(-Watershed) %>% 
+  filter(HabType %in% c('run', 'riffle', 'pool')) %>% 
+  group_by(SiteID, HabType, habvar) %>% 
+  nest %>% 
+  left_join(crds, by = 'SiteID')
+
+save(trndhab_prep, file = 'data/trndhab_prep.RData', compress = 'xz')
 

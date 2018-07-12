@@ -13,3 +13,9 @@ Data from the compiled geodatabase were extracted for exploratory analysis:
 * `segment` spatial data for stream segments with fish data
 
 * `stream` spatial data for complete hydrography for the four watersheds with fish and habitat data
+
+Additional data were created for the website analyses:
+
+* `trndhab_prep.RData` preprocessed habitat data for trend analyses at individual sites, used in `saltrends.Rmd`
+
+* `trndst_prep.RData` preprocessed salmonid data for trend analyses at individual sites, used in `haban.Rmd`

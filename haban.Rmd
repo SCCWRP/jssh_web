@@ -22,17 +22,19 @@ library(vegan)
 library(ggdendro)
 library(dendextend)
 library(shinyWidgets)
+library(EnvStats)
 
 source('R/funcs.R')
 
 data(habitat)
 data(stream)
+data(trndhab_prep)
 
-# prep habitat data, long format 
-habdat <- habitat %>% 
-  dplyr::select(-SiteYearID, -StnNumStrt, -StnNumEnd, -HabDetail, -AssessDate) %>% 
-  gather('habvar', 'habval', -Year, -SiteID, -Watershed, -geometry, -HabType)
+prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
+# habitat type colors
+habtycol <- colorRampPalette(c('tomato1', 'lightgreen'))(3)
+names(habtycol) <- c('run', 'riffle', 'pool')
 ```
 
 <br>
@@ -55,7 +57,7 @@ habrct <- reactive({
   habtyp <- input$habtyp
   habvr <- input$habvr
 
-  out <- habdat %>% 
+  out <- habitat %>% 
     filter(HabType %in% habtyp) %>% 
     filter(habvar %in% habvr)
   
@@ -93,18 +95,20 @@ column(width = 6,
 
 # select habitat variable to show
 column(width = 6,
-      selectInput('habvr', 'Select a habitat variable:', choices = sort(unique(habdat$habvar)))
+      selectInput('habvr', 'Select a habitat variable:', choices = sort(unique(habitat$habvar)))
 )
 
 # select year to show
 column(width = 12,
-      selectInput('yr', 'Select a year:', selected = 2017, choices = sort(unique(habdat$Year)))
+      selectInput('yr', 'Select a year:', selected = 2017, choices = sort(unique(habitat$Year)))
 )
 ```
 
 ```{r}
 renderLeaflet({habmap()@map})
 ```
+
+<br>
 
 ## Relative averages over time
 
@@ -121,7 +125,7 @@ pickerInput("habtyp2", label = 'Choose a habitat type to evaluate:', choices = c
 
 # select habitat variable to show
 column(width = 6,
-      selectInput('habvr2', 'Select a habitat variable:', choices = sort(unique(habdat$habvar)))
+      selectInput('habvr2', 'Select a habitat variable:', choices = sort(unique(habitat$habvar)))
 )
 
 # year slider
@@ -143,7 +147,7 @@ habyragg <- reactive({
   habtyp2 <- input$habtyp2
   yrrng <- input$yrrng
 
-  out <- habdat
+  out <- habitat
   st_geometry(out) <- NULL
   out <- out %>% 
     filter(habvar %in% habvr2) %>% 
@@ -171,9 +175,11 @@ renderPlot({
   toplo <- habyragg()
   habvr2 <- input$habvr2
   
-  p <- ggplot(toplo, aes(y = avehab, x = Year, group = HabType, fill = HabType, label = n)) +
-    geom_line() +
-    geom_label(size = 4) +
+  p <- ggplot(toplo, aes(y = avehab, x = Year, group = HabType, fill = HabType, color = HabType, label = n)) +
+    # geom_line() +
+    geom_point(size = 0) +
+    geom_label(size = 4, colour = 'black') +
+    stat_smooth(method = 'lm', se = F, linetype = 'dashed') +
     facet_wrap(~Watershed, ncol = 2) +
     theme_bw(base_family = 'serif', base_size = 18) +
     theme(
@@ -182,8 +188,9 @@ renderPlot({
       legend.position = 'top', 
       legend.title = element_blank()
     ) +
+    scale_fill_manual(values = habtycol) +
+    scale_colour_manual(values = habtycol) +
     scale_y_continuous(habvr2) 
-    # scale_fill_gradientn(colors = c('tomato1', 'lightgreen'), limits = c(0, 100))
 
   return(p)
 
@@ -191,8 +198,253 @@ renderPlot({
 
 ```
 
-Site changes over time
+<br>
 
-Multivariate analysis 
+## Trends at by individual sites {.tabset}
+
+```{r trndsel}
+# habitat type to evaluate
+column(width = 6, 
+       selectInput("habtyp3", label = 'Choose a habitat type to evaluate:', choices = c('run', 'riffle', 'pool'))
+)
+
+# select habitat variable to show
+column(width = 6,
+      selectInput('habvr3', 'Select a habitat variable:', choices = sort(unique(habitat$habvar)))
+)
+
+# year slider
+column(width = 12, 
+       
+  sliderInput("yrrng2", label = 'Select year ranges to plot:',  
+        min = 2001, max = 2017, 
+        value = c(2001, 2017),
+        sep = '', ticks = FALSE
+      )
+)
+```
+
+### Map, all sites
+
+```{r trndrcts}
+# all trends for each site, selected years, habitat type, habitat variable, for map
+mapdattrnd <- reactive({
+  
+  # input
+  habtyp3 <- input$habtyp3
+  habvr3 <- input$habvr3
+  yrrng2 <- input$yrrng2
+
+  toplo <- trndhab_prep %>% 
+    filter(habvar %in% habvr3) %>% 
+    mutate(
+      trnd = purrr::map(data, function(x){
+
+        xsub <- x %>% 
+          filter(Year >= yrrng2[1] & Year <= yrrng2[2]) %>%
+          filter(!is.na(Year)) %>% 
+          mutate(
+            aveval = mean(habval, na.rm = T), 
+            habval = habval - aveval
+            ) %>% 
+          dplyr::select(-aveval)
+        
+        # get unique years tested
+        yrs <- unique(xsub$Year) %>% 
+          paste(collapse = ', ')
+  
+        # kendall sum
+        knout <- suppressWarnings(try({kendallTrendTest(habval ~ Year, xsub)}, silent = T))
+        if(inherits(knout, 'try-error')) return(NA)
+        kpval <- knout$p.value
+        kest <- knout$estimate
+        out <- c(kpval, kest) %>% 
+          as.list %>% 
+          data.frame %>% 
+          mutate(yrs = yrs)
+           
+        return(out)
+  
+        })
+      ) %>% 
+      dplyr::select(-data) %>% 
+      filter(map_lgl(trnd, ~ !anyNA(.x))) %>% # this!
+      unnest %>% 
+      dplyr::select(-intercept) %>% 
+      mutate(
+        z = p_ast(z), 
+        trend = sign(tau),
+        trend = factor(trend, levels = c(-1, 1), labels =c('dec', 'inc'))
+        ) %>% 
+      mutate_if(is.numeric, round, 2) %>% 
+      rename(pval = z) %>% 
+      st_as_sf(coords = c("X", "Y"), crs =prj)
+    
+    return(toplo)
+  
+    })
+
+# create map from selected, trended data
+mapouthab <- reactive({
+
+  # input
+  mapdattrnd <- mapdattrnd()
+  habtyp3 <- input$habtyp3
+  
+  # filter by selected habitat type
+  mapdattrnd <- mapdattrnd %>% 
+    filter(HabType %in% habtyp3)
+  
+  # get colors
+  cols <- mapdattrnd %>%
+    mutate(
+      cols = factor(trend, levels = c('dec', 'inc'), labels = c('tomato1', 'lightgreen')),
+      cols = as.character(cols)
+    ) %>%
+    pull(cols)
+
+  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
+    mapview(mapdattrnd, zcol = 'trend', cex = "tau", label = paste(mapdattrnd$SiteID, ': ', mapdattrnd$trend, ', p = ', mapdattrnd$pval), col.regions = cols, legend = F, homebutton = F)
+
+  return(out)
+
+  })
+
+```
+```{r habtrndmap}
+# render the habitat trend map  
+renderLeaflet({mapouthab()@map})
+```
+
+### Plot, one site
+
+Trends for the measured habitat variable at a selected site are shown below.  Deviations from the mean are shown, where the means are estimated separately for different habitat types. These plots can confirm the results shown in the map.  
+
+```{r habtrndpltprp}
+
+# dynamic ui that changes with year selections on map, differents sites depending on year combos
+column(6, 
+       renderUI({
+ 
+        # inputs
+        mapdattrnd <- mapdattrnd()
+        habtyp3 <- input$habtyp3
+        
+        sts <- mapdattrnd() %>% 
+          filter(HabType %in% habtyp3) %>% 
+          pull(SiteID) %>% 
+          as.character %>% 
+          unique %>% 
+          sort
+        
+        selectInput("st", "Select station to view map trends:", sts)
+      
+      })
+)
 
 
+# select which values to show on y-axis, deviations or actual
+column(6, 
+
+        selectInput("yvr", "Select y-axis type:", c('deviation from mean', 'actual'))
+
+)
+
+# habitat trends to plot for an individual site, separate for habitat types
+trndathab <- reactive({
+
+  # input
+  yrsel <- input$yearsst
+  stsel <- input$st
+  habvr3 <- input$habvr3
+  yrrng2 <- input$yrrng2
+  
+  req(!is.null(stsel))
+  
+  toplo <- trndhab_prep %>% 
+    filter(habvar %in% habvr3) %>% 
+    filter(SiteID %in% stsel) %>% 
+    mutate(
+      habvaldf = purrr::map(data, function(x){
+        
+        out <- x %>% 
+          filter(Year >= yrrng2[1] & Year <= yrrng2[2]) %>%
+          filter(!is.na(Year)) %>% 
+          mutate(
+            aveval = mean(habval, na.rm = T), 
+            habvaldf = habval - aveval
+            ) %>% 
+          dplyr::select(-aveval)
+        
+        return(out)
+        
+      })
+    ) %>% 
+    select(-data) %>% 
+    unnest
+  
+  return(toplo)
+
+  })
+```
+
+```{r sitetrndplt, fig.height = 4, fig.width = 8, out.width = "100%"}
+# plot of year trends at a site
+renderPlot({
+  
+  toplo <- trndathab()
+  mapdattrnd <- mapdattrnd()
+  stsel <- input$st
+  habvr3 <- input$habvr3
+  yvr <- input$yvr
+
+  # get trends, join with toplo
+  trnds <- mapdattrnd %>%
+    filter(SiteID %in% stsel) %>% 
+    select(HabType, pval) %>% 
+    mutate(
+      pval = paste('trend', pval)
+      )
+  st_geometry(trnds) <- NULL
+  toplo <- left_join(toplo, trnds, by = 'HabType') %>% 
+    unite('HabType', HabType, pval, sep = ', ')
+  
+  req(!is.null(stsel))
+
+  if(yvr == 'actual'){
+    
+    # midpoint for fill scaling    
+    midpt <- mean(toplo$habval, na.rm = T)
+    
+    p <- ggplot(toplo, aes(x = Year, y = habval, fill = habval)) + 
+      geom_bar(stat = 'identity', colour = 'grey') + 
+      scale_fill_gradient2('', low = 'tomato1', mid = 'white', high = 'lightgreen', midpoint = midpt) +
+      geom_smooth(method = 'lm', se = F, linetype = 'dashed', color = 'black') 
+    
+  } else {
+    
+    p <- ggplot(toplo, aes(x = Year, y = habvaldf, fill = habvaldf)) + 
+      geom_bar(stat = 'identity', colour = 'grey') + 
+      scale_fill_gradient2('', low = 'tomato1', mid = 'white', high = 'lightgreen', midpoint = 0) +
+      geom_smooth(method = 'lm', se = F, linetype = 'dashed', color = 'black') + 
+      geom_hline(yintercept = 0) 
+        
+  }
+  
+  p <- p +  
+    facet_wrap(~ HabType, ncol = 3) + 
+    theme_bw(base_family = 'serif', base_size = 15) +
+    theme(
+      strip.background = element_blank(),
+      panel.grid = element_blank(), 
+      axis.title.x = element_blank()
+    ) + 
+    scale_y_continuous(habvr3)
+
+  return(p)
+  
+})
+
+```
+
+<br>
