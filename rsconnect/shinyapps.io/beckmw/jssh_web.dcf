@@ -5,6 +5,6 @@ account: beckmw
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 361741
-bundleId: 1432280
+bundleId: 1477922
 url: https://beckmw.shinyapps.io/jssh_web/
-when: 1529100984.39875
+when: 1531425164.96208

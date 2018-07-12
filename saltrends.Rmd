@@ -465,15 +465,27 @@ mapdatst <- reactive({
 # create map from selected, trended data
 mapoutst <- reactive({
 
-  cols <- mapdatst() %>% 
+  mapdatst <- mapdatst()
+  
+  # point colors
+  cols <- mapdatst %>% 
     mutate(
       cols = factor(trend, levels = c('dec', 'inc'), labels = c('tomato1', 'lightgreen')),
       cols = as.character(cols)
     ) %>% 
     pull(cols)
 
+  # size values
+  cexv <- mapdatst%>% 
+    pull(tau) %>% 
+    abs %>% 
+    scales::rescale(to = c(2, 15))
+
+  # hover pt labels
+  labs <- paste(mapdatst$SiteID, ': ', mapdatst$trend, ', tau = ', mapdatst$tau, ', p = ', mapdatst$pval)
+  
   out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
-    mapview(mapdatst(), zcol = 'trend', cex = "tau", label = paste(mapdatst()$SiteID, ': ', mapdatst()$trend), col.regions = cols, legend = F, homebutton = F)
+    mapview(mapdatst, zcol = 'trend', cex = cexv, label = labs, col.regions = cols, legend = F, homebutton = F)
   
   return(out)
   

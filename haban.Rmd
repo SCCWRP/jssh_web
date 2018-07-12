@@ -37,6 +37,19 @@ prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 # habitat type colors
 habtycol <- colorRampPalette(c('tomato1', 'lightgreen'))(3)
 names(habtycol) <- c('run', 'riffle', 'pool')
+
+# habitat variables to select, master obj
+habvrs <- list(
+  'Canopy cover (%)' = 'StnCan',
+  'Deciduous canopy cover (%)' = 'StnDecid', 
+  'Average depth (ft)' = 'StnDpthAvg',
+  'Maximum depth (ft)' = 'StnDpthMax',
+  'Embeddedness (%)' = 'StnEmbed',
+  'Escape cover (ratio)' = 'StnEsCov',
+  'Fines (%)' = 'StnFines',
+  'Station length (ft)' = 'StnLgth',
+  'Station width (ft)' = 'StnWdth'
+  )
 ```
 
 <br>
@@ -76,9 +89,12 @@ habmap <- reactive({
 
   habrct <- habrct %>% 
     filter(Year %in% yr)
-
+  
+  # hover pt labels
+  labs <- paste(habrct$SiteID, ': ', habrct$habval)
+  
   out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
-    mapview(habrct, zcol = 'Watershed', cex = 'habval', legend = T, homebutton = F)
+    mapview(habrct, zcol = 'Watershed', cex = 'habval', label = labs, legend = T, homebutton = F)
   
   return(out)
   
@@ -92,7 +108,7 @@ This map shows the relative values for a selected habitat variable and year for 
 ```{r habinput}
 # select habitat variable to show
 column(width = 4,
-      selectInput('habvr', 'Select a habitat variable:', choices = sort(unique(habitat$habvar)))
+      selectInput('habvr', 'Select a habitat variable:', choices = habvrs)
 )
 
 # select year to show
@@ -114,35 +130,48 @@ renderLeaflet({habmap()@map})
 
 ## Watershed averages over time
 
-This plot shows measured habitat variables over time, averaged across all sites that were measured each year in a given watershed. Habitat types (run, riffle, pool) can be plotted individually or together.  The numbers inside the boxes indicate the number of sites that were averaged for each year, watershed combination.  Note that the number of sites that were visited in each watershed varied by year and the trends must be interpreted accordingly.
+This plot shows measured habitat variables over time, averaged across all sites that were measured each year in a given watershed. Habitat types (run, riffle, pool) can be plotted individually or together.  The numbers inside the boxes indicate the number of sites that were averaged for each year, watershed combination.  Note that the number of sites that were visited in each watershed varied by year and the trends must be interpreted accordingly.  Overlaying the observations can aid the interpretation.
 
 ```{r tmsel}
-# habitat type to evaluate
-column(width = 6, 
-pickerInput("habtyp2", label = 'Choose a habitat type to evaluate:', choices = c('run', 'riffle', 'pool'),
-                                              selected = c('run'),
-                                              multiple = TRUE
-                                  )
+column(width = 12,
+       
+  # habitat type to evaluate
+  column(width = 6, 
+  pickerInput("habtyp2", label = 'Choose a habitat type to evaluate:', choices = c('run', 'riffle', 'pool'),
+                                                selected = c('run'),
+                                                multiple = TRUE
+                                    )
+  ),
+  
+  # select habitat variable to show
+  column(width = 6,
+        selectInput('habvr2', 'Select a habitat variable:', choices = habvrs)
+  )
+  
 )
 
-# select habitat variable to show
-column(width = 6,
-      selectInput('habvr2', 'Select a habitat variable:', choices = sort(unique(habitat$habvar)))
-)
-
-# year slider
-column(width = 12, 
-  sliderInput("yrrng", label = 'Select year ranges to plot:',  
-        min = 2001, max = 2017, 
-        value = c(2001, 2017),
-        sep = '', ticks = FALSE
-      )
+column(12, 
+       
+  # year slider
+  column(width = 6, 
+    sliderInput("yrrng", label = 'Select year ranges to plot:',  
+          min = 2001, max = 2017, 
+          value = c(2001, 2017),
+          sep = '', ticks = FALSE
+        )
+  ),
+  
+  # show actual obs in each wshed or not
+  column(width = 6, 
+    selectInput("shwobs", label = 'Overlay observed values?', choices = list('no' = F, 'yes' = T))
+  )
+  
 )
 ```
 
 ```{r habyragg}
-# average values of a selected habitat variable over time, by watershed
-habyragg <- reactive({
+# all values of a selected habitat variable over time, by watershed
+habyrall <- reactive({
   
   # inputs
   habvr2 <- input$habvr2
@@ -155,7 +184,19 @@ habyragg <- reactive({
     filter(habvar %in% habvr2) %>% 
     filter(Year >= yrrng[1] & Year <= yrrng[2]) %>% 
     filter(HabType %in% habtyp2) %>% 
-    na.omit %>%
+    na.omit
+  
+  return(out)
+  
+})
+
+# average values of a selected habitat variable over time, by watershed
+habyragg <- reactive({
+  
+  # inputs
+  habyrall <- habyrall()
+
+  out <- habyrall %>% 
     group_by(Year, HabType, Watershed) %>% 
     summarise(
       n = n(), 
@@ -174,18 +215,30 @@ habyragg <- reactive({
 renderPlot({
   
   # inputs
-  toplo <- habyragg()
+  habyragg <- habyragg()
+  habyrall <- habyrall()
   habvr2 <- input$habvr2
+  shwobs <- input$shwobs
   
   # breaks on x-axis
-  yrbrks <- range(toplo$Year, na.rm = T)
+  yrbrks <- range(habyragg$Year, na.rm = T)
   yrbrks <- seq(yrbrks[1], yrbrks[2])
   
-  p <- ggplot(toplo, aes(y = avehab, x = Year, group = HabType, fill = HabType, color = HabType, label = n)) +
-    # geom_line() +
-    geom_point(size = 0) +
-    geom_label(size = 4, colour = 'black') +
-    stat_smooth(method = 'lm', se = F, linetype = 'dashed') +
+  # plot mapping
+  p <- ggplot(habyragg, aes(x = Year, group = HabType, fill = HabType, color = HabType)) 
+  
+  # add obs if shwobs
+  if(shwobs){
+
+     p <- p + 
+       geom_jitter(data = habyrall, aes(y = habval), size = 1.5, width = 0.05, alpha = 0.8)
+     
+  } 
+  
+  # create rest of plot
+  p <- p + 
+    stat_smooth(aes(y = avehab), method = 'lm', se = F, linetype = 'dashed') +
+    geom_label(aes(y = avehab, label = n), size = 5, colour = 'black') +
     facet_wrap(~Watershed, ncol = 2) +
     theme_bw(base_family = 'serif', base_size = 18) +
     theme(
@@ -222,7 +275,7 @@ column(width = 6,
 
 # select habitat variable to show
 column(width = 6,
-      selectInput('habvr3', 'Select a habitat variable:', choices = sort(unique(habitat$habvar)))
+      selectInput('habvr3', 'Select a habitat variable:', choices = habvrs)
 )
 
 # year slider
@@ -316,9 +369,18 @@ mapouthab <- reactive({
       cols = as.character(cols)
     ) %>%
     pull(cols)
+  
+  # size values
+  cexv <- mapdattrnd %>% 
+    pull(tau) %>% 
+    abs %>% 
+    scales::rescale(to = c(2, 15))
 
+  # hover pt labels
+  labs <- paste(mapdattrnd$SiteID, ': ', mapdattrnd$trend, ', tau = ', mapdattrnd$tau, ', p = ', mapdattrnd$pval)
+  
   out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
-    mapview(mapdattrnd, zcol = 'trend', cex = "tau", label = paste(mapdattrnd$SiteID, ': ', mapdattrnd$trend, ', p = ', mapdattrnd$pval), col.regions = cols, legend = F, homebutton = F)
+    mapview(mapdattrnd, zcol = 'trend', cex = cexv, label = labs, col.regions = cols, legend = F, homebutton = F)
 
   return(out)
 
@@ -372,7 +434,7 @@ trndathab <- reactive({
   stsel <- input$st
   habvr3 <- input$habvr3
   yrrng2 <- input$yrrng2
-  
+
   req(!is.null(stsel))
   
   toplo <- trndhab_prep %>% 
@@ -394,7 +456,7 @@ trndathab <- reactive({
         
       })
     ) %>% 
-    select(-data) %>% 
+    dplyr::select(-data) %>% 
     unnest
   
   return(toplo)
@@ -411,7 +473,7 @@ renderPlot({
   stsel <- input$st
   habvr3 <- input$habvr3
   yvr <- input$yvr
-
+ 
   # get trends, join with toplo
   trnds <- mapdattrnd %>%
     filter(SiteID %in% stsel) %>% 
