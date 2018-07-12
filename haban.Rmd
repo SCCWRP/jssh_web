@@ -1,9 +1,11 @@
 ---
 title: "Habitat analysis"
+runtime: shiny
 output: 
   html_document:
-    code_folding: hide
-self_contained: true
+    toc: true
+    toc_float: 
+       collapsed: false
 ---
 
 ```{r setuphaban, include = FALSE}
