@@ -33,11 +33,11 @@ The analysis will be exploratory to address the general questions and to provide
 
 1) [__Salmonid status and trends__](saltrends.Rmd): Comparison of status and annual trends in salmonid density by size class and individual sites
 
-1) [__Community analysis__](comman.Rmd): Community analysis of each watershed using species presence/absence early and later in the time series
+1) [__Community analysis__](comman.Rmd): Community analysis of each watershed using species presence/absence, changes over time
 
-1) __Habitat analysis__: Analysis of habitat differences between riffle, runs, and pools, changes over time
+1) [__Habitat analysis__](haban.Rmd): Analysis of habitat differences between riffle, runs, and pools, changes over time
 
-1) __Community and habitat analysis__: Multivariate analysis of association between habitat measurements and community composition early and later in the time series
+1) [__Community and habitat analysis__](commhaban.Rmd): Multivariate analysis of association between habitat measurements and community composition, changes over time
 
 1) __Variable importance__: Linear or additive modelling of salmonid density to identify important habitat variables
 
