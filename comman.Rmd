@@ -205,7 +205,7 @@ renderPlot({
 
 ## Multivariate community analysis
 
-This section can be used to evaluate community changes over time by showing natural groupings between sites using speices presence/absence data.  Some questions to consider when evaluating the data are:
+This section can be used to evaluate community changes over time by showing natural groupings between sites using species presence/absence data.  Some questions to consider when evaluating the data are:
 
 1) Do the results differ when evaluating the results between years?
 2) Can the results be explained by community differences between the watersheds?
