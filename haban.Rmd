@@ -54,7 +54,7 @@ habvrs <- list(
 
 <br>
 
-These analyses can be used to evaluate changes in habitat over time, by watershed, habitat type, and habitat measurements. The first two sections show general changes by individual years and by watershed.  The third section shows more detailed changes for individual sites for selected periods of time. is a formal multivariate analysis showing ordination and clustering results of the communities for a selected year.  Changes over time can be assessed by comparing the results between years. 
+These analyses can be used to evaluate changes in habitat over time, by watershed, habitat type, and habitat measurements. The first two sections show general changes by individual years and by watershed.  The third section shows more detailed changes for individual sites for selected periods of time. 
 
 Habitat measurements were taken separately in different habitat types at each site:
 

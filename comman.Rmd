@@ -383,7 +383,7 @@ renderPlot({
 ```{r}
 # select matrix order type
 column(width = 6,
-  selectInput('byclst', 'Order by?', selected = 'Watershed', choices = c('Watershed', 'Clusters'))
+  selectInput('byclst', 'Order by?', selected = 'Clusters', choices = c('Watershed', 'Clusters'))
 )
 
 # show cluster method if matrix order type is cluster

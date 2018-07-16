@@ -24,7 +24,7 @@ library(vegan)
 library(ggdendro)
 library(dendextend)
 library(shinyWidgets)
-library(EnvStats)
+library(ggrepel)
 
 source('R/funcs.R')
 
@@ -116,63 +116,14 @@ Some questions to consider when evaluating the data are:
 1) Is there an effect of adding or removing habitat variables from the analysis?
 1) Can the results be explained by community or habitat differences between the watersheds?
 1) If not, are there other natural groupings in the data that can describe community differences?
-1) How does the chosen method of analysis affect the results (i.e., how robust are the conclusions with changes in the methods)?
-
-There are several options to consider when exploring the data.  Results from multivariate analyses can change depending on presence of rare species (those that occur at fewer than n sites), the measure used to evaluate dissimilarity between sites, the clustering algorithm, and how groups are defined from the clustering results.  All of these options can be changed with the sliders.  
-
-## Select analysis options
-
-### Global
+1) How does the chosen method of analysis affect the results (i.e., how robust are the conclusions with changes in the methods)? Changes to the methods to consider include effects of rare species, chosen dissimilarity measure, chosen clustering algorithm, and how groups are defined from the clustering results.
 
 ```{r mltsetup}
 # select a year
 column(width = 12, 
-       selectInput('yrmlt', 'Select a year for comparison:', sort(unique(mltspdat$Year)), selected = 2017)
+       selectInput('yrmlt', 'Select a year for comparison (species and habitat data):', sort(unique(mlthbdat$Year)), selected = 2017)
        )
 ```
-
-### Species community data
-
-```{r}
-# remove species at less than x sites
-column(width = 6, 
-       selectInput('remrr', 'Remove species occurring at n sites or less:', selected = 1, choices = seq(0, 20))
-       )
-
-# select dissimilarity measure
-column(width = 6, 
-       selectInput('distyp', 'Select dissimilarity measure for clustering', 
-                   selected = 'jaccard', choices = c('jaccard', 'bray', 'euclidean', 'raup'))
-       )
-
-# select cluster type
-column(width = 6, 
-       selectInput('clsttyp', 'Select cluster type:', selected = 'average', choices = c('ward.D', 'ward.D2', 'single', 'complete', 'average', 'mcquitty', 'median', 'centroid'))
-)
-
-# select cluster cuts
-column(width = 6, 
-       selectInput('clstcut', 'Select cluster groups:', selected = 2, choices = c(1:10))
-)
-```
-
-### Habitat data
-
-```{r}
-# habitat type to evaluate
-column(width = 6, 
-       selectInput("habty", label = 'Choose habitat type to evaluate:', choices = c('run', 'riffle', 'pool'))
-)
-
-# habitat variables to consider
-column(width = 6, 
-  pickerInput("habvr", label = 'Choose a habitat variables to consider:', choices = habvrs, selected = habvrs,
-                                                multiple = TRUE
-                                    )
-  )
-```
-
-<br>
 
 ```{r ccaord}
 # species and habitat data for ordination 
@@ -277,14 +228,39 @@ ccaord <- reactive({
 })
 ```
 
-## Clustering results {.tabset}
+## Species clustering results {.tabset}
+
+```{r clstin}
+# remove species at less than x sites
+column(width = 6, 
+       selectInput('remrr', 'Remove species occurring at n sites or less:', selected = 1, choices = seq(0, 20))
+       )
+
+# select dissimilarity measure
+column(width = 6, 
+       selectInput('distyp', 'Select dissimilarity measure for clustering', 
+                   selected = 'jaccard', choices = c('jaccard', 'bray', 'euclidean', 'raup'))
+       )
+
+# select cluster type
+column(width = 6, 
+       selectInput('clsttyp', 'Select cluster type:', selected = 'average', choices = c('ward.D', 'ward.D2', 'single', 'complete', 'average', 'mcquitty', 'median', 'centroid'))
+)
+
+# select cluster cuts
+column(width = 6, 
+       selectInput('clstcut', 'Select cluster groups:', selected = 2, choices = c(1:10))
+)
+```
+
+<br>
 
 ### Dissimilarity matrix
 
 ```{r}
 # select matrix order type
 column(width = 6,
-  selectInput('byclst', 'Order by?', selected = 'Watershed', choices = c('Watershed', 'Clusters'))
+  selectInput('byclst', 'Order by?', selected = 'Clusters', choices = c('Watershed', 'Clusters'))
 )
 
 # show cluster method if matrix order type is cluster
@@ -460,6 +436,20 @@ renderLeaflet({mapclst()@map})
 ## Constrained ordination {.tabset}
 
 ```{r}
+# habitat type to evaluate
+column(width = 6, 
+       selectInput("habty", label = 'Choose habitat type to evaluate:', choices = c('run', 'riffle', 'pool'))
+)
+
+# habitat variables to consider
+column(width = 6, 
+  pickerInput("habvr", label = 'Choose a habitat variables to consider:', choices = habvrs, selected = habvrs,
+                                                multiple = TRUE
+                                    )
+  )
+```
+
+```{r}
 # # some chatty stuff about the ordination
 # renderText({
 #   
@@ -481,6 +471,36 @@ renderLeaflet({mapclst()@map})
 
 ### Triplot
 
+```{r selax}
+column(6, 
+  renderUI({
+    
+    # inputs
+    ccaord <- ccaord()
+    
+    # possible axes to select
+    axs <- seq_along(colnames(ccaord$CCA$wa))
+  
+    selectInput('axsx', 'Select CCA axis for x-axis:', choices = axs, selected = 1)
+    
+  })
+)
+
+column(6, 
+  renderUI({
+    
+    # inputs
+    ccaord <- ccaord()
+    
+    # possible axes to select
+    axs <- seq_along(colnames(ccaord$CCA$wa))
+  
+    selectInput('axsy', 'Select CCA axis for y-axis:', choices = axs, selected = 2)
+    
+  })
+)
+```
+
 ```{r ordplt, out.width = "100%"}
 renderPlot({
   
@@ -488,6 +508,8 @@ renderPlot({
   ccaord <- ccaord()
   clstcut <- as.numeric(input$clstcut)
   clstgrps <- clstgrps()
+  axsx <- input$axsx
+  axsy <- input$axsy
 
   # use watersheds as groups if clstcut is one, otherwise cluster groups
   if(clstcut == 1){
@@ -506,7 +528,7 @@ renderPlot({
 
   }
 
-  pord <- ggord(ccaord, grp_in = grpin, vec_ext = 4, col = colsub, ptslab = T, parse = T,
+  pord <- ggord(ccaord, grp_in = grpin, axes = c(axsx, axsy), vec_ext = 4, col = colsub, ptslab = T, parse = T,
         alpha = 1, alpha_el = 0.2, size = 4, txt = 5, addsize = 4, arrow = 0.5, repel = F, coord_fix = F) +
     theme_bw(base_family = 'serif', base_size = 16) +
     theme(legend.position = 'top')
@@ -515,3 +537,55 @@ renderPlot({
 
 }, width = 700, height = 700)
 ```
+
+### Dominant species by group
+
+```{r}
+renderPlot({
+  
+  # inputs
+  clstgrps <- clstgrps()
+  toordsp <- toord()[['toordsp']]
+
+  # toplo
+  toplo <- toordsp %>% 
+    dplyr::select(-Watershed) %>% 
+    mutate(clstgrps = clstgrps) %>% 
+    gather('spp', 'pa', -clstgrps) %>% 
+    group_by(clstgrps, spp) %>% 
+    summarise(
+      cnts = sum(pa)
+      ) %>% 
+    mutate(
+      pers = 100 * cnts/sum(cnts)
+    ) %>% 
+    ungroup %>% 
+    filter(pers > 0) %>% 
+    unite('clstsp', clstgrps, spp, remove = F) %>% 
+    arrange(clstgrps, pers) %>% 
+    group_by(clstgrps) %>% 
+    mutate(
+      clstsp = factor(clstsp, levels = clstsp),
+      perscum = cumsum(pers)
+    )
+      
+  # plot
+  p <- ggplot(toplo, aes(x = factor(clstgrps), fill = pers, group = factor(clstgrps))) +
+    geom_bar(stat = 'identity', aes(y = pers), width = 0.25, colour = 'black') +
+    geom_text_repel(aes(label = spp, y = perscum), angle = 0, nudge_x = 0.25, hjust = 0, direction = 'y') +
+    scale_x_discrete('Group') + 
+    scale_y_continuous('Cumulative occupied sites (%)') +
+    scale_fill_distiller('%', palette = 'Spectral') +
+    coord_flip() +
+    theme_minimal(base_size = 18, base_family = 'serif') +
+    theme(
+      panel.grid.minor = element_blank(), 
+      panel.grid.major = element_blank()
+    )
+
+  return(p)
+  
+}, height = 500, width = 900)
+```
+
+### Top habitat variables by group
