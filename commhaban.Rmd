@@ -154,7 +154,7 @@ toord <- reactive({
   # remove sites with nothing found after rare spp removed
   torm <- rowSums(toordsp[, !names(toordsp) %in% c('Watershed')])
   toordsp <- toordsp[torm > 0, ]
-  
+
   # create habitat data as input for ord
   # data are centered and scaled
   toordhb <- mlthbdat %>% 
@@ -164,7 +164,8 @@ toord <- reactive({
     dplyr::select(SiteID, Watershed, habvar, habval) %>% 
     spread(habvar, habval) %>% 
     data.frame(stringsAsFactors = F) %>% 
-    mutate_if(is.numeric, base::scale)
+    mutate_if(is.numeric, base::scale) %>% 
+    na.omit # removes rows where data are missing
   rownames(toordhb) <- NULL
   toordhb <- toordhb %>% 
     column_to_rownames('SiteID')
@@ -210,12 +211,16 @@ ccaord <- reactive({
   # input
   toordsp <- toord()[['toordsp']]
   toordhb <- toord()[['toordhb']]
-
   # remove watershed column
   toordsp <- toordsp %>% 
-    dplyr::select(-Watershed) 
+    dplyr::select(-Watershed)
   toordhb <- toordhb %>% 
     dplyr::select(-Watershed)
+  
+  # frmin <- names(toordhb) %>% 
+  #   paste(collapse = ' + ') %>% 
+  #   paste('toordsp', ., sep = ' ~ ') %>% 
+  #   as.formula
   
   # remove Stn prefix from habitat names
   names(toordhb) <- gsub('^Stn', '', names(toordhb))
@@ -438,7 +443,7 @@ renderLeaflet({mapclst()@map})
 ```{r}
 # habitat type to evaluate
 column(width = 6, 
-       selectInput("habty", label = 'Choose habitat type to evaluate:', choices = c('run', 'riffle', 'pool'))
+       selectInput("habty", label = 'Choose habitat type to evaluate:', choices = c('run', 'riffle', 'pool'), selected  = 'riffle')
 )
 
 # habitat variables to consider
@@ -503,7 +508,7 @@ column(6,
 
 ```{r ordplt, out.width = "100%"}
 renderPlot({
-  
+
   # input
   ccaord <- ccaord()
   clstcut <- as.numeric(input$clstcut)
