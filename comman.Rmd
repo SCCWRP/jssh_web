@@ -506,17 +506,25 @@ clstgrps <- reactive({
 ```{r dend}
 # cluster dendrogram
 renderPlot({
-  
+
   # input
   clst <- clst()
   clstcut <- input$clstcut
-  
-  # cols <- mapviewGetOption("vector.palette")(clstgrps)
+  clstgrps <- clstgrps()
+
+  # get order
+  clstord <- order.hclust(clst) %>% 
+    clstgrps[.] %>% 
+    unique
+
+  # get colors, correct by order
+  cols <- mapviewGetOption("vector.palette")(as.numeric(clstcut)) %>% 
+    .[clstord]
   
   p1 <- clst %>% 
     as.dendrogram %>% 
-    set("branches_k_color", k = clstcut) %>%
-    set("labels_colors", k = clstcut) %>%
+    set("branches_k_color", k = clstcut, value = cols) %>%
+    set("labels_colors", k = clstcut, value = cols) %>%
     set("labels_cex", 0.8) 
   
   plot(p1)
