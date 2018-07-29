@@ -601,4 +601,45 @@ renderPlot({
 }, height = 500, width = 900)
 ```
 
-### Top habitat variables by group
+### Relative habitat variables by group
+
+```{r}
+renderPlot({
+  
+  # inputs
+  clstgrps <- clstgrps()
+  toordhb <- toord()[['toordhb']]
+  browser()
+
+  # toplo
+  toplo <- toordhb %>%
+    dplyr::select(-Watershed) %>%
+    data.frame(clstgrps = clstgrps) %>% 
+    gather('var', 'val', -clstgrps) %>%
+    group_by(clstgrps, var) %>% 
+    summarise(val = mean(val)) %>% 
+    ungroup %>% 
+    mutate(var = gsub('^Stn', '', var))
+   
+  # plot
+  p <- ggplot(toplo, aes(x = factor(var), y = val, fill = val)) +
+    geom_bar(stat = 'identity', width = 0.25, colour = 'black') + 
+    facet_wrap(~clstgrps) +
+    geom_hline(yintercept = 0) +
+    # scale_y_continuous('Cumulative occupied sites (%)') +
+    scale_fill_gradient2(low = 'tomato1', high = 'lightgreen', mid = 'white', midpoint = 0) +
+    coord_flip() +
+    theme_minimal(base_size = 18, base_family = 'serif') +
+    theme(
+      panel.grid.minor = element_blank(),
+      panel.grid.major = element_blank(), 
+      strip.background = element_blank(), 
+      axis.title.y = element_blank(), 
+      legend.position = 'none'
+    ) +
+    scale_y_continuous('Relative value')
+
+  return(p)
+  
+}, height = 500, width = 900)
+```
