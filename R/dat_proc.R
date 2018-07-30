@@ -10,6 +10,7 @@ library(rgdal)
 library(sf)
 library(rmapshaper)
 library(proj4shortcut)
+library(MuMIn)
 
 prj <- geo_wgs84
 
@@ -146,3 +147,107 @@ trndhab_prep <- trndhab_prep %>%
 
 save(trndhab_prep, file = 'data/trndhab_prep.RData', compress = 'xz')
 
+######
+# get allfctpers, a nested list of models for watershed, habitat type, density measure comparisons of density changes
+# by year and selected habitat variable.  models are pairwise evaluations of year plus a habitat variable.  includes 
+# only those where a variable other than or in addition to year was significant.  Site values for density and habitat
+# were averaged within years for each watershed
+ 
+data(fishdat)
+data(habitat)
+
+# combined salmonid, habitat data, only where years intersect
+saldat <- fishdat
+st_geometry(saldat) <- NULL
+saldat <- saldat %>% 
+  dplyr::select(Year, SiteID, Watershed, Dens_S1, Dens_S2) %>% 
+  group_by(Year, SiteID, Watershed) %>% 
+  summarise(
+    Dens_S1 = mean(Dens_S1, na.rm = T), 
+    Dens_S2 = mean(Dens_S2, na.rm = T)
+  ) %>% 
+  ungroup %>% 
+  mutate(SiteID = as.character(SiteID))
+
+habdat <- habitat
+st_geometry(habdat) <- NULL
+habdat <- habdat %>% 
+  dplyr::select(-Watershed) %>% 
+  group_by(Year, SiteID, HabType) %>% 
+  filter(!habvar %in% 'StnSthd') %>% 
+  nest %>% 
+  filter(HabType %in% c('pool', 'riffle', 'run'))
+
+# combind
+dat <- inner_join(saldat, habdat, by = c('Year', 'SiteID'))
+
+# habitat variables to select, master obj
+habvrs <- list(
+  'Canopy cover (%)' = 'StnCan',
+  'Deciduous canopy cover (%)' = 'StnDecid', 
+  'Average depth (ft)' = 'StnDpthAvg',
+  'Maximum depth (ft)' = 'StnDpthMax',
+  'Embeddedness (%)' = 'StnEmbed',
+  'Escape cover (ratio)' = 'StnEsCov',
+  'Fines (%)' = 'StnFines',
+  'Station length (ft)' = 'StnLgth',
+  'Station width (ft)' = 'StnWdth'
+)
+
+# get the object
+allfctprs <- dat %>% 
+  unnest %>% 
+  group_by(Year, Watershed, HabType, habvar) %>% 
+  summarise(
+    Dens_S1 = mean(Dens_S1, na.rm = T), 
+    Dens_S2 = mean(Dens_S2, na.rm = T), 
+    habval = mean(habval, na.rm = T)
+  ) %>% 
+  gather('densvar', 'densval', Dens_S1, Dens_S2) %>% 
+  group_by(Watershed, HabType, densvar, habvar) %>% 
+  nest %>% 
+  mutate(
+    modsel = pmap(list(densvar, habvar, data), function(densvar, habvar, data){
+      
+      # format data with names
+      names(data)[names(data) %in% 'habval'] <- habvar
+      names(data)[names(data) %in% 'densval'] <- densvar
+      data <- na.omit(data)
+      
+      # formula
+      frm <- paste0('log10(', densvar, ') ~ Year*', habvar) %>%
+        formula
+      
+      # global
+      modoutglo <- lm(frm, data = data, na.action = na.pass)
+      
+      # selected, summary
+      modoutsel <-  modoutglo %>%
+        dredge %>%
+        get.models(subset = 1) %>%
+        .[[1]]
+      
+      return(modoutsel)
+      
+    }), 
+    modimp = map(modsel, function(modsel){
+      
+      cof <- modsel %>% 
+        summary %>% 
+        coefficients %>% 
+        rownames
+      
+      out <- F
+      if(any(!cof %in% c('(Intercept)', 'Year'))) out <- T
+      
+      return(out)
+      
+    })
+    
+  ) %>% 
+  unnest(modimp) %>% 
+  filter(modimp) %>% 
+  dplyr::select(-data, -habvar, -modimp) %>% 
+  arrange(densvar, Watershed, HabType)
+
+save(allfctprs, file = 'data/allfctprs.RData', compress = 'xz')

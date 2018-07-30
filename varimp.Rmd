@@ -22,6 +22,7 @@ library(stargazer)
 library(EnvStats)
 library(kableExtra)
 library(gridExtra)
+library(MuMIn)
 
 prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
@@ -29,6 +30,7 @@ source('R/funcs.R')
 
 data(fishdat)
 data(habitat)
+data(allfctprs)
 
 # combined salmonid, habitat data, only where years intersect
 saldat <- fishdat
@@ -75,7 +77,9 @@ The objective of these analyses is to identify habitat factors that are associat
 * Watershed (APT, PAJ, SLR, SOQ)
 * Habitat type (run, riffle, pool)
 
-# Univariate comparisons {.tabset}
+# Bivariate comparisons, averaged by watershed {.tabset}
+
+These analyses test bivariate comparisons of a selected habitat variable (by habitat type) and year against changes in salmonid density.  Analyses are evaluated by each watershed where all density and habitat estimates are averaged across stations within each year prior to analysis.
 
 ```{r inps}
 column(4, 
@@ -141,7 +145,64 @@ dens2_avg <- reactive({
 })
 
 # dens1_avg model
+dens1_avgm <- reactive({
+  
+  # input
+  dens1_avg <- dens1_avg() %>% 
+    na.omit
+  hbv <- input$hbv
+  
+  # formula
+  frm <- paste0('log10(Dens_S1) ~ Year*', hbv) %>% 
+    formula
+  
+  # global
+  modoutglo <- lm(frm, data = dens1_avg, na.action = na.pass)
+  modoutsel <-  modoutglo %>% 
+    dredge %>% 
+    get.models(subset = 1) %>% 
+    .[[1]]
+  
+  # output list
+  out <- list(
+    global = modoutglo, 
+    selected = modoutsel
+  )
+  
+  return(out)
+
+})
 # dens2_avg model
+dens2_avgm <- reactive({
+  
+  # input
+  dens2_avg <- dens2_avg() %>% 
+    na.omit
+  hbv <- input$hbv
+  
+  # formula
+  frm <- paste0('log10(Dens_S2) ~ Year*', hbv) %>% 
+    formula
+  
+  # global
+  modoutglo <- lm(frm, data = dens2_avg, na.action = na.pass)
+  modoutsel <-  modoutglo %>% 
+    dredge %>% 
+    get.models(subset = 1) %>% 
+    .[[1]]
+  
+  # output list
+  out <- list(
+    global = modoutglo, 
+    selected = modoutsel
+  )
+  
+  return(out)
+
+})
+
+# dens1modpr
+# dens2modpr
 ```
 
 ## S1 year class
@@ -158,26 +219,28 @@ renderPlot({
     
   # regressions    
   p1 <- ggplot(toplo2, aes(x = Year, y = val)) +
-    geom_point(size = 3) + 
+    geom_point(size = 5, pch = 21, aes(fill = Year)) + 
     stat_smooth(method = 'lm', se = FALSE, colour = 'black', linetype = 'dashed') + 
     facet_wrap(~var, scales = 'free_y', ncol = 1, strip.position = 'left') + 
     scale_x_continuous(breaks = seq(min(toplo2$Year), max(toplo2$Year))) +
+    scale_fill_gradient(low = 'deepskyblue', high = 'lightgreen') +
     theme_bw(base_family = 'serif', base_size = 16) +
     theme(
       strip.placement = 'outside', 
       strip.background = element_blank(), 
       axis.title.y = element_blank(), 
       panel.grid = element_blank(),
-      axis.text.x = element_text(size = 12, angle = 45, hjust = 1)
+      axis.text.x = element_text(size = 12, angle = 45, hjust = 1),
+      legend.position = 'none'
       )
 
   # time path
   p2 <- ggplot(dens1_avg, aes_string(x = hbv, y = 'Dens_S1')) + 
     geom_path(aes(colour = Year)) + 
     geom_label(aes(label = Year, fill = Year)) +
-    ylab('Density (fish/100ft)') +
-    scale_fill_gradient(low = 'lightblue', high = 'lightgreen') +
-    scale_colour_gradient(low = 'lightblue', high = 'lightgreen') +
+    scale_y_log10('log10-Density (fish/100ft)') +
+    scale_fill_gradient(low = 'deepskyblue', high = 'lightgreen') +
+    scale_colour_gradient(low = 'deepskyblue', high = 'lightgreen') +
     theme_bw(base_family = 'serif', base_size = 16) +
     theme(
       legend.position = 'none',
@@ -188,6 +251,19 @@ renderPlot({
   
 }, height = 500, width = 900)
 ```
+
+<br>
+Summary of global (left) and selected (right) linear model testing `r renderText({input$hbv})` by year interaction, `r renderText({input$shd})` watershed, `r renderText({input$typ})` habitats.
+
+```{r, results = 'asis'}
+renderUI({
+  HTML(stargazer(dens1_avgm(), type = 'html', column.labels = c('Global', 'Selected'),
+            dep.var.labels = 'Density (fish/100ft)'))
+  })
+```
+
+<br>
+Summary of all models, by `r renderText({input$shd})` watershed, `r renderText({input$typ})` habitats, and S1 size class.  Only models where variables selected were other than or in addition to year.
 
 ## S2 year class
 
@@ -203,26 +279,28 @@ renderPlot({
 
   # regressions    
   p1 <- ggplot(toplo2, aes(x = Year, y = val)) +
-    geom_point(size = 3) + 
+    geom_point(size = 5, pch = 21, aes(fill = Year)) + 
     stat_smooth(method = 'lm', se = FALSE, colour = 'black', linetype = 'dashed') + 
     facet_wrap(~var, scales = 'free_y', ncol = 1, strip.position = 'left') + 
     scale_x_continuous(breaks = seq(min(toplo2$Year), max(toplo2$Year))) +
+    scale_fill_gradient(low = 'deepskyblue', high = 'lightgreen') +
     theme_bw(base_family = 'serif', base_size = 16) +
     theme(
       strip.placement = 'outside', 
       strip.background = element_blank(), 
       axis.title.y = element_blank(), 
       panel.grid = element_blank(),
-      axis.text.x = element_text(size = 12, angle = 45, hjust = 1)
+      axis.text.x = element_text(size = 12, angle = 45, hjust = 1), 
+      legend.position = 'none'
       )
 
   # time path
   p2 <- ggplot(dens2_avg, aes_string(x = hbv, y = 'Dens_S2')) + 
     geom_path(aes(colour = Year)) + 
     geom_label(aes(label = Year, fill = Year)) +
-    ylab('Density (fish/100ft)') +
-    scale_fill_gradient(low = 'lightblue', high = 'lightgreen') +
-    scale_colour_gradient(low = 'lightblue', high = 'lightgreen') +
+    scale_y_log10('log10-Density (fish/100ft)') +
+    scale_fill_gradient(low = 'deepskyblue', high = 'lightgreen') +
+    scale_colour_gradient(low = 'deepskyblue', high = 'lightgreen') +
     theme_bw(base_family = 'serif', base_size = 16) +
     theme(
       legend.position = 'none',
@@ -233,5 +311,15 @@ renderPlot({
     
 }, height = 500, width = 900)
   
+```
+
+<br>
+Summary of global (left) and selected (right) linear model testing `r renderText({input$hbv})` by year interaction.
+
+```{r, results = 'asis'}
+renderUI({
+  HTML(stargazer(dens2_avgm(), type = 'html', column.labels = c('Global', 'Selected'),
+            dep.var.labels = 'Density (fish/100ft)'))
+  })
 ```
 
