@@ -462,27 +462,9 @@ column(width = 6,
   )
 ```
 
-```{r}
-# # some chatty stuff about the ordination
-# renderText({
-#   
-#   # input
-#   toprnt <- ccaord()
-#   
-#   strs <- toprnt %>% .$stress %>% round(2)
-#   cnvr <- toprnt %>% .$converged
-#   
-#   if(cnvr)
-#     txt <- paste0('Ordination converged, final stess value: ', strs)
-#   else 
-#     txt <- paste0('Ordination did not converge, final stess value: ', strs)
-#   
-#   return(txt)
-# 
-# })
-```
-
 ### Triplot
+
+The ordination below shows results for constrained correspondence analysis, which is similar to the ordination on the [community](comman.Rmd) page with an additional multivariate constraint for the habitat variables.  Species associations are grouped relative to the habitat variables and the groups can be interpreted relative to both.  
 
 ```{r selax}
 column(6, 
@@ -553,6 +535,8 @@ renderPlot({
 
 ### Dominant species by group
 
+These plots show the proportion of sites in a group where a species was observed.  This provides a measure of relative abundance based solely on presence/absence data. 
+
 ```{r}
 renderPlot({
   
@@ -603,6 +587,7 @@ renderPlot({
 
 ### Relative habitat variables by group
 
+These plots show the relative associations of habitat variables with the selected groups.  All habitat variables were scaled and centered to have zero mean and unit variance (standard deviation = 1) for ordination.  This allows for relative comparisons between the magnitudes of the values associated with each habitat variable, i.e., negative values are lower and positive values are higher.
 ```{r}
 renderPlot({
   

@@ -6,14 +6,14 @@ navbar:
       href: index.Rmd
     - text: "Salmonid status and trends"
       href: saltrends.Rmd
+    - text: "Factors associated with trends"
+      href: varimp.Rmd
     - text: "Community analysis"
       href: comman.Rmd
     - text: "Habitat analysis"
       href: haban.Rmd
     - text: "Community and habitat analysis"
       href: commhaban.Rmd
-    - text: "Variable importance"
-      href: varimp.Rmd
 output_dir: "."
 output:
   html_document:

@@ -1,11 +1,237 @@
 ---
-title: ""
-self_contained: yes
+title: "Factors associated with trends"
 runtime: shiny
+output: 
+  html_document:
+    toc: true
+    toc_float: 
+       collapsed: false
 ---
 
-<br>
+```{r setup, include = FALSE}
+# globals
+library(knitr)
+opts_chunk$set(echo = F, message = F, warning = F)
 
-## Variable importance
+library(tidyverse)
+library(sf)
+library(shiny)
+library(scales)
+library(leaflet)
+library(stargazer)
+library(EnvStats)
+library(kableExtra)
+library(gridExtra)
 
-Informative text
+prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+source('R/funcs.R')
+
+data(fishdat)
+data(habitat)
+
+# combined salmonid, habitat data, only where years intersect
+saldat <- fishdat
+st_geometry(saldat) <- NULL
+saldat <- saldat %>% 
+  dplyr::select(Year, SiteID, Watershed, Dens_S1, Dens_S2) %>% 
+  group_by(Year, SiteID, Watershed) %>% 
+  summarise(
+    Dens_S1 = mean(Dens_S1, na.rm = T), 
+    Dens_S2 = mean(Dens_S2, na.rm = T)
+  ) %>% 
+  ungroup %>% 
+  mutate(SiteID = as.character(SiteID))
+
+habdat <- habitat
+st_geometry(habdat) <- NULL
+habdat <- habdat %>% 
+  dplyr::select(-Watershed) %>% 
+  group_by(Year, SiteID, HabType) %>% 
+  filter(!habvar %in% 'StnSthd') %>% 
+  nest %>% 
+  filter(HabType %in% c('pool', 'riffle', 'run'))
+
+# combind
+dat <- inner_join(saldat, habdat, by = c('Year', 'SiteID'))
+
+# habitat variables to select, master obj
+habvrs <- list(
+  'Canopy cover (%)' = 'StnCan',
+  'Deciduous canopy cover (%)' = 'StnDecid', 
+  'Average depth (ft)' = 'StnDpthAvg',
+  'Maximum depth (ft)' = 'StnDpthMax',
+  'Embeddedness (%)' = 'StnEmbed',
+  'Escape cover (ratio)' = 'StnEsCov',
+  'Fines (%)' = 'StnFines',
+  'Station length (ft)' = 'StnLgth',
+  'Station width (ft)' = 'StnWdth'
+  )
+```
+
+The objective of these analyses is to identify habitat factors that are associated with salmonid trends. Trends are evaluated separately for the following:
+
+* Salmonid density size classes (S1 and S2)
+* Watershed (APT, PAJ, SLR, SOQ)
+* Habitat type (run, riffle, pool)
+
+# Univariate comparisons {.tabset}
+
+```{r inps}
+column(4, 
+      selectInput('shd', 'Select waterhsed:', sort(unique(dat$Watershed))) 
+       )
+
+column(4, 
+       selectInput('typ', 'Select habitat type:', sort(unique(dat$HabType)))
+       )
+
+column(4, 
+       selectInput('hbv', 'Select habitat variable:', habvrs)
+       )
+```
+
+```{r}
+# dens_s1 data averaged for plot, models
+dens1_avg <- reactive({
+  
+  # inputs
+  shd <- input$shd
+  typ <- input$typ
+  hbv <- input$hbv
+  
+  dens1_avg <- dat %>% 
+    unnest %>% 
+    filter(HabType %in% typ & habvar %in% hbv & Watershed %in% shd) %>% 
+    select(-Dens_S2, -Watershed) %>% 
+    group_by(Year, habvar) %>% 
+    summarise(
+      Dens_S1 = mean(Dens_S1, na.rm = T),
+      habval = mean(habval, na.rm = T)
+    ) %>% 
+    ungroup %>% 
+    spread(habvar, habval) 
+  
+  return(dens1_avg)
+  
+})
+
+# dens_s2 data averaged for plot, models
+dens2_avg <- reactive({
+  
+  # inputs
+  shd <- input$shd
+  typ <- input$typ
+  hbv <- input$hbv
+  
+  dens2_avg <- dat %>% 
+    unnest %>% 
+    filter(HabType %in% typ & habvar %in% hbv & Watershed %in% shd) %>% 
+    select(-Dens_S1, -Watershed) %>% 
+    group_by(Year, habvar) %>% 
+    summarise(
+      Dens_S2 = mean(Dens_S2, na.rm = T),
+      habval = mean(habval, na.rm = T)
+    ) %>% 
+    ungroup %>% 
+    spread(habvar, habval) 
+  
+  return(dens2_avg)
+  
+})
+
+# dens1_avg model
+# dens2_avg model
+```
+
+## S1 year class
+
+```{r}
+renderPlot({
+  
+  # input
+  hbv <- input$hbv
+  dens1_avg <- dens1_avg()
+  
+  toplo2 <- dens1_avg %>% 
+    gather('var', 'val', -Year)
+    
+  # regressions    
+  p1 <- ggplot(toplo2, aes(x = Year, y = val)) +
+    geom_point(size = 3) + 
+    stat_smooth(method = 'lm', se = FALSE, colour = 'black', linetype = 'dashed') + 
+    facet_wrap(~var, scales = 'free_y', ncol = 1, strip.position = 'left') + 
+    scale_x_continuous(breaks = seq(min(toplo2$Year), max(toplo2$Year))) +
+    theme_bw(base_family = 'serif', base_size = 16) +
+    theme(
+      strip.placement = 'outside', 
+      strip.background = element_blank(), 
+      axis.title.y = element_blank(), 
+      panel.grid = element_blank(),
+      axis.text.x = element_text(size = 12, angle = 45, hjust = 1)
+      )
+
+  # time path
+  p2 <- ggplot(dens1_avg, aes_string(x = hbv, y = 'Dens_S1')) + 
+    geom_path(aes(colour = Year)) + 
+    geom_label(aes(label = Year, fill = Year)) +
+    ylab('Density (fish/100ft)') +
+    scale_fill_gradient(low = 'lightblue', high = 'lightgreen') +
+    scale_colour_gradient(low = 'lightblue', high = 'lightgreen') +
+    theme_bw(base_family = 'serif', base_size = 16) +
+    theme(
+      legend.position = 'none',
+      panel.grid = element_blank()
+      )
+
+  grid.arrange(p1, p2, ncol = 2)
+  
+}, height = 500, width = 900)
+```
+
+## S2 year class
+
+```{r}
+renderPlot({
+  
+  # input
+  hbv <- input$hbv
+  dens2_avg <- dens2_avg()
+  
+  toplo2 <- dens2_avg %>% 
+    gather('var', 'val', -Year)
+
+  # regressions    
+  p1 <- ggplot(toplo2, aes(x = Year, y = val)) +
+    geom_point(size = 3) + 
+    stat_smooth(method = 'lm', se = FALSE, colour = 'black', linetype = 'dashed') + 
+    facet_wrap(~var, scales = 'free_y', ncol = 1, strip.position = 'left') + 
+    scale_x_continuous(breaks = seq(min(toplo2$Year), max(toplo2$Year))) +
+    theme_bw(base_family = 'serif', base_size = 16) +
+    theme(
+      strip.placement = 'outside', 
+      strip.background = element_blank(), 
+      axis.title.y = element_blank(), 
+      panel.grid = element_blank(),
+      axis.text.x = element_text(size = 12, angle = 45, hjust = 1)
+      )
+
+  # time path
+  p2 <- ggplot(dens2_avg, aes_string(x = hbv, y = 'Dens_S2')) + 
+    geom_path(aes(colour = Year)) + 
+    geom_label(aes(label = Year, fill = Year)) +
+    ylab('Density (fish/100ft)') +
+    scale_fill_gradient(low = 'lightblue', high = 'lightgreen') +
+    scale_colour_gradient(low = 'lightblue', high = 'lightgreen') +
+    theme_bw(base_family = 'serif', base_size = 16) +
+    theme(
+      legend.position = 'none',
+      panel.grid = element_blank()
+      )
+
+  grid.arrange(p1, p2, ncol = 2)
+    
+}, height = 500, width = 900)
+  
+```
+
