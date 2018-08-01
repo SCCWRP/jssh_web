@@ -31,6 +31,7 @@ source('R/funcs.R')
 data(fishdat)
 data(habitat)
 data(allfctprs)
+data(alltops)
 
 # combined salmonid, habitat data, only where years intersect
 saldat <- fishdat
@@ -172,6 +173,7 @@ dens1_avgm <- reactive({
   return(out)
 
 })
+
 # dens2_avg model
 dens2_avgm <- reactive({
   
@@ -200,9 +202,6 @@ dens2_avgm <- reactive({
   return(out)
 
 })
-
-# dens1modpr
-# dens2modpr
 ```
 
 ## S1 year class
@@ -213,12 +212,14 @@ renderPlot({
   # input
   hbv <- input$hbv
   dens1_avg <- dens1_avg()
-  
-  toplo2 <- dens1_avg %>% 
+
+  toplo1 <- dens1_avg %>% 
     gather('var', 'val', -Year)
+  toplo2 <- dens1_avg %>% 
+    na.omit
     
   # regressions    
-  p1 <- ggplot(toplo2, aes(x = Year, y = val)) +
+  p1 <- ggplot(toplo1, aes(x = Year, y = val)) +
     geom_point(size = 5, pch = 21, aes(fill = Year)) + 
     stat_smooth(method = 'lm', se = FALSE, colour = 'black', linetype = 'dashed') + 
     facet_wrap(~var, scales = 'free_y', ncol = 1, strip.position = 'left') + 
@@ -235,7 +236,7 @@ renderPlot({
       )
 
   # time path
-  p2 <- ggplot(dens1_avg, aes_string(x = hbv, y = 'Dens_S1')) + 
+  p2 <- ggplot(toplo2, aes_string(x = hbv, y = 'Dens_S1')) + 
     geom_path(aes(colour = Year)) + 
     geom_label(aes(label = Year, fill = Year)) +
     scale_y_log10('log10-Density (fish/100ft)') +
@@ -258,12 +259,10 @@ Summary of global (left) and selected (right) linear model testing `r renderText
 ```{r, results = 'asis'}
 renderUI({
   HTML(stargazer(dens1_avgm(), type = 'html', column.labels = c('Global', 'Selected'),
-            dep.var.labels = 'Density (fish/100ft)'))
+            dep.var.labels = 'S1 density (fish/100ft)'))
   })
 ```
-
 <br>
-Summary of all models, by `r renderText({input$shd})` watershed, `r renderText({input$typ})` habitats, and S1 size class.  Only models where variables selected were other than or in addition to year.
 
 ## S2 year class
 
@@ -274,11 +273,13 @@ renderPlot({
   hbv <- input$hbv
   dens2_avg <- dens2_avg()
   
-  toplo2 <- dens2_avg %>% 
+  toplo1 <- dens2_avg %>% 
     gather('var', 'val', -Year)
-
+  toplo2 <- dens2_avg %>% 
+    na.omit
+  
   # regressions    
-  p1 <- ggplot(toplo2, aes(x = Year, y = val)) +
+  p1 <- ggplot(toplo1, aes(x = Year, y = val)) +
     geom_point(size = 5, pch = 21, aes(fill = Year)) + 
     stat_smooth(method = 'lm', se = FALSE, colour = 'black', linetype = 'dashed') + 
     facet_wrap(~var, scales = 'free_y', ncol = 1, strip.position = 'left') + 
@@ -295,7 +296,7 @@ renderPlot({
       )
 
   # time path
-  p2 <- ggplot(dens2_avg, aes_string(x = hbv, y = 'Dens_S2')) + 
+  p2 <- ggplot(toplo2, aes_string(x = hbv, y = 'Dens_S2')) + 
     geom_path(aes(colour = Year)) + 
     geom_label(aes(label = Year, fill = Year)) +
     scale_y_log10('log10-Density (fish/100ft)') +
@@ -319,7 +320,288 @@ Summary of global (left) and selected (right) linear model testing `r renderText
 ```{r, results = 'asis'}
 renderUI({
   HTML(stargazer(dens2_avgm(), type = 'html', column.labels = c('Global', 'Selected'),
-            dep.var.labels = 'Density (fish/100ft)'))
+            dep.var.labels = 'S2 density (fish/100ft)'))
   })
 ```
+<br>
 
+# Bivariate comparisons, summaries {.tabset}
+
+Summary of all models in `r renderText({input$shd2})` watershed.  Only models where variables selected were other than or in addition to year are shown.
+
+```{r}
+column(12, 
+      selectInput('shd2', 'Select waterhsed:', sort(unique(dat$Watershed))) 
+       )
+```
+
+```{r}
+# dens1modpr
+allfctprs1 <- reactive({
+  
+  # inputs
+  shd2 <- input$shd2
+  
+  tabout <- allfctprs %>% 
+    filter(Watershed %in% shd2 & densvar %in% 'Dens_S1')
+  
+  return(tabout)
+  
+})
+
+# dens2modpr
+allfctprs2 <- reactive({
+  
+  # inputs
+  shd2 <- input$shd2
+  
+  tabout <- allfctprs %>% 
+    filter(Watershed %in% shd2 & densvar %in% 'Dens_S2')
+  
+  return(tabout)
+  
+})
+```
+
+## S1 year class {.tabset .tabset-fade .tabset-pills}
+
+### pool
+
+```{r, results = 'asis'}
+renderUI({
+  
+  totab <- allfctprs1() %>% 
+    filter(HabType %in% 'pool')
+    
+  if(nrow(totab) == 0)
+    HTML('None')
+  else 
+    HTML(stargazer(totab$modsel, type = 'html',
+            dep.var.labels = 'S1 density (fish/100ft)'))
+  
+  })
+```
+<br>
+
+### riffle
+
+```{r, results = 'asis'}
+renderUI({
+  
+  totab <- allfctprs1() %>% 
+    filter(HabType %in% 'riffle')
+  
+  if(nrow(totab) == 0)
+    HTML('None')
+  else 
+    HTML(stargazer(totab$modsel, type = 'html',
+            dep.var.labels = 'S1 density (fish/100ft)'))
+  })
+```
+<br>
+
+### run
+
+```{r, results = 'asis'}
+renderUI({
+  
+  totab <- allfctprs1() %>% 
+    filter(HabType %in% 'run')
+  
+  if(nrow(totab) == 0)
+    HTML('None')
+  else 
+    HTML(stargazer(totab$modsel, type = 'html',
+            dep.var.labels = 'S1 density (fish/100ft)'))
+  
+  })
+```
+<br>
+
+## S2 year class {.tabset .tabset-fade .tabset-pills}
+
+### pool
+
+```{r, results = 'asis'}
+renderUI({
+  
+  totab <- allfctprs2() %>% 
+    filter(HabType %in% 'pool')
+  
+  if(nrow(totab) == 0)
+    HTML('None')
+  else 
+    HTML(stargazer(totab$modsel, type = 'html',
+            dep.var.labels = 'S2 density (fish/100ft)'))
+  
+  })
+```
+<br>
+
+### riffle
+
+```{r, results = 'asis'}
+renderUI({
+  
+  totab <- allfctprs2() %>% 
+    filter(HabType %in% 'riffle')
+  
+  if(nrow(totab) == 0)
+    HTML('None')
+  else 
+    HTML(stargazer(totab$modsel, type = 'html',
+            dep.var.labels = 'S2 density (fish/100ft)'))
+  
+  })
+```
+<br>
+
+### run
+
+```{r, results = 'asis'}
+renderUI({
+  
+  totab <- allfctprs2() %>% 
+    filter(HabType %in% 'run')
+  
+  if(nrow(totab) == 0)
+    HTML('None')
+  else 
+    HTML(stargazer(totab$modsel, type = 'html',
+            dep.var.labels = 'S2 density (fish/100ft)'))
+  
+  })
+```
+<br>
+
+# Model selection, all habitat variables {.tabset}
+
+Models of salmonid density in relation to year and habitat variables are shown below.  Models were developed separately for each watershed and habitat type using all available data, where the station identifier was used as a random effect.  All combinations of habitat variables from one to all were evaluated and year was always included in the model.  Only additive effects were evaluated (i.e., no interactions).  The top five models based on minimum AIC are shown.
+
+```{r}
+column(12, 
+      selectInput('shd3', 'Select waterhsed:', sort(unique(dat$Watershed))) 
+       )
+```
+
+```{r}
+# alltops, S1, selected shed
+alltops1 <- reactive({
+  
+  # inputs
+  shd3 <- input$shd3
+  
+  tabout <- alltops %>% 
+    filter(Watershed %in% shd3 & densvar %in% 'Dens_S1')
+  
+  return(tabout)
+  
+})
+
+# alltops, S2, selected shed
+alltops2 <- reactive({
+  
+  # inputs
+  shd3 <- input$shd3
+  
+  tabout <- alltops %>% 
+    filter(Watershed %in% shd3 & densvar %in% 'Dens_S2')
+  
+  return(tabout)
+  
+})
+```
+
+## S1 year class {.tabset .tabset-fade .tabset-pills}
+
+### pool
+
+```{r, results = 'asis'}
+renderUI({
+  
+  totab <- alltops1() %>% 
+    filter(HabType %in% 'pool')
+
+  HTML(stargazer(totab$mods, type = 'html',
+          dep.var.labels = 'S1 density (fish/100ft)'))
+  
+  })
+```
+<br>
+
+### riffle
+
+```{r, results = 'asis'}
+renderUI({
+  
+  totab <- alltops1() %>% 
+    filter(HabType %in% 'riffle')
+
+  HTML(stargazer(totab$mods, type = 'html',
+          dep.var.labels = 'S1 density (fish/100ft)'))
+  
+  })
+```
+<br>
+
+### run
+
+```{r, results = 'asis'}
+renderUI({
+  
+  totab <- alltops1() %>% 
+    filter(HabType %in% 'run')
+
+  HTML(stargazer(totab$mods, type = 'html',
+          dep.var.labels = 'S1 density (fish/100ft)'))
+  
+  })
+```
+<br>
+
+## S2 year class {.tabset .tabset-fade .tabset-pills}
+
+### pool
+
+```{r, results = 'asis'}
+renderUI({
+  
+  totab <- alltops2() %>% 
+    filter(HabType %in% 'pool')
+
+  HTML(stargazer(totab$mods, type = 'html',
+          dep.var.labels = 'S2 density (fish/100ft)'))
+  
+  })
+```
+<br>
+
+### riffle
+
+```{r, results = 'asis'}
+renderUI({
+  
+  totab <- alltops2() %>% 
+    filter(HabType %in% 'riffle')
+
+  HTML(stargazer(totab$mods, type = 'html',
+          dep.var.labels = 'S2 density (fish/100ft)'))
+  
+  })
+```
+<br>
+
+### run
+
+```{r, results = 'asis'}
+renderUI({
+  
+  totab <- alltops2() %>% 
+    filter(HabType %in% 'run')
+
+  HTML(stargazer(totab$mods, type = 'html',
+          dep.var.labels = 'S2 density (fish/100ft)'))
+  
+  })
+```
+<br>

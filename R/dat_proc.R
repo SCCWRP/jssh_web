@@ -11,6 +11,7 @@ library(sf)
 library(rmapshaper)
 library(proj4shortcut)
 library(MuMIn)
+library(nlme)
 
 prj <- geo_wgs84
 
@@ -230,6 +231,7 @@ allfctprs <- dat %>%
       return(modoutsel)
       
     }), 
+    modcof = map(modsel, coefficients),
     modimp = map(modsel, function(modsel){
       
       cof <- modsel %>% 
@@ -247,7 +249,88 @@ allfctprs <- dat %>%
   ) %>% 
   unnest(modimp) %>% 
   filter(modimp) %>% 
-  dplyr::select(-data, -habvar, -modimp) %>% 
+  dplyr::select(-data, -habvar, -modcof, -modimp) %>% 
   arrange(densvar, Watershed, HabType)
 
 save(allfctprs, file = 'data/allfctprs.RData', compress = 'xz')
+
+######
+# alltops, linear mixed models of salmonid density by habitat variables and year
+# each watershed, habitat type group is modelled separately, station id is a random effect
+# all combinations of habitat variables are tested, top five with minimum AIC are selected
+
+data(fishdat)
+data(habitat)
+
+# combined salmonid, habitat data, only where years intersect
+saldat <- fishdat
+st_geometry(saldat) <- NULL
+saldat <- saldat %>% 
+  dplyr::select(Year, SiteID, Watershed, Dens_S1, Dens_S2) %>% 
+  group_by(Year, SiteID, Watershed) %>% 
+  summarise(
+    Dens_S1 = mean(Dens_S1, na.rm = T), 
+    Dens_S2 = mean(Dens_S2, na.rm = T)
+  ) %>% 
+  ungroup %>% 
+  mutate(SiteID = as.character(SiteID))
+
+habdat <- habitat
+st_geometry(habdat) <- NULL
+habdat <- habdat %>% 
+  dplyr::select(-Watershed) %>% 
+  group_by(Year, SiteID, HabType) %>% 
+  filter(!habvar %in% 'StnSthd') %>% 
+  nest %>% 
+  filter(HabType %in% c('pool', 'riffle', 'run'))
+
+# habitat combinations to model, year is always included
+cmbs <- habitat %>% 
+  filter(!habvar %in% 'StnSthd') %>% 
+  pull(habvar) %>% 
+  unique
+cmbs <- map(1:length(cmbs), ~ combn(cmbs, m = .x, simplify = F)) %>% 
+  do.call('c', .) %>% 
+  map(paste, collapse = ' + ') %>% 
+  map(~ paste0('Year + ', .x)) %>% 
+  unlist
+
+# all models, filtered by top five AIC within each watershed, density class, and habitat type groups
+alltops <- inner_join(saldat, habdat, by = c('Year', 'SiteID')) %>% 
+  unnest %>% 
+  spread(habvar, habval) %>% 
+  gather('densvar', 'densval', Dens_S1, Dens_S2) %>% 
+  group_by(Watershed, HabType, densvar) %>% 
+  nest %>% 
+  crossing(cmbs) %>% 
+  mutate(
+    mods = pmap(list(densvar, cmbs, data), function(densvar, cmbs, data){
+      
+      names(data)[names(data) %in% 'densval'] <- densvar
+      
+      # formula as text
+      frm <- paste0('log10(1 + ', densvar, ') ~ ', cmbs) 
+
+      # model as text
+      tomod <- paste0('lme(', frm, ', random = ~1 |SiteID, data = na.omit(data))')
+      
+      # parse to mod
+      modout <- try({eval(parse(text = tomod))})
+      
+      if(inherits(modout, 'try-error')) 
+        return(NA)
+      
+      return(modout)
+      
+    }), 
+    modaic = map(mods, function(x) ifelse(anyNA(x), x, AIC(x)))
+  ) %>% 
+  unnest(modaic) %>% 
+  dplyr::select(-data) %>% 
+  group_by(Watershed, HabType, densvar) %>% 
+  filter(!is.na(modaic)) %>%
+  top_n(-5) %>% 
+  arrange(modaic) %>% 
+  ungroup
+
+save(alltops, file = 'data/alltops.RData', compress = 'xz')
