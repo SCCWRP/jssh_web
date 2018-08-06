@@ -35,12 +35,12 @@ data(trndst_prep)
 
 The objective of these analyses are to evaluate the status and trends of Steelhead salmon in the four watersheds:
 
-* APT: Aptos
-* PAJ: Pajaro
 * SLR: San Lorenzo
 * SOQ: Soquel
+* APT: Aptos
+* PAJ: Pajaro
 
-Maps and summary plots show the changes in density (fish/100ft) over time of the differente size classes (`Dens_S1` or `Dens_S2`). Salmonid density (fish/100ft) at each site is measured as S1 and S2, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are likely to migrate the following spring. Trend statistics of the different size classes for aggregated watershed data and by site are also provided.  The trend analyses only evaluate a monotonic change between selected years.
+Maps and summary plots show the changes in density (fish/100ft) over time of the different size classes (`Dens_S1` or `Dens_S2`). Salmonid density (fish/100ft) at each site is measured as S1 and S2, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are likely to migrate the following spring. Trend statistics of the different size classes for aggregated watershed data and by site are also provided.  The trend analyses only evaluate an increase or decrease (monotonic change) between selected years.
 
 ## Overview maps
 
@@ -53,7 +53,7 @@ mapview(stream, label = stream$STREAM_NM) +
 
 <br></br>
 
-This map shows the density of S1 or S2 individuals for a chosen year where data are availabl.  Select a year and size class to view on the map.  The size of the point shows the relative density at a sampled site. 
+This map shows the density of S1 or S2 individuals for a chosen year where data are available.  Select a year and size class to view on the map.  The size of the point shows the relative density at a sampled site. 
 
 ```{r mapviewsel}
 
@@ -339,7 +339,7 @@ renderUI({
 
 <br></br>
 
-Kendall tests also provide an indication of a trend by by evaluating magnitude, direction, and significance of a change in density between the selected years.  The test is a non-parametric equivalent to the regression analysis above.  The value for tau ranges from -1 to 1 and provides a measure of trend direcdtion.  The slope is the estimated change per year in density and the p-value shows the significance of the test. 
+Kendall tests also provide an indication of a trend by evaluating magnitude, direction, and significance of a change in density between the selected years.  The test is a non-parametric equivalent to the regression analysis above.  The value for tau ranges from -1 to 1 and provides a measure of trend direcdtion.  The slope is the estimated change per year in density and the p-value shows the significance of the test. 
 
 ```{r, results = 'asis'}
 renderUI({

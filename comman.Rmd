@@ -83,17 +83,18 @@ These analyses can be used to evaluate changes in community composition over tim
 
 This map shows species presence/absence in the four watersheds.  Sites that were sampled for the selected year are shown on the map with small red points indicating a selected species was not found and large green points indicating a species was found at a site.
 
-__If data were collected at a site, was the selected species observed (green: yes, red: no)?__
 ```{r sppinput}
+column(2, NULL)
 # select a species
-column(width = 6,
+column(width = 4,
  selectInput('sp', 'Select a species:', sort(unique(spdat$species)), selected = 'Sthd')
 )
 
 # select a year
-column(width = 6, 
+column(width = 4, 
        selectInput('yr', 'Select a year:', selected = 2017, choices = sort(unique(spdat$Year)))
        )
+column(2, NULL)
 ```
 
 ```{r prepmapsp}

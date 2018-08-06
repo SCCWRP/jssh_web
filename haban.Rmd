@@ -106,8 +106,9 @@ habmap <- reactive({
 This map shows the relative values for a selected habitat variable and year for the chosen habitat type. Observations are colored by watershed and points are sized by relative values of the selected variable.
 
 ```{r habinput}
+column(1, NULL)
 # select habitat variable to show
-column(width = 4,
+column(width = 3,
       selectInput('habvr', 'Select a habitat variable:', choices = habvrs)
 )
 
