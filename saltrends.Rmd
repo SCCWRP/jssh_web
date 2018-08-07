@@ -33,9 +33,10 @@ data(stream)
 data(trndst_prep)
 ```
 
-The objective of these analyses are to evaluate the status and trends of Steelhead salmon in the four watersheds:
+The objective of these analyses are to evaluate the status and trends of Steelhead salmon in the four watershed (note that San Lorenzo is divided by mainstem and tributaries):
 
-* SLR: San Lorenzo
+* SLR-main: San Lorenzo, mainstem
+* SLR-trib: San Lorenzo, tributaries
 * SOQ: Soquel
 * APT: Aptos
 * PAJ: Pajaro

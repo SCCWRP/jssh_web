@@ -23,7 +23,13 @@ dsn <- 'L:/Santa Cruz_fish trends_MB/Data/RawData/Steelhead_Monitoring_Data/2b62
 
 fishdat <- readOGR(dsn = dsn, layer = 'Site_Annual_Data') %>% 
   spTransform(prj) %>% 
-  st_as_sf
+  st_as_sf %>% 
+  mutate(
+    Watershed = as.character(Watershed), 
+    Watershed = ifelse(grepl('^SLR-main', SiteID), 'SLR-main', Watershed),
+    Watershed = ifelse(Watershed %in% 'SLR', 'SLR-trib', Watershed),
+    Watershed = factor(Watershed, levels = c('SLR-main', 'SLR-trib', 'SOQ', 'APT', 'PAJ'))
+    )
 
 save(fishdat, file = 'data/fishdat.RData')
 
@@ -140,7 +146,7 @@ crds <- trndhab_prep %>%
 
 # get trends by station, size class
 trndhab_prep <- trndhab_prep %>% 
-  select(-Watershed) %>% 
+  dplyr::select(-Watershed) %>% 
   filter(HabType %in% c('run', 'riffle', 'pool')) %>% 
   group_by(SiteID, HabType, habvar) %>% 
   nest %>% 
@@ -216,7 +222,7 @@ allfctprs <- dat %>%
       data <- na.omit(data)
       
       # formula
-      frm <- paste0('log10(', densvar, ') ~ Year*', habvar) %>%
+      frm <- paste0('log10(1 + ', densvar, ') ~ Year*', habvar) %>%
         formula
       
       # global
