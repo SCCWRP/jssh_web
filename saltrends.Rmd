@@ -41,7 +41,7 @@ The objective of these analyses are to evaluate the status and trends of Steelhe
 * APT: Aptos
 * PAJ: Pajaro
 
-Maps and summary plots show the changes in density (fish/100ft) over time of the different size classes (`Dens_S1` or `Dens_S2`). Salmonid density (fish/100ft) at each site is measured as S1 and S2, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are likely to migrate the following spring. Trend statistics of the different size classes for aggregated watershed data and by site are also provided.  The trend analyses only evaluate an increase or decrease (monotonic change) between selected years.
+Maps and summary plots show the changes in density (fish/100ft) over time of the different size classes (`Dens_S1` or `Dens_S2`). Salmonid density (fish/100ft) at each site is measured as S1 and S2, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are either fast-growing young-of-the-year or older fish. S3 fish (> 150 mm standard length) are also grouped with S2.  S2 fish are likely to migrate the following spring but may also be resident trout. Trend statistics of the different size classes for aggregated watershed data and by site are also provided.  The trend analyses only evaluate an increase or decrease (monotonic change) between selected years.
 
 ## Overview maps
 
@@ -85,29 +85,52 @@ renderLeaflet({mapout()@map})
 ## Overview plots
 
 The boxplots show the distribution of the density estimates across all sites for a given year, by watershed. 
+```{r}
+column(4, 
+  selectInput('shd', 'Select watershed:', levels(fishdat$Watershed))
+)
 
-```{r densbox, fig.height = 6, fig.width = 6, out.width = "80%", fig.align="center"}
-toplo <- fishdat
-st_geometry(toplo) <- NULL
-toplo <- toplo%>% 
-  dplyr::select(Year, SiteID, Watershed, Dens_S1, Dens_S2) %>% 
-  gather('Size class', 'density', Dens_S1, Dens_S2) %>% 
-  mutate(Year = factor(Year)) %>% 
-  filter(!is.na(Year))
+column(4, 
+       selectInput('scl', 'Select scale:', c('log10', 'arithmetic'))
+       )
+```
 
-p <- ggplot(toplo, aes(x = Year, y = density, fill = `Size class`)) + 
-  geom_boxplot() + 
-  facet_wrap(~Watershed, ncol = 1) + 
-  scale_y_continuous('Density (fish/100ft)', trans = 'log10') + 
-  theme_bw(base_family = 'serif') + 
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1), 
-    strip.background = element_blank(), 
-    axis.title.x = element_blank(), 
-    legend.position = 'top'
-  )
+```{r densbox}
+renderPlot({
+  
+  # inputs
+  shd <- input$shd
+  scl <- input$scl
 
-p
+  toplo <- fishdat
+  st_geometry(toplo) <- NULL
+  toplo <- toplo %>% 
+    dplyr::select(Year, SiteID, Watershed, Dens_S1, Dens_S2) %>% 
+    gather('Size class', 'density', Dens_S1, Dens_S2) %>% 
+    mutate(Year = factor(Year)) %>% 
+    # filter(!is.na(Year)) %>% 
+    filter(Watershed %in% shd)
+ 
+  p <- ggplot(toplo, aes(x = Year, y = density, fill = `Size class`)) + 
+    geom_boxplot() + 
+    facet_wrap(~Watershed, ncol = 2) + 
+    theme_bw(base_family = 'serif', base_size = 18) + 
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1), 
+      strip.background = element_blank(), 
+      axis.title.x = element_blank(), 
+      legend.position = 'top'
+    ) 
+ 
+  if(scl == 'log10')
+    p <- p + scale_y_continuous("Density (fish/100ft)", trans = 'log10')
+  else 
+    p <- p + scale_y_continuous("Density (fish/100ft)")
+  
+  return(p)
+        
+}, height = 400, width = 900)
+
 ```
 
 <br></br>
@@ -133,7 +156,8 @@ toplo <- toeval %>%
   group_by(Watershed, `Size class`) %>% 
   mutate(
     density_df = density - mean(density, na.rm = T)
-  )
+  ) %>% 
+  na.omit
 
 pbase <- theme_bw(base_family = 'serif') +
   theme(
@@ -146,7 +170,7 @@ pbase <- theme_bw(base_family = 'serif') +
     # plot.margin = unit(c(4,4,0,0), "lines"),
     strip.background = element_blank(), 
     strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5), 
-    panel.background = element_rect(fill = 'black')
+    panel.background = element_rect(fill = 'lightgrey')
   ) 
 
 p <- ggplot(toplo) + 
