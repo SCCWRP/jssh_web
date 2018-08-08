@@ -103,9 +103,9 @@ colgrp <- data.frame(
 
 This section can be used to evaluate community changes over time and how these changes may relate to measured habitat variables.  The setup is similar as the analysis on the [community](comman.Rmd) page with some important differences.    
 
-1) The species presence/absence (community) data are clustered as before, with options to select clustering methods, dissimilarity measures, and number of groups.
+1) The species presence/absence (community) data are clustered as before, with an option to select the number of groups.
 1) The comparison of community and habitat data is done using constrained ordination analysis that jointly considers relationships among species in the community data and how those relationships compare to patterns in the habitat data.  
-1) The results from th last step can be compared to the groupings in the first step to identify if:
+1) The results from the last step can be compared to the groupings in the first step to identify if:
      * The groupings are still relevant when considering relationships with habitat,
      * If relevant, which habitat variables are important for species groupings?
 1) A necessary limitation of the analysis is that sites must match between the community and habitat data.  This places additional restrictions on the data.
@@ -116,13 +116,25 @@ Some questions to consider when evaluating the data are:
 1) Is there an effect of adding or removing habitat variables from the analysis?
 1) Can the results be explained by community or habitat differences between the watersheds?
 1) If not, are there other natural groupings in the data that can describe community differences?
-1) How does the chosen method of analysis affect the results (i.e., how robust are the conclusions with changes in the methods)? Changes to the methods to consider include effects of rare species, chosen dissimilarity measure, chosen clustering algorithm, and how groups are defined from the clustering results.
 
 ```{r mltsetup}
-# select a year
-column(width = 12, 
-       selectInput('yrmlt', 'Select a year for comparison (species and habitat data):', sort(unique(mlthbdat$Year)), selected = 2017)
-       )
+column(12, 
+       
+       column(2, NULL),
+  
+       # select a year
+       column(width = 4, 
+         selectInput('yrmlt', 'Select a year for comparison:', sort(unique(mlthbdat$Year)), selected = 2017)
+       ),
+
+       # select cluster cuts
+       column(width = 4, 
+         selectInput('clstcut', 'Select cluster groups:', selected = 2, choices = c(1:10))
+       ),
+      
+       column(2, NULL)
+       
+)
 ```
 
 ```{r ccaord}
@@ -133,7 +145,7 @@ toord <- reactive({
   
   # inputs
   yrmlt <- input$yrmlt
-  remrr <- input$remrr
+  remrr <- 1 #input$remrr
   habvr <- input$habvr
   habty <- input$habty
 
@@ -192,7 +204,7 @@ wshdord <- reactive({
 dis <- reactive({
   
   # input
-  distyp <- input$distyp
+  distyp <- 'jaccard' #input$distyp
 
   toordsp <- toord()[['toordsp']] %>% 
     dplyr::select(-Watershed) 
@@ -235,42 +247,16 @@ ccaord <- reactive({
 
 ## Species clustering results {.tabset}
 
-```{r clstin}
-# remove species at less than x sites
-column(width = 6, 
-       selectInput('remrr', 'Remove species occurring at n sites or less:', selected = 1, choices = seq(0, 20))
-       )
-
-# select dissimilarity measure
-column(width = 6, 
-       selectInput('distyp', 'Select dissimilarity measure for clustering', 
-                   selected = 'jaccard', choices = c('jaccard', 'bray', 'euclidean', 'raup'))
-       )
-
-# select cluster type
-column(width = 6, 
-       selectInput('clsttyp', 'Select cluster type:', selected = 'average', choices = c('ward.D', 'ward.D2', 'single', 'complete', 'average', 'mcquitty', 'median', 'centroid'))
-)
-
-# select cluster cuts
-column(width = 6, 
-       selectInput('clstcut', 'Select cluster groups:', selected = 2, choices = c(1:10))
-)
-```
-
-<br>
-
 ### Dissimilarity matrix
 
 ```{r}
-# select matrix order type
-column(width = 6,
-  selectInput('byclst', 'Order by?', selected = 'Clusters', choices = c('Watershed', 'Clusters'))
-)
-
-# show cluster method if matrix order type is cluster
-column(width = 6, 
-       renderText({if(input$byclst == 'Clusters') paste0('Cluster method: ', input$clsttyp)})
+column(12, 
+  column(4, NULL),
+  # select matrix order type
+  column(width = 4,
+    selectInput('byclst', 'Order by?', selected = 'Clusters', choices = c('Watershed', 'Clusters'))
+  ),
+  column(4, NULL)
 )
 ```
 
@@ -361,7 +347,7 @@ renderPlot({
 clst <- reactive({
   
   # inputs
-  clsttyp <- input$clsttyp
+  clsttyp <- 'average'
   
   out <- dis() %>% 
     hclust(method = clsttyp)
@@ -449,17 +435,26 @@ renderLeaflet({mapclst()@map})
 ## Constrained ordination {.tabset}
 
 ```{r}
-# habitat type to evaluate
-column(width = 6, 
-       selectInput("habty", label = 'Choose habitat type to evaluate:', choices = c('run', 'riffle', 'pool'), selected  = 'riffle')
-)
 
-# habitat variables to consider
-column(width = 6, 
-  pickerInput("habvr", label = 'Choose a habitat variables to consider:', choices = habvrs, selected = habvrs,
-                                                multiple = TRUE
-                                    )
-  )
+column(12, 
+       
+      column(2, NULL),
+       
+      # habitat type to evaluate
+      column(width = 4, 
+             selectInput("habty", label = 'Choose habitat type to evaluate:', choices = c('run', 'riffle', 'pool'), selected  = 'riffle')
+      ),
+
+      # habitat variables to consider
+      column(width = 4, 
+        pickerInput("habvr", label = 'Choose habitat variables:', choices = habvrs, selected = habvrs,
+                                                      multiple = TRUE
+                                          )
+        ),
+      
+      column(2, NULL)
+      
+)
 ```
 
 ### Triplot
@@ -467,32 +462,41 @@ column(width = 6,
 The ordination below shows results for constrained correspondence analysis, which is similar to the ordination on the [community](comman.Rmd) page with an additional multivariate constraint for the habitat variables.  Species associations are grouped relative to the habitat variables and the groups can be interpreted relative to both.  
 
 ```{r selax}
-column(6, 
-  renderUI({
-    
-    # inputs
-    ccaord <- ccaord()
-    
-    # possible axes to select
-    axs <- seq_along(colnames(ccaord$CCA$wa))
-  
-    selectInput('axsx', 'Select CCA axis for x-axis:', choices = axs, selected = 1)
-    
-  })
-)
 
-column(6, 
-  renderUI({
+column(12, 
+       
+    column(2, NULL),
+       
+    column(4, 
+      renderUI({
+        
+        # inputs
+        ccaord <- ccaord()
+        
+        # possible axes to select
+        axs <- seq_along(colnames(ccaord$CCA$wa))
+      
+        selectInput('axsx', 'Select CCA axis for x-axis:', choices = axs, selected = 1)
+        
+      })
+    ),
+
+    column(4, 
+      renderUI({
+        
+        # inputs
+        ccaord <- ccaord()
+        
+        # possible axes to select
+        axs <- seq_along(colnames(ccaord$CCA$wa))
+      
+        selectInput('axsy', 'Select CCA axis for y-axis:', choices = axs, selected = 2)
+        
+      })
+    ),
     
-    # inputs
-    ccaord <- ccaord()
-    
-    # possible axes to select
-    axs <- seq_along(colnames(ccaord$CCA$wa))
-  
-    selectInput('axsy', 'Select CCA axis for y-axis:', choices = axs, selected = 2)
-    
-  })
+    column(2, NULL)
+
 )
 ```
 

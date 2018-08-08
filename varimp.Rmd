@@ -331,8 +331,12 @@ Summary of all models in `r renderText({input$shd2})` watershed.  Only models wh
 
 ```{r}
 column(12, 
+       column(4, NULL),
+       column(4, 
       selectInput('shd2', 'Select waterhsed:', sort(unique(dat$Watershed))) 
-       )
+       ),
+      column(4, NULL)
+)
 ```
 
 ```{r}
@@ -480,8 +484,12 @@ Models of salmonid density in relation to year and habitat variables are shown b
 
 ```{r}
 column(12, 
+       column(4, NULL),
+       column(4,
       selectInput('shd3', 'Select waterhsed:', sort(unique(dat$Watershed))) 
-       )
+       ),
+      column(4, NULL)
+)
 ```
 
 ```{r}

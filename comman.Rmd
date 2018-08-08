@@ -133,19 +133,21 @@ renderLeaflet({mapspyr()@map})
 These plots show the percent of sampled sites over time that are occupied with a selected species, grouped by watershed.  __The total number of sites that were sampled in each watershed, year combination is shown inside the point.__
 
 ```{r tmsel}
+column(2, NULL)
 # select a species
-column(width = 6,
+column(width = 4,
  selectInput('sptm', 'Select a species:', sort(unique(spdat$species)), selected = 'Sthd')
 )
 
 # year slider
-column(width = 6, 
+column(width = 4, 
   sliderInput("yrs", label = 'Select year ranges to plot:',  
         min = 1994, max = 2017, 
         value = c(1994, 2017),
         sep = '', ticks = FALSE
       )
 )
+column(2, NULL)
 ```
 
 ```{r spyragg}
@@ -248,13 +250,14 @@ renderPlot({
 
 This map shows the occurrence of `r renderText({input$sptm})` at each site across the selected years from `r renderText({input$yrs[1]})` to `r renderText({input$yrs[2]})`.  The colors indicate if a species was commonly (dark green), frequently (light green), occasionally (light red), or rarely (dark green) observed at a site.  Frequency occurrence was the sum of years for which a species was observed divided by the total number of years that a site was sampled.
 
-<span style="color:#E31A1C">Rare</span>: 0-25% of all sampled years 
 
-<span style="color:#FB9A99">Occasionally present</span>: 26-50% of all sampled years 
+<span style="color:#33A02C">Common</span>: 76-100% of all sampled years 
 
 <span style="color:#B2DF8A">Frequently present</span>: 51-75% of all sampled years 
 
-<span style="color:#33A02C">Common</span>: 76-100% of all sampled years 
+<span style="color:#FB9A99">Occasionally present</span>: 26-50% of all sampled years 
+
+<span style="color:#E31A1C">Rare</span>: 0-25% of all sampled years 
 
 ```{r}
 renderLeaflet({spyrsocc()@map})
@@ -269,40 +272,22 @@ This section can be used to evaluate community changes over time by showing natu
 1) Do the results differ when evaluating the results between years?
 2) Can the results be explained by community differences between the watersheds?
 3) If not, are there other natural groupings in the data that can describe community differences?
-4) How does the chosen method of analysis affect the results (i.e., how robust are the conclusions with changes in the methods)?
-
-There are several options to consider when exploring the data.  Results from multivariate analyses can change depending on presence of rare species (those that occur at fewer than n sites), the measure used to evaluate dissimilarity between sites, the clustering algorithm, and how groups are defined from the clustering results.  All of these options can be changed with the sliders.  
 
 ```{r mltsetup}
 mltdat <- spdat
 st_geometry(mltdat) <- NULL
 
+column(2, NULL)
 # select a year
-column(width = 6, 
+column(width = 4, 
        selectInput('yrmlt1', 'Select a year for first comparison:', sort(unique(mltdat$Year)), selected = 2017)
        )
 
-# remove species at less than x sites
-column(width = 6, 
-       selectInput('remrr', 'Remove species occurring at n sites or less:', selected = 1, choices = seq(0, 20))
-       )
-
-# select dissimilarity measure
-column(width = 6, 
-       selectInput('distyp', 'Select dissimilarity measure for ordination/clustering', 
-                   selected = 'jaccard', choices = c('jaccard', 'bray', 'euclidean', 'raup'))
-       )
-
-# select cluster type
-column(width = 6, 
-       selectInput('clsttyp', 'Select cluster type:', selected = 'average', choices = c('ward.D', 'ward.D2', 'single', 'complete', 'average', 'mcquitty', 'median', 'centroid'))
-)
-
 # select cluster cuts
-column(width = 12, 
+column(width = 4, 
        selectInput('clstcut', 'Select cluster groups:', selected = 2, choices = c(1:10))
 )
-
+column(2, NULL)
 ```
 
 <br>
@@ -313,7 +298,7 @@ mltdatyr1 <- reactive({
   
   # inputs
   yrmlt1 <- input$yrmlt1
-  remrr <- input$remrr
+  remrr <- 1 
 
   # create species pa mat after filtering species at less than remrr sites
   toord <- mltdat %>% 
@@ -348,7 +333,7 @@ wshdord1 <- reactive({
 dis1 <- reactive({
   
   # input
-  distyp <- input$distyp
+  distyp <- 'jaccard'
   
   toord <- mltdatyr1() %>% 
     select(-Watershed) 
@@ -365,7 +350,7 @@ dis1 <- reactive({
 ord1 <- reactive({
   
   # input
-  distyp <- input$distyp
+  distyp <- 'jaccard'
   
   toord <- mltdatyr1() %>% 
     select(-Watershed) 
@@ -440,14 +425,13 @@ renderPlot({
 ### Dissimilarity matrix
 
 ```{r}
-# select matrix order type
-column(width = 6,
-  selectInput('byclst', 'Order by?', selected = 'Clusters', choices = c('Watershed', 'Clusters'))
-)
-
-# show cluster method if matrix order type is cluster
-column(width = 6, 
-       renderText({if(input$byclst == 'Clusters') paste0('Cluster method: ', input$clsttyp)})
+column(12, 
+  column(4, NULL),
+  # select matrix order type
+  column(width = 4,
+    selectInput('byclst', 'Order by?', selected = 'Clusters', choices = c('Watershed', 'Clusters'))
+  ),
+  column(4, NULL)
 )
 ```
 
@@ -538,7 +522,7 @@ renderPlot({
 clst <- reactive({
   
   # inputs
-  clsttyp <- input$clsttyp
+  clsttyp <- 'average' #input$clsttyp
   
   out <- dis1() %>% 
     hclust(method = clsttyp)

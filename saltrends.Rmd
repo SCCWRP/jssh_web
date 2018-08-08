@@ -57,10 +57,14 @@ mapview(stream, label = stream$STREAM_NM) +
 This map shows the density of S1 or S2 individuals for a chosen year where data are available.  Select a year and size class to view on the map.  The size of the point shows the relative density at a sampled site. 
 
 ```{r mapviewsel}
-
-selectInput("cls", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2'))
-
-selectInput("yr", "Choose a year to plot:", fishdat$Year %>% unique %>% na.omit)
+column(2, NULL)
+column(4, 
+  selectInput("cls", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2'))
+)
+column(4, 
+  selectInput("yr", "Choose a year to plot:", fishdat$Year %>% unique %>% na.omit)
+)
+column(2, NULL)
 ```
 ```{r}
 
@@ -86,6 +90,7 @@ renderLeaflet({mapout()@map})
 
 The boxplots show the distribution of the density estimates across all sites for a given year, by watershed. 
 ```{r}
+column(2, NULL)
 column(4, 
   selectInput('shd', 'Select watershed:', levels(fishdat$Watershed))
 )
@@ -93,6 +98,7 @@ column(4,
 column(4, 
        selectInput('scl', 'Select scale:', c('log10', 'arithmetic'))
        )
+column(2, NULL)
 ```
 
 ```{r densbox}
@@ -195,13 +201,18 @@ These plots provide a formal evaluation of the trends as measured by the signifi
 
 ##
 # reactive inputs for plots, tables 
-
+column(12, 
+column(4, NULL),
 # year slider
-sliderInput("years", label = 'Select year ranges to test:',  
-      min = 1994, max = 2017, 
-      value = c(1994, 2017),
-      sep = '', ticks = FALSE
-    )
+column(4, 
+  sliderInput("years", label = 'Select year ranges to test:',  
+        min = 1994, max = 2017, 
+        value = c(1994, 2017),
+        sep = '', ticks = FALSE
+      )
+),
+column(4, NULL)
+)
 
 # plot data from year input, s1
 toplos1 <- reactive({
@@ -426,15 +437,20 @@ This section evaluates status and trends of salmonid density at individual sites
 ```{r sitetrndmapprp}
 ##
 # reactive inputs for plots, tables 
-
-selectInput("clsst", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2'))
+column(2, NULL)
+column(4, 
+  selectInput("clsst", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2'))
+)
 
 # year slider
-sliderInput("yearsst", label = 'Select year ranges to test:',  
-      min = 1994, max = 2017, 
-      value = c(1994, 2017),
-      sep = '', ticks = FALSE
-    )
+column(4, 
+  sliderInput("yearsst", label = 'Select year ranges to test:',  
+        min = 1994, max = 2017, 
+        value = c(1994, 2017),
+        sep = '', ticks = FALSE
+      )
+)
+column(2, NULL)
 
 # filter site data by density class, years
 # get kendall results where appropriate
@@ -526,13 +542,18 @@ A regression through the trend anomalies for the size class densities at a selec
 
 ```{r sitetrndpltprp}
 
+column(4, NULL)
 # dynamic ui that changes with year selections on map, differents sites depending on year combos
-renderUI({
+column(4, 
+  renderUI({
+  
+    sts <- mapdatst()$SiteID %>% unique %>% sort
+    selectInput("st", "Select station to view map trends:", sts)
+  
+  })
+)
+column(4, NULL)
 
-  sts <- mapdatst()$SiteID %>% unique %>% sort
-  selectInput("st", "Select station to view map trends:", sts)
-
-})
 
 # filter site data by years, individual site
 trndatst <- reactive({

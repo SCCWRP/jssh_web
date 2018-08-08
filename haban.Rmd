@@ -106,20 +106,25 @@ habmap <- reactive({
 This map shows the relative values for a selected habitat variable and year for the chosen habitat type. Observations are colored by watershed and points are sized by relative values of the selected variable.
 
 ```{r habinput}
-column(1, NULL)
-# select habitat variable to show
-column(width = 3,
-      selectInput('habvr', 'Select a habitat variable:', choices = habvrs)
+column(12, 
+  column(2, NULL),
+  # select habitat variable to show
+  column(width = 4,
+        selectInput('habvr', 'Select a habitat variable:', choices = habvrs)
+  ),
+  # select year to show
+  column(width = 4,
+        selectInput('yr', 'Select a year:', selected = 2017, choices = sort(unique(habitat$Year)))
+  ),
+  column(2, NULL)
 )
-
-# select year to show
-column(width = 4,
-      selectInput('yr', 'Select a year:', selected = 2017, choices = sort(unique(habitat$Year)))
-)
-
-# habitat type to evaluate
-column(width = 4,
+column(12, 
+  column(2, NULL),
+  # habitat type to evaluate
+  column(width = 4,
       selectInput("habtyp", "Choose a habitat type to evaluate:", choices = c('run', 'riffle', 'pool'))
+  ),
+  column(6, NULL)
 )
 ```
 
@@ -136,8 +141,10 @@ This plot shows measured habitat variables over time, averaged across all sites 
 ```{r tmsel}
 column(width = 12,
        
+  column(2, NULL),
+       
   # habitat type to evaluate
-  column(width = 6, 
+  column(width = 4, 
   pickerInput("habtyp2", label = 'Choose a habitat type to evaluate:', choices = c('run', 'riffle', 'pool'),
                                                 selected = c('run'),
                                                 multiple = TRUE
@@ -145,16 +152,20 @@ column(width = 12,
   ),
   
   # select habitat variable to show
-  column(width = 6,
+  column(width = 4,
         selectInput('habvr2', 'Select a habitat variable:', choices = habvrs)
-  )
+  ),
+  
+  column(2, NULL)
   
 )
 
 column(12, 
        
+  column(2, NULL),
+       
   # year slider
-  column(width = 6, 
+  column(width = 4, 
     sliderInput("yrrng", label = 'Select year ranges to plot:',  
           min = 2001, max = 2017, 
           value = c(2001, 2017),
@@ -163,9 +174,11 @@ column(12,
   ),
   
   # show actual obs in each wshed or not
-  column(width = 6, 
+  column(width = 4, 
     selectInput("shwobs", label = 'Overlay observed values?', choices = list('no' = F, 'yes' = T))
-  )
+  ),
+  
+  column(2, NULL)
   
 )
 ```
@@ -269,24 +282,40 @@ renderPlot({
 This section evaluates trends in selected habitat variables at individual sites, rather than aggregated by watershed as above.  Select the habitat type, habitat variable, and year range to evaluate the trends.  The map tab shows estimated trends across all sites in the selected years and the plot tab shows individual sites in more detail. 
 
 ```{r trndsel}
-# habitat type to evaluate
-column(width = 6, 
-       selectInput("habtyp3", label = 'Choose a habitat type to evaluate:', choices = c('run', 'riffle', 'pool'))
-)
 
-# select habitat variable to show
-column(width = 6,
-      selectInput('habvr3', 'Select a habitat variable:', choices = habvrs)
+column(12, 
+       
+        column(2, NULL),
+       
+        # habitat type to evaluate
+        column(width = 4, 
+               selectInput("habtyp3", label = 'Choose a habitat type to evaluate:', choices = c('run', 'riffle', 'pool'))
+        ),
+
+        # select habitat variable to show
+        column(width = 4,
+              selectInput('habvr3', 'Select a habitat variable:', choices = habvrs)
+        ),
+       
+       column(2, NULL)
+       
 )
 
 # year slider
 column(width = 12, 
        
-  sliderInput("yrrng2", label = 'Select year ranges to plot:',  
-        min = 2001, max = 2017, 
-        value = c(2001, 2017),
-        sep = '', ticks = FALSE
-      )
+  column(2, NULL),
+  
+  column(4, 
+         sliderInput("yrrng2", label = 'Select year ranges to plot:',  
+          min = 2001, max = 2017, 
+          value = c(2001, 2017),
+          sep = '', ticks = FALSE
+        )
+  ), 
+  
+  column(6, NULL)
+  
 )
 ```
 
@@ -399,32 +428,39 @@ Trends for the measured habitat variable at a selected site are shown below.  De
 
 ```{r habtrndpltprp}
 
-# dynamic ui that changes with year selections on map, differents sites depending on year combos
-column(6, 
-       renderUI({
- 
-        # inputs
-        mapdattrnd <- mapdattrnd()
-        habtyp3 <- input$habtyp3
+column(12,
+  
+  column(2, NULL),
+  
+  # dynamic ui that changes with year selections on map, differents sites depending on year combos
+  column(4, 
+         renderUI({
+   
+          # inputs
+          mapdattrnd <- mapdattrnd()
+          habtyp3 <- input$habtyp3
+          
+          sts <- mapdattrnd() %>% 
+            filter(HabType %in% habtyp3) %>% 
+            pull(SiteID) %>% 
+            as.character %>% 
+            unique %>% 
+            sort
+          
+          selectInput("st", "Select station to view map trends:", sts)
         
-        sts <- mapdattrnd() %>% 
-          filter(HabType %in% habtyp3) %>% 
-          pull(SiteID) %>% 
-          as.character %>% 
-          unique %>% 
-          sort
-        
-        selectInput("st", "Select station to view map trends:", sts)
-      
-      })
-)
-
-
-# select which values to show on y-axis, deviations or actual
-column(6, 
-
-        selectInput("yvr", "Select y-axis type:", c('deviation from mean', 'actual'))
-
+        })
+  ),
+  
+  # select which values to show on y-axis, deviations or actual
+  column(4, 
+  
+          selectInput("yvr", "Select y-axis type:", c('deviation from mean', 'actual'))
+  
+  ),
+  
+  column(2, NULL)
+  
 )
 
 # habitat trends to plot for an individual site, separate for habitat types
