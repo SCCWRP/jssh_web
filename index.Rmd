@@ -41,6 +41,18 @@ The analysis will be exploratory to address the general questions and to provide
 
 1) [__Community and habitat analysis__](commhaban.Rmd): Multivariate analysis of association between habitat measurements and community composition, changes over time
 
+### Variable names
+
+Species and habitat variables are shown on the web page as in the raw data. For reference, the complete descriptions are shown here.
+
+Species names:
+
+__A_goby__: A_goby, __BayPF__: BayPF, __Bl_Fg__: Bull Frog, __Bl_Gill__: Bluegill, __Brwn_Tr__: Brown Turtle, __Ca_Nwt__: California Newt, __Ca_Rch__: California Roach, __Coho__: Coho Salmon, __Cst_Sculp__: Coastrange Sculpin, __Dace__: Dace, __Gi_Sal__: Giant Salamander, __Gld_Fish__: Goldfish, __Gld_Shin__: Golden Shiner, __Grn_SF__: Green Sunfish, __HCH__: HCH, __Lamp__: Lamprey, __LM_Bass__: Large Mouth Bass, __MQF__: Mosquitofish, __NWT__: Newt, __Pac_herr__: Pacific Herring, __Pike_Minw__: Pike Minnow, __Prk_Sculp__: Prickly Sculpin, __Rd_Fg__: Redlegged Frog, __Rgh_Nwt__: Roughlegged Newt, __Rif_Sculp__: Riffle Sculpin, __Sa_Suck__: Sacramento Sucker, __Shin_SP__: Shiner species, __Sln_Sal__: Slender Salamander, __Stag_Scul__: Staghorn Sculpin, __Sthd__: Steelhead, __SthdRT__: Rainbow Trout, __Stick__: Stickleback, __Stp_Mull__: Striped Mullet, __Str_Flo__: Starry Flounder, __T_goby__: Tidewater Goby, __Tp_Smlt__: Topsmelt, __Ws_Turt__: Western Turtle, __YF_goby__: Yellowfin Goby, __Ywl_Fg__: Yellowlegged Frog
+
+Habitat variable names:
+
+__Can__: Canopy cover (%), __Decid__: Deciduous canopy cover (%), __DpthAvg__: Average depth (ft), __DpthMax__: Maximum depth (ft), __Embed__: Embeddedness (%), __EsCov__: Escape cover (ratio), __Fines__: Fines (%), __Lgth__: Station length (ft), __Wdth__: Station width (ft)
+
 ### Attribution
 
 All site content and analyses by [Marcus Beck](mailto:marcusb@sccwrp.org). Raw data collected and graciously provided by the [JSSH monitoring program](http://scceh.com/steelhead.aspx) in Santa Cruz County, California. Click the icon on the top left to view the web page source content.
