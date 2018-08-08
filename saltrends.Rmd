@@ -432,7 +432,7 @@ renderUI({
 
 ## Trend statistics, by site
 
-This section evaluates status and trends of salmonid density at individual sites, rather than aggregated by watershed as above.  Select the year range and size density class to evaluate the trends.  The map shows the value for tau (direction of trend) for a Kendall test of density changes within the selected years, green for increasing and red for decreasing.  Size of the point is the magnitude of the estimated change. Note that some site may not have data spanning the full range of selected years.  Click an individual site on the map to see the available years within the selected range. 
+This section evaluates status and trends of salmonid density at individual sites, rather than aggregated by watershed as above.  Select the year range and size density class to evaluate the trends.  The map shows the value for tau (direction of trend) for a Kendall test of density changes within the selected years, green for increasing and red for decreasing.  Size of the point is the magnitude of the estimated change. Note that some sites may not have data spanning the full range of selected years.  Click an individual site on the map to see the available years within the selected range. 
 
 ```{r sitetrndmapprp}
 ##

@@ -46,8 +46,8 @@ pbase <- theme_bw(base_family = 'serif') +
   theme(
     panel.grid.major = element_blank(), 
     panel.grid.minor = element_blank(), 
-    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 8), 
-    axis.text.y = element_text(size = 8),
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 10), 
+    axis.text.y = element_text(size = 10),
     legend.position = 'top',
     legend.direction = 'horizontal',
     # plot.margin = unit(c(4,4,0,0), "lines"),
@@ -77,56 +77,7 @@ siteshd <- siteshd %>%
 
 <br>
 
-These analyses can be used to evaluate changes in community composition over time using the presence/absence data for all species.  The first two sections show general changes by species and the third section is a formal multivariate analysis showing ordination and clustering results of the communities for a selected year.  Changes over time can be assessed by comparing the results between years. 
-
-## Overview maps
-
-This map shows species presence/absence in the four watersheds.  Sites that were sampled for the selected year are shown on the map with small red points indicating a selected species was not found and large green points indicating a species was found at a site.
-
-```{r sppinput}
-column(2, NULL)
-# select a species
-column(width = 4,
- selectInput('sp', 'Select a species:', sort(unique(spdat$species)), selected = 'Sthd')
-)
-
-# select a year
-column(width = 4, 
-       selectInput('yr', 'Select a year:', selected = 2017, choices = sort(unique(spdat$Year)))
-       )
-column(2, NULL)
-```
-
-```{r prepmapsp}
-# subset year and species,  map
-mapspyr <- reactive({
-  
-  yr <- input$yr
-  sp <- input$sp
-  
-  toplo <- spdat %>% 
-    filter(Year == yr & species == sp) %>% 
-    mutate(
-      cexv = ifelse(pa == 1, 7, 3), 
-      pa = factor(pa, levels = c('1', '0'), labels = c('present', 'absent')), 
-      cols = ifelse(pa == 'present', 'lightgreen', 'tomato1')
-      )
-  
-  # colors must be passed as vector
-  cols <- toplo$cols
-  
-  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
-    mapview(toplo, zcol = 'pa', cex = toplo$cexv, label = paste0(toplo$SiteID, ': ', toplo$pa), legend = F, homebutton = F, col.region = cols)
-   
-  return(out)
-  
-})
-```
-
-```{r mapsp}
-renderLeaflet({mapspyr()@map})
-```
-<br>
+These analyses can be used to evaluate changes in community composition over time using the presence/absence data for all species.  The first two sections show general changes by species and the third section is a multivariate analysis showing ordination and clustering results of the communities for a selected year.  Changes over time can be assessed by comparing the results between years. 
 
 ## Percent occupied sites over time
 
@@ -142,7 +93,7 @@ column(width = 4,
 # year slider
 column(width = 4, 
   sliderInput("yrs", label = 'Select year ranges to plot:',  
-        min = 1994, max = 2017, 
+        min = 1981, max = 2017, 
         value = c(1994, 2017),
         sep = '', ticks = FALSE
       )
@@ -248,7 +199,107 @@ renderPlot({
 
 ```
 
-This map shows the occurrence of `r renderText({input$sptm})` at each site across the selected years from `r renderText({input$yrs[1]})` to `r renderText({input$yrs[2]})`.  The colors indicate if a species was commonly (dark green), frequently (light green), occasionally (light red), or rarely (dark green) observed at a site.  Frequency occurrence was the sum of years for which a species was observed divided by the total number of years that a site was sampled.
+## Presence/absence by year
+
+This map shows species presence/absence for a selected species and year.  Sites that were sampled for the selected year are shown on the map with small red points indicating a selected species was not found and large green points indicating a species was found at a site.  The year selector can be toggled to show only years when a species was present at any site versus all years for which sampling occurred but a species may or may not have been found (default). 
+
+```{r sppinput}
+column(12, 
+      column(2, NULL),
+      # select a species
+      column(width = 4,
+       selectInput('sp', 'Select a species:', sort(unique(spdat$species)), selected = 'Sthd')
+      ), 
+      
+      column(width = 4, 
+             selectInput('yrsub', 'Select from years only when present:', selected = FALSE, choices = c(TRUE, FALSE))
+      ),
+      column(2, NULL)
+)
+
+column(12, 
+       
+      column(2, NULL),
+      
+      column(4,
+      renderUI({
+        
+        # inputs
+        yrsub <- input$yrsub
+        mapsp <- mapsp()
+
+        # get only years when species was found, otherwise all
+        if(yrsub){
+
+          yrs <- mapsp %>%  
+            filter(pa %in% 1) %>% 
+            pull(Year) %>% 
+            unique
+
+        } else {
+
+          yrs <- unique(mapsp$Year)
+
+        }
+
+        # select a year
+        selectInput('yr', 'Select a year:', selected = max(yrs), choices = yrs)
+               
+      })
+      
+      ), 
+      
+      column(6, NULL)
+      
+)
+```
+
+```{r prepmapsp}
+# get selected species data for reactive UI year selection
+mapsp <- reactive({
+  
+  sp <- input$sp
+  
+  out <- spdat %>% 
+    filter(species == sp) 
+  
+  return(out)
+  
+})
+
+# subset year and species,  map
+mapspyr <- reactive({
+  
+  yr <- input$yr
+  mapsp <- mapsp()
+  
+  toplo <- mapsp %>% 
+    filter(Year == yr) %>% 
+    mutate(
+      cexv = ifelse(pa == 1, 7, 3), 
+      pa = factor(pa, levels = c('1', '0'), labels = c('present', 'absent')), 
+      cols = ifelse(pa == 'present', 'lightgreen', 'tomato1')
+      )
+  
+  # colors must be passed as vector
+  cols <- toplo$cols
+  
+  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
+    mapview(toplo, zcol = 'pa', cex = toplo$cexv, label = paste0(toplo$SiteID, ': ', toplo$pa), legend = F, homebutton = F, col.region = cols)
+   
+  return(out)
+  
+})
+```
+
+```{r mapsp}
+renderLeaflet({mapspyr()@map})
+```
+<br>
+
+## Frequency occurrence over time
+
+This map shows the occurrence of `r renderText({input$sptm})` at each site from `r renderText({input$yrs[1]})` to `r renderText({input$yrs[2]})`.  The colors indicate if a species was commonly (dark green), frequently (light green), occasionally (light red), or rarely (dark green) observed at a site.  Frequency occurrence was the sum of years for which a species was observed divided by the total number of years that a site was sampled.
 
 
 <span style="color:#33A02C">Common</span>: 76-100% of all sampled years 
@@ -273,21 +324,28 @@ This section can be used to evaluate community changes over time by showing natu
 2) Can the results be explained by community differences between the watersheds?
 3) If not, are there other natural groupings in the data that can describe community differences?
 
+
 ```{r mltsetup}
 mltdat <- spdat
 st_geometry(mltdat) <- NULL
 
-column(2, NULL)
-# select a year
-column(width = 4, 
-       selectInput('yrmlt1', 'Select a year for first comparison:', sort(unique(mltdat$Year)), selected = 2017)
-       )
+column(12, 
 
-# select cluster cuts
-column(width = 4, 
-       selectInput('clstcut', 'Select cluster groups:', selected = 2, choices = c(1:10))
+       column(2, NULL),
+       
+       # select a year 
+       column(width = 4, 
+              selectInput('yrmlt1', 'Select a year for first comparison:', sort(unique(mltdat$Year)), selected = 2017)
+       ),
+       
+       # select cluster cuts
+       column(width = 4, 
+              selectInput('clstcut', 'Select cluster groups:', selected = 2, choices = c(1:10))
+              ),
+       
+       column(2, NULL)
+       
 )
-column(2, NULL)
 ```
 
 <br>
@@ -424,6 +482,8 @@ renderPlot({
 
 ### Dissimilarity matrix
 
+Pairwise comparisons of site dissimilarities based on species presence/absence.  Comparisons in red are more dissimilar, whereas those in blue are more similar.
+
 ```{r}
 column(12, 
   column(4, NULL),
@@ -475,8 +535,8 @@ renderPlot({
     geom_tile(aes(x = SiteID, y = SiteID2, fill = dist), colour = 'black') +
     scale_x_discrete('', expand = c(0, 0)) + 
     scale_y_discrete('', expand = c(0, 0)) +
-    scale_fill_gradient2('Dissimilarity between sites\nby species p/a', low = 'white', mid = 'lightblue', high = 'tomato1', midpoint = 0.5) +
-    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 10, label.theme = element_text(size = 10, angle = 0))) + 
+    scale_fill_gradient2('Dissimilarity between sites\nby species p/a', low = 'lightblue', mid = 'white', high = 'tomato1', midpoint = 0.5) +
+    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 10, label.theme = element_text(size = 11, angle = 0))) + 
     pbase
   
   # add vline/hline
@@ -515,7 +575,9 @@ renderPlot({
 }, width = 650, height = 700)
 ```
 
-### Cluster analysis
+### Dendrogram
+
+Cluster dendrogram colored by selected number of groups.
 
 ```{r clstpl}
 # cluster analysis
@@ -576,6 +638,8 @@ renderPlot({
 ```
 
 ### Cluster map
+
+Sites are colored by the selected number of cluster groups (see dendrogram tab).
 
 ```{r mapclstprp}
 # subset year and species,  map
