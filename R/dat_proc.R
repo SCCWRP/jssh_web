@@ -222,7 +222,7 @@ allfctprs <- dat %>%
       data <- na.omit(data)
       
       # formula
-      frm <- paste0('log10(1 + ', densvar, ') ~ Year*', habvar) %>%
+      frm <- paste0('log10(1 + ', densvar, ') ~ Year +', habvar) %>%
         formula
       
       # global
@@ -294,11 +294,11 @@ habdat <- habdat %>%
 cmbs <- habitat %>% 
   filter(!habvar %in% 'StnSthd') %>% 
   pull(habvar) %>% 
-  unique
+  unique %>% 
+  c('Year', .)
 cmbs <- map(1:length(cmbs), ~ combn(cmbs, m = .x, simplify = F)) %>% 
   do.call('c', .) %>% 
   map(paste, collapse = ' + ') %>% 
-  map(~ paste0('Year + ', .x)) %>% 
   unlist
 
 # all models, filtered by top five AIC within each watershed, density class, and habitat type groups

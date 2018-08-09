@@ -154,7 +154,7 @@ dens1_avgm <- reactive({
   hbv <- input$hbv
   
   # formula
-  frm <- paste0('log10(Dens_S1) ~ Year*', hbv) %>% 
+  frm <- paste0('log10(Dens_S1) ~ Year +', hbv) %>% 
     formula
   
   # global
@@ -183,7 +183,7 @@ dens2_avgm <- reactive({
   hbv <- input$hbv
   
   # formula
-  frm <- paste0('log10(Dens_S2) ~ Year*', hbv) %>% 
+  frm <- paste0('log10(Dens_S2) ~ Year +', hbv) %>% 
     formula
   
   # global
@@ -254,7 +254,7 @@ renderPlot({
 ```
 
 <br>
-Summary of global (left) and selected (right) linear model testing `r renderText({input$hbv})` by year interaction, `r renderText({input$shd})` watershed, `r renderText({input$typ})` habitats.
+Summary of global (left) and selected (right) linear model testing `r renderText({input$hbv})` and year effects, `r renderText({input$shd})` watershed, `r renderText({input$typ})` habitats.
 
 ```{r, results = 'asis'}
 renderUI({
@@ -315,7 +315,7 @@ renderPlot({
 ```
 
 <br>
-Summary of global (left) and selected (right) linear model testing `r renderText({input$hbv})` by year interaction.
+Summary of global (left) and selected (right) linear model testing `r renderText({input$hbv})` and year effects, `r renderText({input$shd})` watershed, `r renderText({input$typ})` habitats.
 
 ```{r, results = 'asis'}
 renderUI({
@@ -480,7 +480,7 @@ renderUI({
 
 # Model selection, all habitat variables {.tabset}
 
-Models of salmonid density in relation to year and habitat variables are shown below.  Models were developed separately for each watershed and habitat type using all available data, where the station identifier was used as a random effect.  All combinations of habitat variables from one to all were evaluated and year was always included in the model.  Only additive effects were evaluated (i.e., no interactions).  The top five models based on minimum AIC are shown.
+Models of salmonid density in relation to year and habitat variables are shown below.  Models were developed separately for each watershed and habitat type using all available data, where the station identifier was used as a random effect.  All combinations of habitat variables with a year effect from one to all were evaluated.  The top five models based on minimum AIC are shown.
 
 ```{r}
 column(12, 
