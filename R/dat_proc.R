@@ -28,8 +28,14 @@ fishdat <- readOGR(dsn = dsn, layer = 'Site_Annual_Data') %>%
     Watershed = as.character(Watershed), 
     Watershed = ifelse(grepl('^SLR-main', SiteID), 'SLR-main', Watershed),
     Watershed = ifelse(Watershed %in% 'SLR', 'SLR-trib', Watershed),
-    Watershed = factor(Watershed, levels = c('SLR-main', 'SLR-trib', 'SOQ', 'APT', 'PAJ'))
-    )
+    Watershed = factor(Watershed, levels = c('SLR-main', 'SLR-trib', 'SOQ', 'APT', 'PAJ')), 
+    SampleDate = gsub('00:00:00$', '', SampleDate),
+    SampleDate = ymd(SampleDate),
+    Year = ifelse(is.na(Year), year(SampleDate), Year)
+    ) %>% 
+  rename(
+    Sp_BayPF = SP_BayPF
+  )
 
 save(fishdat, file = 'data/fishdat.RData')
 
