@@ -141,7 +141,7 @@ renderPlot({
 
 <br></br>
 
-This plot shows the changes from the long-term average by watershed and size class.  The colors show the differences of each year from the long-term average (trend anomaly) across all years and sites for each watershed and density class, log-scale.  It can be used to evaluate an approximate change over time relative to the long-term average.
+These two plot show the overall annual average across years (+/- 95% confidence interval) and changes from the long-term average by year for each watershed and size class.  The colors show the magnitude of the average in the top plot and the differences of each year from the long-term average (trend anomaly) in the bottom plot.  The bottom plot can be used to evaluate an approximate change over time relative to the long-term average in the top plot.
 
 ```{r denstile, fig.height = 4, fig.width = 7, out.width = "100%"}
 # remove 1981 all watersheds
@@ -150,21 +150,32 @@ toeval <- fishdat %>%
   filter(Year > 1981) %>% 
   filter(!(Year == 1994 & Watershed %in% c('PAJ', 'SOQ')))
 
-# get averages across stations
+# get average differences across stations
 st_geometry(toeval) <- NULL
 toplo <- toeval %>% 
   gather('Size class', 'density', Dens_S1, Dens_S2) %>% 
-  mutate(density = log10(1 + density)) %>% 
+  mutate(density = density) %>% 
   group_by(Watershed, `Size class`, Year) %>% 
   summarise(
     density = mean(density, na.rm = T)
     ) %>% 
   group_by(Watershed, `Size class`) %>% 
   mutate(
-    density_df = density - mean(density, na.rm = T)
-  ) %>% 
+    density_av = mean(density, na.rm = T),
+    density_df = density - density_av
+  ) %>%
   na.omit
 
+# average diff and ci per wshed and size class
+toploave <- toplo %>% 
+  select(Watershed, `Size class`, density, density_av) %>% 
+  mutate(
+    hi = t.test(density)$conf.int[2],
+    lo = t.test(density)$conf.int[1]
+  ) %>% 
+  select(-density) %>% 
+  unique
+  
 pbase <- theme_bw(base_family = 'serif') +
   theme(
     panel.grid.major = element_blank(), 
@@ -179,7 +190,23 @@ pbase <- theme_bw(base_family = 'serif') +
     panel.background = element_rect(fill = 'lightgrey')
   ) 
 
-p <- ggplot(toplo) + 
+# ave barplot
+pave <- ggplot(toploave, aes(x = Watershed, y = density_av, fill = density_av)) + 
+  geom_bar(stat = 'identity', colour = 'lightgrey') + 
+  geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.5) + 
+  coord_flip() +
+  scale_y_log10('Average density across years (fish/100ft, log-scale)') + #, expand = c(0, 0)) +
+  facet_wrap(~`Size class`, ncol = 1) +
+  scale_fill_gradient2('Long-term log-average', low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = mean(toploave$density_av)) +
+  guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
+  pbase +
+  theme(
+    panel.background = element_rect(fill = 'white'), 
+    axis.title.y = element_blank()
+    )
+
+# difference tiled plot
+pdif <- ggplot(toplo) + 
   geom_tile(aes(x = Year, y = Watershed, fill = density_df), colour = 'black') + 
   pbase +
   scale_x_continuous('', expand = c(0, 0)) + 
@@ -188,7 +215,8 @@ p <- ggplot(toplo) +
   guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
   facet_wrap(~ `Size class`, ncol = 1)
 
-p
+pave
+pdif
 ```
 
 <br></br>

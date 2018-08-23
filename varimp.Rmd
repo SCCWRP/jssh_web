@@ -254,7 +254,7 @@ renderPlot({
 ```
 
 <br>
-Summary of global (left) and selected (right) linear model testing `r renderText({input$hbv})` and year effects, `r renderText({input$shd})` watershed, `r renderText({input$typ})` habitats.
+Summary of global (left) and selected (right) linear model testing `r renderText({input$hbv})` and year effects, `r renderText({input$shd})` watershed, `r renderText({input$typ})` habitats.  See [here](images/model_table_explanations.pdf) for an explanation of the model result tables.
 
 ```{r, results = 'asis'}
 renderUI({
