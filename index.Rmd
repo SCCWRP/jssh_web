@@ -53,4 +53,6 @@ __Can__: Canopy cover (%), __Decid__: Deciduous canopy cover (%), __DpthAvg__: A
 
 ### Attribution
 
-All site content and analyses by [Marcus Beck](mailto:marcusb@sccwrp.org). Raw data collected and graciously provided by the [JSSH monitoring program](http://scceh.com/steelhead.aspx) in Santa Cruz County, California. Please visit [here](https://github.com/fawda123/jssh_web) to view the web page source content.
+All site content and analyses by [Marcus Beck](mailto:marcusb@sccwrp.org). Raw data collected and graciously provided by the [JSSH monitoring program](http://scceh.com/steelhead.aspx) in Santa Cruz County, California. Please visit [here](https://github.com/fawda123/jssh_web) to view the web page source content.  Funding is provided in part by [USEPA Region 9](https://www.epa.gov/aboutepa/epa-region-9-pacific-southwest) in coordination with [Central Coast Wetlands Group](https://www.mlml.calstate.edu/ccwg/) at Moss Landing Marine Labs.
+
+<img src="www/alllogo.png" alt="drawing" width="400"/>
