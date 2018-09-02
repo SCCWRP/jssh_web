@@ -223,7 +223,7 @@ pdif
 
 ## Trend statistics, by watershed {.tabset}
 
-These plots provide a formal evaluation of the trends as measured by the significance of the regression through the trend anomalies. All sites in a watershed are grouped. The slider can be used to adjust the range of years that are evaluated, e.g., a trend may be observed for one range but not another.
+These plots evaluate trends as measured by the significance of the regression through the trend anomalies. The trend anomalies are shown as positive (green) or negative (red) values around the long-term average (black-line) for a selected watershed and year range.  The dashed line is the regression fit through the anomalies.  All sites in a watershed are grouped. The slider can be used to adjust the range of years that are evaluated, e.g., a trend may be observed for one range but not another.
 
 ```{r trendevalrct}
 
