@@ -1,10 +1,8 @@
 name: jssh_web
 title:
-username:
 account: sccwrp
 server: shinyapps.io
-hostUrl: https://api.shinyapps.io/v1
 appId: 397940
-bundleId: 1560867
+bundleId: 1565963
 url: https://sccwrp.shinyapps.io/jssh_web/
-when: 1535581420.61643
+when: 1535909876.68816

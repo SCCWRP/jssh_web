@@ -509,6 +509,8 @@ column(12,
 ```{r ordplt, out.width = "100%"}
 renderPlot({
 
+  req(input$axsx)
+  
   # input
   ccaord <- ccaord()
   clstcut <- as.numeric(input$clstcut)
@@ -604,7 +606,6 @@ renderPlot({
   # inputs
   clstgrps <- clstgrps()
   toordhb <- toord()[['toordhb']]
-  browser()
 
   # toplo
   toplo <- toordhb %>%

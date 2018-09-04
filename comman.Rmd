@@ -23,6 +23,7 @@ library(ggord)
 library(vegan)
 library(ggdendro)
 library(dendextend)
+library(ggrepel)
 
 # data, funcs, globals
 prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
@@ -132,8 +133,8 @@ spyragg <- reactive({
 spyrsocc <- reactive({
   
   # inputs
-  sp <- input$sptm
-  yrs <- input$yrs
+  sp <- input$sptm2
+  yrs <- input$yrs2
 
   # get species, year selection
   toplo <- spdat %>% 
@@ -301,7 +302,6 @@ renderLeaflet({mapspyr()@map})
 
 This map shows the occurrence of `r renderText({input$sptm})` at each site from `r renderText({input$yrs[1]})` to `r renderText({input$yrs[2]})`.  The colors indicate if a species was commonly (dark green), frequently (light green), occasionally (light red), or rarely (dark green) observed at a site.  Frequency occurrence was the sum of years for which a species was observed divided by the total number of years that a site was sampled.
 
-
 <span style="color:#33A02C">Common</span>: 76-100% of all sampled years 
 
 <span style="color:#B2DF8A">Frequently present</span>: 51-75% of all sampled years 
@@ -309,6 +309,24 @@ This map shows the occurrence of `r renderText({input$sptm})` at each site from 
 <span style="color:#FB9A99">Occasionally present</span>: 26-50% of all sampled years 
 
 <span style="color:#E31A1C">Rare</span>: 0-25% of all sampled years 
+
+```{r tmsel2}
+column(2, NULL)
+# select a species
+column(width = 4,
+ selectInput('sptm2', 'Select a species:', sort(unique(spdat$species)), selected = 'Sthd')
+)
+
+# year slider
+column(width = 4, 
+  sliderInput("yrs2", label = 'Select year ranges to plot:',  
+        min = 1981, max = 2017, 
+        value = c(1994, 2017),
+        sep = '', ticks = FALSE
+      )
+)
+column(2, NULL)
+```
 
 ```{r}
 renderLeaflet({spyrsocc()@map})
@@ -424,7 +442,7 @@ ord1 <- reactive({
 
 ## {.tabset}
 
-### Ordination biplot
+### Biplot
 
 ```{r}
 # some chatty stuff about the ordination
@@ -669,4 +687,56 @@ mapclst <- reactive({
 
 ```{r mapclst}
 renderLeaflet({mapclst()@map})
+```
+
+### Dominant species by group
+
+These plots show the proportion of sites in a group where a species was observed.  This provides a measure of relative abundance based solely on presence/absence data. 
+
+```{r}
+renderPlot({
+  
+  # inputs
+  clstgrps <- clstgrps()
+  toord <- mltdatyr1() %>% 
+    select(-Watershed) 
+  
+  # toplo
+  toplo <- toord %>% 
+    mutate(clstgrps = clstgrps) %>% 
+    gather('spp', 'pa', -clstgrps) %>% 
+    group_by(clstgrps, spp) %>% 
+    summarise(
+      cnts = sum(pa)
+      ) %>% 
+    mutate(
+      pers = 100 * cnts/sum(cnts)
+    ) %>% 
+    ungroup %>% 
+    filter(pers > 0) %>% 
+    unite('clstsp', clstgrps, spp, remove = F) %>% 
+    arrange(clstgrps, pers) %>% 
+    group_by(clstgrps) %>% 
+    mutate(
+      clstsp = factor(clstsp, levels = clstsp),
+      perscum = cumsum(pers)
+    )
+      
+  # plot
+  p <- ggplot(toplo, aes(x = factor(clstgrps), fill = pers, group = factor(clstgrps))) +
+    geom_bar(stat = 'identity', aes(y = pers), width = 0.25, colour = 'black') +
+    geom_text_repel(aes(label = spp, y = perscum), angle = 0, nudge_x = 0.25, hjust = 0, direction = 'y') +
+    scale_x_discrete('Group') + 
+    scale_y_continuous('Cumulative occupied sites (%)') +
+    scale_fill_distiller('%', palette = 'Spectral') +
+    coord_flip() +
+    theme_minimal(base_size = 18, base_family = 'serif') +
+    theme(
+      panel.grid.minor = element_blank(), 
+      panel.grid.major = element_blank()
+    )
+
+  return(p)
+  
+}, height = 500, width = 900)
 ```
