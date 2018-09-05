@@ -10,7 +10,9 @@ link-citations: true
 
 ### Overview and objectives
 
-The Juvenile Salmonid and Stream Habitat (JSSH) database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California.  Analyses of the database conducted during the summer of 2018 provided 1) a preliminary assessment of salmonid status and trends in the county of Santa Cruz, and 2) recommendations to guide future monitoring efforts based on conclusions from the existing database.  These analyses and recommendations were presented online at https://sccwrp.shinyapps.io/jss_web.  
+The Juvenile Salmonid and Stream Habitat (JSSH) database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California.  Analyses of the database conducted during the summer of 2018 provided 1) a preliminary assessment of salmonid status and trends
+
+, and 2) recommendations to guide future monitoring efforts based on conclusions from the existing database.  These analyses and recommendations were presented online at https://sccwrp.shinyapps.io/jss_web.  
 
 Additional habitat datasets for the four watersheds in the existing database are available but were not included in the previous analysis.  These datasesets include:
 
@@ -40,7 +42,7 @@ A sum of $5000 will be available to support the continued analysis of habitat da
      * Budget: $4000
 * Task 2: Delivery of final presentation to technical advisory committee
      * Deliverable: Webinar presentation
-     * Complettion: Dec. 2018
+     * Completion: Dec. 2018
      * Budget: $1000
 
 ### Point of contact
