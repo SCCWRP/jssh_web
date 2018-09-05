@@ -10,31 +10,31 @@ link-citations: true
 
 ### Overview and objectives
 
-The Juvenile Salmonid and Stream Habitat (JSSH) database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California.  Analyses of the database conducted during the summer of 2018 provided 1) a preliminary assessment of salmonid status and trends
+The Juvenile Salmonid and Stream Habitat (JSSH) database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California.  Analyses of the database conducted during the summer of 2018 provided 1) a preliminary assessment of salmonid status and trends, and 2) recommendations to guide future monitoring efforts based on conclusions from the existing database.  These analyses and recommendations were presented online at https://sccwrp.shinyapps.io/jss_web.  
 
-, and 2) recommendations to guide future monitoring efforts based on conclusions from the existing database.  These analyses and recommendations were presented online at https://sccwrp.shinyapps.io/jss_web.  
+The initial analysis incorporated the existing datasets.  Since this time, two additional datasets have been compiled and one dataset is in development.  These datasesets include:
 
-Additional habitat datasets for the four watersheds in the existing database are available but were not included in the previous analysis.  These datasesets include:
+1) Estimated mean June and September flow values that will be assigned to each of the core fish monitoring sites. These data are currently in development.
 
-1) Continous flow estimates covering the period of record, modelled for all sampling stations with salmonid density
+1) Reach segment habitat measurements covering 1/2 mile segments for all locations in the study area. 
 
-1) Reach scale habitat measurements covering 1/2 mile segments for all locations in the study area. This dataset includes observations of woody structure.
+1) Stream Wood Inventories for the reach segments. This dataset includes observations of woody structure.
 
-This follow-up analysis will build on work completed earlier this year to develop a more comprehensive assessment of habitat trends and associations with salmonid densities.  The analysis will be driven by the following questions:
+This follow-up analysis will build on previous work to develop a more comprehensive assessment of habitat trends and associations with salmonid densities.  The analysis will be driven by the following questions:
 
 1) How has flow changed over time at the monitoring stations?
 
-1) Are flow changes linked to changes in salmonid density?  
+1) What habitat variables are associated with changes in juvenile steelhead densities? How critical are changes in flow in describing changes in steelhead densities?
 
 1) What are the spatial and temporal patterns in habitat variables at the reach scale?
 
-1) Is woody habitat associated with salmonid density, and if so, is there variation by location and/or age classes?
+1) Is stream wood associated with salmonid density, and if so, is there variation by location and/or age classes?
 
-Overall, this work will inform future monitoring programs by building on the knowledge gained from the first analysis.  This work will also inform conservation activities by identifying habitat conditions that are likely to sustain healthy salmonid populations in the region. 
+The new analysis will be incorporated into the existing technical memo which will summarize findings, evaluate monitoring methods for their ability to describe trends, and provide recommendations for the monitoring program.  Overall, this work will inform future monitoring programs by building on the knowledge gained from the first analysis.  This work will also inform conservation activities by identifying habitat conditions that are likely to sustain healthy salmonid populations in the region. 
 
 ### Budget and timeline
 
-A sum of $5000 will be available to support the continued analysis of habitat data. These funds will be applied directly to data analysis by M. Beck and will also support time between collaborators to discuss progress towards meeting objectives.  
+A sum of $5000 will be provided to support the continued analysis of habitat data. These funds will be applied directly to data analysis by M. Beck and will also support time between collaborators to discuss progress towards meeting objectives.  
 
 * Task 1: Analysis of habitat data and relation to salmonid density
      * Deliverable: Website page to append to existing resources
