@@ -10,15 +10,15 @@ link-citations: true
 
 ### Overview and objectives
 
-The Juvenile Salmonid and Stream Habitat (JSSH) database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California.  Analyses of the database conducted during the summer of 2018 provided 1) a preliminary assessment of salmonid status and trends, and 2) recommendations to guide future monitoring efforts based on conclusions from the existing database.  These analyses and recommendations were presented online at https://sccwrp.shinyapps.io/jss_web.  
+The Juvenile Salmonid and Stream Habitat (JSSH) database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California.  Analyses of the database conducted during the summer of 2018 provided 1) a preliminary assessment of salmonid status and trends, and 2) recommendations to guide future monitoring efforts based on conclusions from the existing database.  These analyses and recommendations were presented online at https://sccwrp.shinyapps.io/jssh_web.  
 
 The initial analysis incorporated the existing datasets.  Since this time, two additional datasets have been compiled and one dataset is in development.  These datasesets include:
 
-1) Estimated mean June and September flow values that will be assigned to each of the core fish monitoring sites. These data are currently in development.
+1) Estimated mean June and September flow values that will be assigned to each of the core fish monitoring sites. These data are currently in development and will include a streamflow value for each of the 50 core sites over 13 years. 
 
-1) Reach segment habitat measurements covering 1/2 mile segments for all locations in the study area. 
+1) Reach segment habitat measurements covering 1/2 mile segments for all locations in the study area.  The dataset includes more than 13,000 records.
 
-1) Stream Wood Inventories for the reach segments. This dataset includes observations of woody structure.
+1) Stream Wood Inventories for the reach segments. This dataset includes stream wood observations for 23 sites.
 
 This follow-up analysis will build on previous work to develop a more comprehensive assessment of habitat trends and associations with salmonid densities.  The analysis will be driven by the following questions:
 
