@@ -346,3 +346,24 @@ alltops <- inner_join(saldat, habdat, by = c('Year', 'SiteID')) %>%
   ungroup
 
 save(alltops, file = 'data/alltops.RData', compress = 'xz')
+
+######
+# 1/2 mile reach segment habitat data
+
+rchdat <- read_excel('../../Data/RawData/HABITAT_SEG_MASTER_Final_1Aug.xlsx',
+                     na = c('', 'na', 'NA')) %>% 
+  unique %>% 
+  mutate(
+    chkcmm = grepl(',', Reach)
+  ) %>% 
+  bind_rows(.[.$chkcmm, ]) %>% 
+  mutate(
+    chkdup = duplicated(.),
+    Reach2 = ifelse(chkdup, gsub(',.*([[:digit::]]+$)', '\\1', Reach), Reach),
+    Reach3 = ifelse(!chkdup, gsub('^([[:digit::]]+$),', '\\1', Reach), Reach)
+  )
+
+reach <- readOGR(dsn = dsn, layer = 'Reach') %>% 
+  spTransform(prj) %>% 
+  st_as_sf
+
