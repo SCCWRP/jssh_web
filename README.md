@@ -14,6 +14,10 @@ Data from the compiled geodatabase were extracted for exploratory analysis:
 
 * `habitat` data frame of habitat survey data
 
+* `rchdat` data frame of 1/2 mile stream reach habitat data, includes wood in pools
+
+* `reach` spatial data for stream reaches used in 1/2 mile habitat surveys
+
 * `segment` spatial data for stream segments with fish data
 
 * `stream` spatial data for complete hydrography for the four watersheds with fish and habitat data

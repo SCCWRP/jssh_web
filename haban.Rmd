@@ -1,5 +1,5 @@
 ---
-title: "Habitat analysis"
+title: "Habitat analysis - site"
 runtime: shiny
 output: 
   html_document:

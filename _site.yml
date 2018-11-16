@@ -10,10 +10,12 @@ navbar:
       href: varimp.Rmd
     - text: "Community analysis"
       href: comman.Rmd
-    - text: "Habitat analysis"
+    - text: "Habitat analysis - site"
       href: haban.Rmd
     - text: "Community and habitat analysis"
       href: commhaban.Rmd
+    - text: "Habitat analysis - reach"
+      href: rchan.Rmd
 output_dir: "."
 output:
   html_document:

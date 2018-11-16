@@ -1,0 +1,158 @@
+---
+title: "Reach habitat analysis"
+runtime: shiny
+output: 
+  html_document:
+    toc: true
+    toc_float: 
+       collapsed: false
+---
+
+```{r setuphaban, include = FALSE}
+# globals
+library(knitr)
+opts_chunk$set(echo = F, message = F, warning = F)
+
+library(tidyverse)
+library(sf)
+library(mapview)
+library(shiny)
+library(scales)
+library(leaflet)
+library(shinyWidgets)
+
+source('R/funcs.R')
+
+data(reach)
+data(stream)
+data(rchdat)
+```
+
+```{r}
+column(12,
+column(2, NULL),
+column(4, 
+  selectInput("wshd", "Choose watershed:", choices = levels(rchdat$Watershed), selected = 'SLR-main')
+),
+column(4, 
+  renderUI({
+    
+    # input
+    wshd <- input$wshd
+    
+    tosel <-  rchdat %>% 
+      filter(Watershed %in% wshd) %>% 
+      pull(ReachID) %>% 
+      unique %>% 
+      sort
+    
+    selectInput('rchid', "Choose reach:", choices = tosel)
+    
+  })
+),
+column(2, NULL)
+)
+```
+
+```{r}
+# selected reach data
+rchsel <- reactive({
+  
+  # input
+  rchid <- input$rchid
+  
+  out <- rchdat %>% 
+    filter(ReachID %in% rchid) %>% 
+    arrange(Year, `Hab. #`)
+  
+  return(out)
+  
+})
+
+# map with selected sf reach object
+spasel <- reactive({
+  
+  # input
+  rchid <- input$rchid
+
+  # subset sf by selcted reach
+  rchflt <- reach %>% 
+    filter(ReachID %in% rchid)
+  
+  # base map
+  out <- mapview(reach, label = reach$ReachID, homebutton = F) 
+  
+  # add selected reach if on map
+  if(nrow(rchflt) > 0)
+    out <- out +
+      mapview(rchflt, label = rchflt$ReachID, lwd = 2, color = 'tomato1')
+    
+  return(out)
+  
+})
+
+# reach plot data
+rchplo <- reactive({
+  
+  # input 
+  rchsel <- rchsel()
+  clas <- input$clas
+  szas <- input$szas
+  szrn <- input$szrn
+  
+  req(nrow(rchsel) > 0)
+
+  # get midpoint of habitat sample on reach
+  toplo <- rchsel %>% 
+    group_by(Year) %>% 
+    mutate(
+      cmlen = cumsum(`Mean length`),
+      mdlen = c(cmlen[1] / 2, cmlen[-length(cmlen)] + c(diff(cmlen) / 2))
+    ) %>% 
+    rename(
+      szas = !!szas,
+      clas = !!clas
+    )
+  
+  ggplot(toplo, aes(x = Year)) + 
+    geom_point(aes(y = mdlen, size = szas, fill = clas), colour = 'black', pch = 21, alpha = 0.9)+ 
+    ylab('Reach distance (m, downstream to upstream)') + 
+    scale_fill_brewer(clas, palette = 'Paired') + 
+    scale_size(szas, range = c(szrn[1], szrn[2])) + 
+    theme_bw(base_family = 'serif', base_size = 16) + 
+    theme(
+      axis.title.x = element_blank(), 
+      legend.position = 'top'
+      )
+  
+})
+```
+
+```{r}
+renderLeaflet({spasel()@map})
+```
+
+```{r}
+column(12,
+column(2, NULL),
+column(4, 
+  selectInput("clas", "Choose color aesthetic:", choices = c('Gen Hab Type', 'Hab. type', 'wood'), selected = 'Gen Hab Type')
+),
+column(4, 
+  selectInput("szas", "Choose size aesthetic:", choices = c("mean width", "mean depth", "max depth", "avg. embedd.", "escape cover", "% fines", "% shade", "% deciduous", "cover/ length", "cover/ perimeter"), selected = 'mean width')
+  ),
+column(2, NULL),
+column(2, NULL),
+column(4, 
+  sliderInput("szrn", label = "Choose point size ranges:", min = 0, 
+        max = 15, value = c(1, 8))
+), 
+column(6, NULL)
+)
+```
+
+```{r}
+renderPlot({rchplo()})
+```
+
+

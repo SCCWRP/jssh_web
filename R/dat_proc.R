@@ -349,21 +349,77 @@ save(alltops, file = 'data/alltops.RData', compress = 'xz')
 
 ######
 # 1/2 mile reach segment habitat data
+# reach shapefile data
 
+# old stream names for habitat data
+oldstr <- c("Aptos", "Bean Creek", "Bear Creek", "Boulder Creek", "Branciforte Creek", 
+  "Browns", "Carbonera Creek", "Casserly", "Corralitos", "Fall Creek", 
+  "Lompico Creek", "Newell Creek", "Shingle Mill", "SLR", "SLR- Waterman Gap", 
+  "SLR Waterman Gap", "Soquel", "Valencia", "Zayante", "Zayante Creek"
+)
+
+# new stream names for habitat data, created to match with reach sf object
+newstr <- c("main", "bean", "bear", "bldr", "bran", "brwn", "carb", "cass", "corr", 
+  "fall", "lomp", "newl", "shng", "main", "main", "main", "main", "main", "zayt", "zayt")
+
+# reaches on SLR main
+slrmain <- as.character(c(seq(1, 12), '12a', '12b'))
+
+# format reach hab data
 rchdat <- read_excel('../../Data/RawData/HABITAT_SEG_MASTER_Final_1Aug.xlsx',
                      na = c('', 'na', 'NA')) %>% 
   unique %>% 
   mutate(
-    chkcmm = grepl(',', Reach)
+    Reach = gsub('\\.|\\,\\s*', ',', Reach),
+    Watershed = case_when(
+      Watershed == 'Pajaro' ~ 'PAJ',
+      Watershed == 'Aptos' ~ 'APT',
+      Watershed == 'Soquel' ~ 'SOQ',
+      Watershed == 'SLR' & Reach %in% slrmain ~ 'SLR-main',
+      Watershed == 'SLR' & !Reach %in% slrmain ~ 'SLR-trib',
+      T ~ NA_character_
+    ),
+    Watershed = factor(Watershed, levels = c('SLR-main', 'SLR-trib', 'SOQ', 'APT', 'PAJ')),
+    Stream = factor(Stream, levels = oldstr, labels = newstr),
+    Stream = as.character(Stream),
+    Stream = case_when(
+      Watershed %in% 'SOQ' & Reach %in% c('14a', '14b', '14c', '14d') ~ 'west', 
+      Watershed %in% 'SOQ' & Reach %in% c('9a', '9b', '10', '11', '12a', '12b') ~ 'east',
+      Watershed %in% 'APT' & is.na(Stream) ~ 'main',
+      Watershed %in% 'SLR-trib' & Reach %in% c('21a upper', '21b') ~ 'bran',
+      Watershed %in% 'SLR-trib' & Reach %in% c('17a', '17b') ~ 'bldr',
+      Watershed %in% 'SLR-trib' & Reach %in% c('15') ~ 'fall',
+      Watershed %in% 'SLR-trib' & Reach %in% c('13d') ~ 'zayt',
+      Watershed %in% 'SLR-trib' & Reach %in% c('14b') ~ 'bean',
+      Watershed %in% 'SLR-trib' & Reach %in% c('16') ~ 'newl',
+      Watershed %in% 'SLR-main' & is.na(Stream) ~ 'main',
+      T ~ Stream
+      ), 
+    Year = factor(Year)
   ) %>% 
-  bind_rows(.[.$chkcmm, ]) %>% 
-  mutate(
-    chkdup = duplicated(.),
-    Reach2 = ifelse(chkdup, gsub(',.*([[:digit::]]+$)', '\\1', Reach), Reach),
-    Reach3 = ifelse(!chkdup, gsub('^([[:digit::]]+$),', '\\1', Reach), Reach)
-  )
+  filter(!is.na(Watershed)) %>% 
+  filter(!is.na(Reach)) %>% 
+  filter(!is.na(`Hab. #`)) %>% 
+  unite('ReachID', Watershed, Stream, Reach, sep = '-', remove = F)
 
+# sf object of reach, is an incomplete match with rchdat 
 reach <- readOGR(dsn = dsn, layer = 'Reach') %>% 
   spTransform(prj) %>% 
-  st_as_sf
+  st_as_sf %>% 
+  rename(Reach = ReachNum) %>% 
+  mutate(
+    Watershed = as.character(Watershed),
+    Watershed = case_when(
+      Watershed == 'SLR' & Reach %in% slrmain ~ 'SLR-main',
+      Watershed == 'SLR' & !Reach %in% slrmain ~ 'SLR-trib', 
+      TRUE ~ Watershed
+    ),
+    Stream = gsub('^.*\\-', '', Stream)
+  ) %>% 
+  dplyr::select(-CreekMile, -ReachID) %>% 
+  unite('ReachID', Watershed, Stream, Reach, sep = '-', remove = F)
+
+save(rchdat, file = 'data/rchdat.RData', compress = 'xz')
+save(reach, file = 'data/reach.RData', compress = 'xz')
+
 
