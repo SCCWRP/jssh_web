@@ -363,7 +363,7 @@ newstr <- c("main", "bean", "bear", "bldr", "bran", "brwn", "carb", "cass", "cor
   "fall", "lomp", "newl", "shng", "main", "main", "main", "main", "main", "zayt", "zayt")
 
 # reaches on SLR main
-slrmain <- as.character(c(seq(1, 12), '12a', '12b'))
+slrmain <- as.character(c(seq(0, 12), '12a', '12b'))
 
 # format reach hab data
 rchdat <- read_excel('../../Data/RawData/HABITAT_SEG_MASTER_Final_1Aug.xlsx',

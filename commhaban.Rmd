@@ -117,6 +117,8 @@ Some questions to consider when evaluating the data are:
 1) Can the results be explained by community or habitat differences between the watersheds?
 1) If not, are there other natural groupings in the data that can describe community differences?
 
+__Note that the habitat variables used in this analysis were those collected at the fish sampling sites.__
+
 ```{r mltsetup}
 column(12, 
        

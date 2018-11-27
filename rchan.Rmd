@@ -20,6 +20,7 @@ library(shiny)
 library(scales)
 library(leaflet)
 library(shinyWidgets)
+library(patchwork)
 
 source('R/funcs.R')
 
@@ -28,33 +29,7 @@ data(stream)
 data(rchdat)
 ```
 
-```{r}
-column(12,
-column(2, NULL),
-column(4, 
-  selectInput("wshd", "Choose watershed:", choices = levels(rchdat$Watershed), selected = 'SLR-main')
-),
-column(4, 
-  renderUI({
-    
-    # input
-    wshd <- input$wshd
-    
-    tosel <-  rchdat %>% 
-      filter(Watershed %in% wshd) %>% 
-      pull(ReachID) %>% 
-      unique %>% 
-      sort
-    
-    selectInput('rchid', "Choose reach:", choices = tosel)
-    
-  })
-),
-column(2, NULL)
-)
-```
-
-```{r}
+```{r reactives}
 # selected reach data
 rchsel <- reactive({
   
@@ -74,36 +49,42 @@ spasel <- reactive({
   
   # input
   rchid <- input$rchid
-
-  # subset sf by selcted reach
+  wshd <- input$wshd
+  
+  # subset sf by selected watershed
+  wshdflt <-  reach %>% 
+    filter(Watershed %in% wshd) 
+    
+  # subset sf by selected reach
   rchflt <- reach %>% 
     filter(ReachID %in% rchid)
   
   # base map
-  out <- mapview(reach, label = reach$ReachID, homebutton = F) 
+  out <- mapview(reach, label = reach$ReachID, homebutton = F, lwd = 1) +
+    mapview(wshdflt, label = wshdflt$ReachID, homebutton = F, lwd = 3) 
   
   # add selected reach if on map
   if(nrow(rchflt) > 0)
     out <- out +
-      mapview(rchflt, label = rchflt$ReachID, lwd = 2, color = 'tomato1')
+      mapview(rchflt, label = rchflt$ReachID, lwd = 5, color = 'tomato1')
     
   return(out)
   
 })
 
-# reach plot data
-rchplo <- reactive({
+# reach data to plot
+rchtpl <- reactive({
   
   # input 
   rchsel <- rchsel()
   clas <- input$clas
   szas <- input$szas
-  szrn <- input$szrn
+  hbsh <- input$hbsh
   
   req(nrow(rchsel) > 0)
 
   # get midpoint of habitat sample on reach
-  toplo <- rchsel %>% 
+  out <- rchsel %>% 
     group_by(Year) %>% 
     mutate(
       cmlen = cumsum(`Mean length`),
@@ -112,9 +93,25 @@ rchplo <- reactive({
     rename(
       szas = !!szas,
       clas = !!clas
-    )
+    ) %>% 
+    filter(clas %in% hbsh)
   
-  ggplot(toplo, aes(x = Year)) + 
+  return(out)
+
+})
+  
+# reach plot data
+output$rchplo <- renderPlot({
+  
+  # input 
+  rchtpl <- rchtpl()
+  szrn <- input$szrn
+  szas <- input$szas
+  clas <- input$clas
+  ylim <- input$ylim
+  
+  # changes over time by dist
+  p1 <- ggplot(rchtpl, aes(x = Year)) + 
     geom_point(aes(y = mdlen, size = szas, fill = clas), colour = 'black', pch = 21, alpha = 0.9)+ 
     ylab('Reach distance (m, downstream to upstream)') + 
     scale_fill_brewer(clas, palette = 'Paired') + 
@@ -122,10 +119,53 @@ rchplo <- reactive({
     theme_bw(base_family = 'serif', base_size = 16) + 
     theme(
       axis.title.x = element_blank(), 
-      legend.position = 'top'
-      )
+      legend.position = 'top', 
+      legend.box = 'vertical'
+      ) + 
+    scale_y_continuous(limits = ylim) +
+    guides(fill = guide_legend(override.aes = list(size = 5)))
   
-})
+  # boxplot by time
+  p2 <- ggplot(rchtpl, aes(x = Year, fill = clas, y = szas)) + 
+    geom_boxplot() +
+    ylab(szas) + 
+    scale_fill_brewer(clas, palette = 'Paired') + 
+    theme_bw(base_family = 'serif', base_size = 16) + 
+    theme(
+      axis.title.x = element_blank(), 
+      legend.position = 'none'
+      ) 
+  
+  p1 + p2 + plot_layout(ncol = 1, heights = c(1, 0.95))
+  
+}, height = 700)
+```
+
+```{r}
+column(12,
+column(2, NULL),
+column(4, 
+  selectInput("wshd", "Choose watershed:", choices = levels(rchdat$Watershed), selected = 'SLR-main')
+),
+column(4, 
+  renderUI({
+    
+    # input
+    wshd <- input$wshd
+
+    tosel <- rchdat %>% 
+      filter(Watershed %in% wshd) %>%
+      pull(ReachID) %>% 
+      unique %>% 
+      sort
+    
+    selectInput('rchid', "Choose reach:", choices = tosel)
+    # pickerInput('rchid', "Choose reach:", choices = tosel, multiple = T, selected = tosel[1])
+    
+  })
+),
+column(2, NULL)
+)
 ```
 
 ```{r}
@@ -134,25 +174,62 @@ renderLeaflet({spasel()@map})
 
 ```{r}
 column(12,
-column(2, NULL),
 column(4, 
   selectInput("clas", "Choose color aesthetic:", choices = c('Gen Hab Type', 'Hab. type', 'wood'), selected = 'Gen Hab Type')
 ),
 column(4, 
+  renderUI({
+    
+    # input
+    clas <- input$clas
+    rchsel <- rchsel()
+  
+    req(nrow(rchsel) > 0)
+
+    # get habitat types to show
+    tosel <- rchsel %>% 
+      rename(
+        clas = !!clas
+      ) %>% 
+      pull(clas) %>% 
+      unique
+    
+    pickerInput('hbsh', 'Choose habitat selections to show:', choices = tosel, multiple = T, selected = tosel,
+      options = list(`actions-box` = TRUE)
+      )
+    
+  })     
+),
+column(4, 
   selectInput("szas", "Choose size aesthetic:", choices = c("mean width", "mean depth", "max depth", "avg. embedd.", "escape cover", "% fines", "% shade", "% deciduous", "cover/ length", "cover/ perimeter"), selected = 'mean width')
-  ),
-column(2, NULL),
-column(2, NULL),
+  )
+)
+column(12, 
 column(4, 
   sliderInput("szrn", label = "Choose point size ranges:", min = 0, 
         max = 15, value = c(1, 8))
-), 
-column(6, NULL)
+),
+column(8,
+  renderUI({
+
+    # input
+    rchtpl <- rchtpl()
+    
+    req(nrow(rchtpl) > 0)
+
+    maxy <- max(rchtpl$mdlen, na.rm = TRUE)
+        
+    sliderInput("ylim", label = "Choose reach distance to plot:", min = 0,
+          max = maxy, value = c(0, maxy), width = '100%')
+
+  })
+)
 )
 ```
 
 ```{r}
-renderPlot({rchplo()})
+plotOutput('rchplo')
 ```
+
 
 
