@@ -130,7 +130,7 @@ rchstt <- reactive({
       catvr = !!catvr
     )
 
-  # stats summary output  
+  # stats summary output
   out <- toout %>% 
     group_by(grpvr) %>% 
     nest %>%

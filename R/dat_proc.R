@@ -395,7 +395,9 @@ rchdat <- read_excel('../../Data/RawData/HABITAT_SEG_MASTER_Final_1Aug.xlsx',
       Watershed %in% 'SLR-main' & is.na(Stream) ~ 'main',
       T ~ Stream
       ), 
-    Year = factor(Year)
+    Year = factor(Year),
+    `Gen Hab Type` = gsub('-+', ' ', `Gen Hab Type`),
+    `Hab. type` = gsub('-+', ' ', `Hab. type`)
   ) %>% 
   filter(!is.na(Watershed)) %>% 
   filter(!is.na(Reach)) %>% 
