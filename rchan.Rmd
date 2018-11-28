@@ -31,7 +31,7 @@ data(stream)
 data(rchdat)
 
 # summary statistics choice list
-sttls <- list(`Within years, between groups` = 'Year', `Within groups, between years` = 'clas')
+sttls <- list(`Between groups, within years` = 'Year', `Between years, within groups` = 'clas')
 ```
 
 ```{r reactives}
@@ -96,7 +96,7 @@ rchtpl <- reactive({
   
   req(nrow(rchsel) > 0)
 
-  # get midpoint of habitat sample on reach
+  # filter by habitat selection, reach distances
   out <- rchsel %>% 
     rename(
       szas = !!szas,
@@ -129,33 +129,53 @@ rchstt <- reactive({
       grpvr = !!sttgrp,
       catvr = !!catvr
     )
-  
+
   # stats summary output  
   out <- toout %>% 
     group_by(grpvr) %>% 
     nest %>%
     mutate(
-      anomod = purrr::map(data, function(x){
+      lets = purrr::map(data, function(x){
+
+        # try to get multcomp
+        lets <- try({
+
+          anomod <- aov(szas ~ catvr, data = x)
+          modhsd <- TukeyHSD(anomod) %>% 
+            .$catvr %>% 
+            data.frame
+          pvals <- modhsd$p.adj
+          names(pvals) <- rownames(modhsd)
         
-        aov(szas ~ catvr, data = x)
+          letout <- multcompLetters(pvals)
+          
+          letout
+          
+          })
         
-      }), 
-      lets = purrr::map(anomod, function(x){
+        # run check if possible to do multcomp
+        # if multcomp error, make comparable output but with NA        
+        if(inherits(lets, 'try-error')){
+         
+          unicat <- x %>% 
+            pull(catvr) %>% 
+            unique %>% 
+            sort
+          lets <- rep(NA, times = length(unicat))
+          names(lets) <- unicat
+           
+        }
         
-        modhsd <- TukeyHSD(x) %>% 
-          .$catvr %>% 
-          data.frame
-        pvals <- modhsd$p.adj
-        names(pvals) <- rownames(modhsd)
-        lets <- multcompLetters(pvals)
         if('Letters' %in% names(lets))
           lets <- lets$Letters
         lets <- lets %>% 
           enframe('catvr', 'lets')
         
+        return(lets)
+        
       })
     ) %>% 
-    dplyr::select(-data, -anomod) %>% 
+    dplyr::select(-data) %>% 
     unnest() 
     
   # ymax by year and group for label placement on plot
@@ -173,6 +193,39 @@ rchstt <- reactive({
 
   return(out)
 
+})
+
+# text for test interpretation
+tstint <- reactive({
+  
+  # inputs
+  rchtpl <- rchtpl()
+  rchid <- input$rchid
+  szas <- input$szas
+  clas <- input$clas
+  hbsh <- input$hbsh
+  sttgrp <- input$sttgrp
+  ylim <- input$ylim
+  
+  # concatenate strings
+  yrs <- rchtpl %>% 
+    pull(Year) %>% 
+    unique %>% 
+    sort %>% 
+    paste(collapse = ', ')
+  hbsh <- hbsh[nchar(hbsh) > 0] %>%
+    paste(collapse = ', ')
+
+  # make text output
+  
+  if(sttgrp == 'Year')
+    txt <- paste0('Is ', szas , ' significantly different between habitat selections (', clas , ': ',      hbsh, ') for the same year (', yrs ,') at reach ', rchid , ' (', ylim[1], ' m downstream to ', ylim[2], ' m upstream)?')
+                  
+  if(sttgrp == 'clas')
+    txt <- paste0('Is ', szas , ' significantly different between years (', yrs ,') for the same habitat selection (', clas , ': ',      hbsh, ') at reach ', rchid , ' (', ylim[1], ' m downstream to ', ylim[2], ' m upstream)?')
+
+  return(txt)
+  
 })
 
 # reach plot data, points
@@ -268,6 +321,8 @@ renderLeaflet({spasel()@map})
 
 ## Habitat selection
 
+*Results below are for reach `r renderText({input$rchid})`.*
+
 Habitat data for the selected reach above is shown in the plots below.  Choose the habitat classification for the color aesthetic and grouping variable in the plots with the first menu. Choose the habitat types to show in the second menu based on the habitat classification from the first menu.  The habitat variable that is shown for each habitat type can be chosen with the third menu.  The chosen habitat variable defines how large the points are in the first plot and which variable is shown on the y-axis for the boxplots in the second plot.  
 
 For the selected reach, the slider can further filter the data within the measured distances that were sampled along the reach. The distances start at zero from the first downstream sample site to the maximum sampled distance of a reach across the years. The default position is to plot all the available data along the reach.  These distances can be shortened to view the data along a subset of the total distance that was sampled for the reach.  The selected distances affect plots in both tabs. 
@@ -292,7 +347,8 @@ column(4,
         clas = !!clas
       ) %>% 
       pull(clas) %>% 
-      unique
+      unique %>% 
+      sort
     
     pickerInput('hbsh', 'Choose habitat selections to show:', choices = tosel, multiple = T, selected = tosel,
       options = list(`actions-box` = TRUE)
@@ -341,7 +397,7 @@ plotOutput('rchplopts')
 
 ### Habitat data distribution, over time
 
-This plot shows the distribution of the selected habitat variable as boxplots for each year, grouped and colored by the habitat selections.  Summary statistics are also shown based on the chosen comparison in the menu below.  The summary statistics can be used to evaluate differences __within the same year but between groups__ (the habitat selection) or __within the same group but between years__.  Boxplots that share the same letter are not statistically different (at alpha = 0.05). The comparison of letters are only relevant for the selected summary statistics from the drop down menu. That is, letters can be only be compared within the same year if "within years, between groups" is selected, or letters can only be compared between years for the same group (habitat selection) if "within groups, between years" is selected.
+This plot shows the distribution of the selected habitat variable as boxplots for each year, grouped and colored by the habitat selections.  Summary statistics are also shown based on the chosen comparison in the menu below.  The summary statistics can be used to evaluate differences __between habitat selections within the same year__ or __between years within the same habitat selection__.  Boxplots that share the same letter are not statistically different (at alpha = 0.05). The comparison of letters are only relevant for the selected summary statistics from the drop down menu. That is, letters can be only be compared within the same year if "between groups, within years" is selected, or letters can only be compared between years for the same group (habitat selection) if "between years, within groups" is selected.  Comparisons for boxplots without letters are not shown if the test could not be completed due to sample size.
 
 ```{r}
 column(12, 
@@ -349,7 +405,12 @@ column(8,
   selectInput('sttgrp', label = "Choose summary statistics:", choices = sttls)
 )       
 )
+```
 
+*This test asks the question:*
+
+`r renderText({tstint()})`
+```{r}
 plotOutput('rchplobox')
 ```
 

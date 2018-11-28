@@ -35,9 +35,9 @@ The analysis will be exploratory to address the general questions and to provide
 
 1) [__Community analysis__](comman.Rmd): Community analysis of each watershed using species presence/absence, changes over time
 
-1) [__Habitat analysis - site__](haban.Rmd): Analysis of habitat differences between riffle, runs, and pools, changes over time, uses habitat data collected at fish sampling sites
-
 1) [__Community and habitat analysis__](commhaban.Rmd): Multivariate analysis of association between habitat measurements and community composition, changes over time, uses habitat data collected at fish sampling sites
+
+1) [__Habitat analysis - site__](haban.Rmd): Analysis of habitat differences between riffle, runs, and pools, changes over time, uses habitat data collected at fish sampling sites
 
 1) [__Habitat analysis - reach__](rchan.Rmd): Analysis of habitat changes at approximate 1/2 mile reach segments
 
