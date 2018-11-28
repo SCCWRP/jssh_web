@@ -397,7 +397,9 @@ rchdat <- read_excel('../../Data/RawData/HABITAT_SEG_MASTER_Final_1Aug.xlsx',
       ), 
     Year = factor(Year),
     `Gen Hab Type` = gsub('-+', ' ', `Gen Hab Type`),
-    `Hab. type` = gsub('-+', ' ', `Hab. type`)
+    `Hab. type` = gsub('-+', ' ', `Hab. type`),
+    `avg. embedd.` = gsub('n/a', '', `avg. embedd.`),
+    `avg. embedd.` = as.numeric(`avg. embedd.`)
   ) %>% 
   filter(!is.na(Watershed)) %>% 
   filter(!is.na(Reach)) %>% 
