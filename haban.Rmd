@@ -54,7 +54,7 @@ habvrs <- list(
 
 <br>
 
-These analyses can be used to evaluate changes in habitat over time, by watershed, habitat type, and habitat measurements. The first two sections show general changes by individual years and by watershed.  The third section shows more detailed changes for individual sites for selected periods of time. 
+These analyses can be used to evaluate changes in habitat over time, by watershed, habitat type, and habitat measurements.  The habitat data in this section were collected at sites where fish sampling also occurred. The first two sections show general changes by individual years and by watershed.  The third section shows more detailed changes for individual sites for selected periods of time. 
 
 Habitat measurements were taken separately in different habitat types at each site:
 

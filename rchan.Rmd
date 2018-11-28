@@ -8,6 +8,8 @@ output:
        collapsed: false
 ---
 
+This set of analyses evaluates differences in habitat measurements at approximate 1/2 mile observations along reach segments.  The habitat data in this section were collected at fixed distances along reaches and are not identified by sites where fish sampling occurred.  As such, the information in this section is useful to identify changes at a high spatial resolution along reaches independent of the fisheries data collected at individual sites.  Habitat changes over time can also be evaluated for an individual reach.
+
 ```{r setuphaban, include = FALSE}
 # globals
 library(knitr)
@@ -20,13 +22,16 @@ library(shiny)
 library(scales)
 library(leaflet)
 library(shinyWidgets)
-library(patchwork)
+library(multcompView)
 
 source('R/funcs.R')
 
 data(reach)
 data(stream)
 data(rchdat)
+
+# summary statistics choice list
+sttls <- list(`Within years, between groups` = 'Year', `Within groups, between years` = 'clas')
 ```
 
 ```{r reactives}
@@ -36,9 +41,16 @@ rchsel <- reactive({
   # input
   rchid <- input$rchid
   
+  # filter reach data, get cumulative and midpoint reach distances by sample year
   out <- rchdat %>% 
     filter(ReachID %in% rchid) %>% 
-    arrange(Year, `Hab. #`)
+    arrange(Year, `Hab. #`) %>% 
+    group_by(Year) %>% 
+    mutate(
+      cmlen = cumsum(`Mean length`),
+      mdlen = c(cmlen[1] / 2, cmlen[-length(cmlen)] + c(diff(cmlen) / 2))
+    ) %>% 
+    ungroup
   
   return(out)
   
@@ -80,38 +92,101 @@ rchtpl <- reactive({
   clas <- input$clas
   szas <- input$szas
   hbsh <- input$hbsh
+  ylim <- input$ylim
   
   req(nrow(rchsel) > 0)
 
   # get midpoint of habitat sample on reach
   out <- rchsel %>% 
-    group_by(Year) %>% 
-    mutate(
-      cmlen = cumsum(`Mean length`),
-      mdlen = c(cmlen[1] / 2, cmlen[-length(cmlen)] + c(diff(cmlen) / 2))
-    ) %>% 
     rename(
       szas = !!szas,
       clas = !!clas
     ) %>% 
-    filter(clas %in% hbsh)
+    dplyr::select(Year, clas, szas, mdlen) %>% 
+    filter(clas %in% hbsh) %>% 
+    filter(mdlen < ylim[2] & mdlen > ylim[1]) %>% 
+    filter(!is.na(szas))
   
   return(out)
 
 })
   
-# reach plot data
-output$rchplo <- renderPlot({
+# summary stats
+rchstt <- reactive({
+  
+  # input
+  rchtpl <- rchtpl()
+  sttgrp <- input$sttgrp
+  
+  req(nrow(rchtpl) > 0)
+  
+  # categorical variable, not for grouping 
+  catvr <- unlist(sttls)[!unlist(sttls) %in% sttgrp]
+  
+  # rename grouping and category columns by inputs
+  toout <- rchtpl %>%
+    rename(
+      grpvr = !!sttgrp,
+      catvr = !!catvr
+    )
+  
+  # stats summary output  
+  out <- toout %>% 
+    group_by(grpvr) %>% 
+    nest %>%
+    mutate(
+      anomod = purrr::map(data, function(x){
+        
+        aov(szas ~ catvr, data = x)
+        
+      }), 
+      lets = purrr::map(anomod, function(x){
+        
+        modhsd <- TukeyHSD(x) %>% 
+          .$catvr %>% 
+          data.frame
+        pvals <- modhsd$p.adj
+        names(pvals) <- rownames(modhsd)
+        lets <- multcompLetters(pvals)
+        if('Letters' %in% names(lets))
+          lets <- lets$Letters
+        lets <- lets %>% 
+          enframe('catvr', 'lets')
+        
+      })
+    ) %>% 
+    dplyr::select(-data, -anomod) %>% 
+    unnest() 
+    
+  # ymax by year and group for label placement on plot
+  ymx <- toout %>% 
+    group_by(grpvr, catvr) %>% 
+    summarise(ymax = max(szas, na.rm = T))
+  
+  # combine ymx locations with out
+  out <- out %>% 
+    left_join(ymx, by = c('grpvr', 'catvr'))
+
+  # revert names
+  names(out)[names(out) == 'grpvr'] <- sttgrp
+  names(out)[names(out) == 'catvr'] <- catvr
+
+  return(out)
+
+})
+
+# reach plot data, points
+output$rchplopts <- renderPlot({
   
   # input 
   rchtpl <- rchtpl()
+  rchstt <- rchstt()
   szrn <- input$szrn
   szas <- input$szas
   clas <- input$clas
-  ylim <- input$ylim
-  
+
   # changes over time by dist
-  p1 <- ggplot(rchtpl, aes(x = Year)) + 
+  p <- ggplot(rchtpl, aes(x = Year)) + 
     geom_point(aes(y = mdlen, size = szas, fill = clas), colour = 'black', pch = 21, alpha = 0.9)+ 
     ylab('Reach distance (m, downstream to upstream)') + 
     scale_fill_brewer(clas, palette = 'Paired') + 
@@ -122,24 +197,43 @@ output$rchplo <- renderPlot({
       legend.position = 'top', 
       legend.box = 'vertical'
       ) + 
-    scale_y_continuous(limits = ylim) +
     guides(fill = guide_legend(override.aes = list(size = 5)))
+
+  return(p)
+  
+}, height = 450)
+
+# reach plot data, boxplots
+output$rchplobox <- renderPlot({
+  
+  # input 
+  rchtpl <- rchtpl()
+  rchstt <- rchstt()
+  szrn <- input$szrn
+  szas <- input$szas
+  clas <- input$clas
   
   # boxplot by time
-  p2 <- ggplot(rchtpl, aes(x = Year, fill = clas, y = szas)) + 
+  p <- ggplot(rchtpl, aes(x = Year, fill = clas, y = szas)) + 
     geom_boxplot() +
     ylab(szas) + 
+    geom_text(data = rchstt, aes(x = Year, y = ymax, colour = clas, label = lets), position = position_dodge(width = 0.75), size = 6, vjust = -0.5) +
     scale_fill_brewer(clas, palette = 'Paired') + 
+    scale_colour_brewer(clas, palette = 'Paired', guide = 'none') +
     theme_bw(base_family = 'serif', base_size = 16) + 
     theme(
       axis.title.x = element_blank(), 
-      legend.position = 'none'
+      legend.position = 'top'
       ) 
   
-  p1 + p2 + plot_layout(ncol = 1, heights = c(1, 0.95))
+  return(p)
   
-}, height = 700)
+}, height = 400)
 ```
+
+## Reach selection map
+
+Choose the watershed and reach for evaluating habitat changes.  The watershed selection in the first menu determines which reaches are available to select in the second menu. 
 
 ```{r}
 column(12,
@@ -172,6 +266,12 @@ column(2, NULL)
 renderLeaflet({spasel()@map})
 ```
 
+## Habitat selection
+
+Habitat data for the selected reach above is shown in the plots below.  Choose the habitat classification for the color aesthetic and grouping variable in the plots with the first menu. Choose the habitat types to show in the second menu based on the habitat classification from the first menu.  The habitat variable that is shown for each habitat type can be chosen with the third menu.  The chosen habitat variable defines how large the points are in the first plot and which variable is shown on the y-axis for the boxplots in the second plot.  
+
+For the selected reach, the slider can further filter the data within the measured distances that were sampled along the reach. The distances start at the zero from the first downstream sample site to the maximum sampled distance of a reach across the years. The default position is to plot all the available data along the reach.  These distances can be shortened to view the data along a subset of the total distance that was sampled for the reach.  The selected distances affect plots in both tabs. 
+
 ```{r}
 column(12,
 column(4, 
@@ -201,25 +301,21 @@ column(4,
   })     
 ),
 column(4, 
-  selectInput("szas", "Choose size aesthetic:", choices = c("mean width", "mean depth", "max depth", "avg. embedd.", "escape cover", "% fines", "% shade", "% deciduous", "cover/ length", "cover/ perimeter"), selected = 'mean width')
+  selectInput("szas", "Choose variable for size or boxplots:", choices = c("mean width", "mean depth", "max depth", "avg. embedd.", "escape cover", "% fines", "% shade", "% deciduous", "cover/ length", "cover/ perimeter"), selected = 'mean width')
   )
 )
-column(12, 
-column(4, 
-  sliderInput("szrn", label = "Choose point size ranges:", min = 0, 
-        max = 15, value = c(1, 8))
-),
+column(12,
 column(8,
   renderUI({
 
     # input
-    rchtpl <- rchtpl()
+    rchsel <- rchsel()
     
-    req(nrow(rchtpl) > 0)
+    req(nrow(rchsel) > 0)
 
-    maxy <- max(rchtpl$mdlen, na.rm = TRUE)
+    maxy <- max(rchsel$mdlen, na.rm = TRUE)
         
-    sliderInput("ylim", label = "Choose reach distance to plot:", min = 0,
+    sliderInput("ylim", label = "Choose reach distance for both plots (m, downstream to upstream):", min = 0,
           max = maxy, value = c(0, maxy), width = '100%')
 
   })
@@ -227,9 +323,36 @@ column(8,
 )
 ```
 
+## {.tabset}
+
+### Habitat data by sample distance, over time
+
+This plot shows the reach data across years from downstream (bottom of y-axis) to upstream (top of y-axis).  Points are colored by the habitat selections and sized by the chosen habitat variable.  The slider can be used to change the scaling of the point sizes to better distinguish changes along the reach and between years.  
+
 ```{r}
-plotOutput('rchplo')
+column(12, 
+column(4, 
+  sliderInput("szrn", label = "Choose point size ranges:", min = 0, 
+        max = 15, value = c(1, 8))
+)
+)
+plotOutput('rchplopts')
 ```
+
+### Habitat data distribution, over time
+
+This plot shows the distribution of the selected habitat variable as boxplots for each year, grouped and colored by the habitat selections.  Summary statistics are also shown based on the chosen comparison in the menu below.  The summary statistics can be used to evaluate differences __within the same year but between groups__ (the habitat selection) or __within the same group but between years__.  Boxplots that share the same letter are not statistically different (at alpha = 0.05). The comparison of letters are only relevant for the selected summary statistics from the drop down menu. That is, letters can be only be compared within the same year if "within years, between groups" is selected, or letters can only be compared between years for the same group (habitat selection) if "within groups, between years" is selected.
+
+```{r}
+column(12, 
+column(8, 
+  selectInput('sttgrp', label = "Choose summary statistics:", choices = sttls)
+)       
+)
+
+plotOutput('rchplobox')
+```
+
 
 
 
