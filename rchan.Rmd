@@ -270,7 +270,7 @@ renderLeaflet({spasel()@map})
 
 Habitat data for the selected reach above is shown in the plots below.  Choose the habitat classification for the color aesthetic and grouping variable in the plots with the first menu. Choose the habitat types to show in the second menu based on the habitat classification from the first menu.  The habitat variable that is shown for each habitat type can be chosen with the third menu.  The chosen habitat variable defines how large the points are in the first plot and which variable is shown on the y-axis for the boxplots in the second plot.  
 
-For the selected reach, the slider can further filter the data within the measured distances that were sampled along the reach. The distances start at the zero from the first downstream sample site to the maximum sampled distance of a reach across the years. The default position is to plot all the available data along the reach.  These distances can be shortened to view the data along a subset of the total distance that was sampled for the reach.  The selected distances affect plots in both tabs. 
+For the selected reach, the slider can further filter the data within the measured distances that were sampled along the reach. The distances start at zero from the first downstream sample site to the maximum sampled distance of a reach across the years. The default position is to plot all the available data along the reach.  These distances can be shortened to view the data along a subset of the total distance that was sampled for the reach.  The selected distances affect plots in both tabs. 
 
 ```{r}
 column(12,
