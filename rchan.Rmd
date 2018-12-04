@@ -23,12 +23,16 @@ library(scales)
 library(leaflet)
 library(shinyWidgets)
 library(multcompView)
+library(RColorBrewer)
 
 source('R/funcs.R')
 
 data(reach)
 data(stream)
 data(rchdat)
+
+# color vector
+cols <- brewer.pal(12, 'Paired')
 
 # summary statistics choice list
 sttls <- list(`Between groups, within years` = 'Year', `Between years, within groups` = 'clas')
@@ -84,18 +88,58 @@ spasel <- reactive({
   
 })
 
+# which habitat variables to select from reactive input clas
+hbshsel <- reactive({
+
+  # input
+  clas <- input$clas
+  rchsel <- rchsel()
+  
+  req(nrow(rchsel) > 0)
+
+  # get habitat types to show
+  tosel <- rchsel %>% 
+    rename(
+      clas = !!clas
+    ) %>% 
+    pull(clas) %>% 
+    unique %>% 
+    sort
+  
+  return(tosel)
+    
+})
+
+# color vector for habitat selection
+colcat <- reactive({
+  
+  # input
+  hbshsel <- hbshsel()
+
+  # map the colors
+  if(length(hbshsel) <= length(cols)){
+    colvls <- cols[seq_along(hbshsel)]
+  } else {
+    colvls <- scales::seq_gradient_pal(cols)(seq(0, 1, length.out = length(hbshsel)))
+  }
+  
+  return(colvls)
+  
+})
+  
 # reach data to plot
 rchtpl <- reactive({
   
   # input 
   rchsel <- rchsel()
+  hbshsel <- hbshsel()
   clas <- input$clas
   szas <- input$szas
   hbsh <- input$hbsh
   ylim <- input$ylim
   
   req(nrow(rchsel) > 0)
-
+  
   # filter by habitat selection, reach distances
   out <- rchsel %>% 
     rename(
@@ -103,6 +147,7 @@ rchtpl <- reactive({
       clas = !!clas
     ) %>% 
     dplyr::select(Year, clas, szas, mdlen) %>% 
+    mutate(clas = factor(clas, levels = hbshsel)) %>% 
     filter(clas %in% hbsh) %>% 
     filter(mdlen < ylim[2] & mdlen > ylim[1]) %>% 
     filter(!is.na(szas))
@@ -116,10 +161,11 @@ rchstt <- reactive({
   
   # input
   rchtpl <- rchtpl()
+  hbshsel <- hbshsel()
   sttgrp <- input$sttgrp
   
   req(nrow(rchtpl) > 0)
-  
+
   # categorical variable, not for grouping 
   catvr <- unlist(sttls)[!unlist(sttls) %in% sttgrp]
   
@@ -184,9 +230,18 @@ rchstt <- reactive({
     summarise(ymax = max(szas, na.rm = T))
   
   # combine ymx locations with out
-  out <- out %>% 
-    left_join(ymx, by = c('grpvr', 'catvr'))
+  # reassign factor levels to habitat types correctly
+  
+  if(sttgrp == 'clas')
+    out <- out %>% 
+      mutate(grpvr = factor(grpvr, levels = hbshsel)) %>% 
+      left_join(ymx, by = c('grpvr', 'catvr'))
+  if(sttgrp == 'Year')
+    out <- out %>% 
+      mutate(catvr = factor(catvr, levels = hbshsel)) %>% 
+      left_join(ymx, by = c('grpvr', 'catvr'))
 
+  
   # revert names
   names(out)[names(out) == 'grpvr'] <- sttgrp
   names(out)[names(out) == 'catvr'] <- catvr
@@ -234,15 +289,18 @@ output$rchplopts <- renderPlot({
   # input 
   rchtpl <- rchtpl()
   rchstt <- rchstt()
+  colcat <- colcat()
   szrn <- input$szrn
   szas <- input$szas
   clas <- input$clas
+  ylim <- input$ylim
 
   # changes over time by dist
   p <- ggplot(rchtpl, aes(x = Year)) + 
     geom_point(aes(y = mdlen, size = szas, fill = clas), colour = 'black', pch = 21, alpha = 0.9)+ 
     ylab('Reach distance (m, downstream to upstream)') + 
-    scale_fill_brewer(clas, palette = 'Paired') + 
+    scale_y_continuous(limits = ylim) +
+    scale_fill_manual(clas, values = colcat, drop = F) + 
     scale_size(szas, range = c(szrn[1], szrn[2])) + 
     theme_bw(base_family = 'serif', base_size = 16) + 
     theme(
@@ -262,6 +320,7 @@ output$rchplobox <- renderPlot({
   # input 
   rchtpl <- rchtpl()
   rchstt <- rchstt()
+  colcat <- colcat()
   szrn <- input$szrn
   szas <- input$szas
   clas <- input$clas
@@ -271,8 +330,8 @@ output$rchplobox <- renderPlot({
     geom_boxplot() +
     ylab(szas) + 
     geom_text(data = rchstt, aes(x = Year, y = ymax, colour = clas, label = lets), position = position_dodge(width = 0.75), size = 6, vjust = -0.5) +
-    scale_fill_brewer(clas, palette = 'Paired') + 
-    scale_colour_brewer(clas, palette = 'Paired', guide = 'none') +
+    scale_fill_manual(clas, values = colcat, drop = F) + 
+    scale_colour_manual(clas, values = colcat, drop = F, guide = F) +
     theme_bw(base_family = 'serif', base_size = 16) + 
     theme(
       axis.title.x = element_blank(), 
@@ -336,21 +395,11 @@ column(4,
   renderUI({
     
     # input
-    clas <- input$clas
-    rchsel <- rchsel()
-  
-    req(nrow(rchsel) > 0)
-
-    # get habitat types to show
-    tosel <- rchsel %>% 
-      rename(
-        clas = !!clas
-      ) %>% 
-      pull(clas) %>% 
-      unique %>% 
-      sort
+    hbshsel <- hbshsel()
     
-    pickerInput('hbsh', 'Choose habitat selections to show:', choices = tosel, multiple = T, selected = tosel,
+    req(hbshsel)
+    
+    pickerInput('hbsh', 'Choose habitat selections to show:', choices = hbshsel, multiple = T, selected = hbshsel,
       options = list(`actions-box` = TRUE)
       )
     
@@ -397,7 +446,7 @@ plotOutput('rchplopts')
 
 ### Habitat data distribution, over time
 
-This plot shows the distribution of the selected habitat variable as boxplots for each year, grouped and colored by the habitat selections.  Summary statistics are also shown based on the chosen comparison in the menu below.  The summary statistics can be used to evaluate differences __between habitat selections within the same year__ or __between years within the same habitat selection__.  Boxplots that share the same letter are not statistically different (at alpha = 0.05). The comparison of letters are only relevant for the selected summary statistics from the drop down menu. That is, letters can be only be compared within the same year if "between groups, within years" is selected, or letters can only be compared between years for the same group (habitat selection) if "between years, within groups" is selected.  Comparisons for boxplots without letters are not shown if the test could not be completed due to sample size.
+This plot shows the distribution of the selected habitat variable as boxplots for each year, grouped and colored by the habitat selections.  Summary statistics are also shown based on the chosen comparison in the menu below.  The summary statistics can be used to evaluate differences __between habitat selections within the same year__ or __between years within the same habitat selection__.  Boxplots that share the same letter are not statistically different (at alpha = 0.05, p-values corrected for multiple comparisons). The comparison of letters are only relevant for the selected summary statistics from the drop down menu. That is, letters can be only be compared within the same year if "between groups, within years" is selected, or letters can only be compared between years for the same group (habitat selection) if "between years, within groups" is selected.  Comparisons for boxplots without letters are not shown if the test could not be completed due to sample size.
 
 ```{r}
 column(12, 
