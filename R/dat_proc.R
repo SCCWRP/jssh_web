@@ -12,6 +12,7 @@ library(rmapshaper)
 library(proj4shortcut)
 library(MuMIn)
 library(nlme)
+library(lubridate)
 
 prj <- geo_wgs84
 
@@ -426,4 +427,126 @@ reach <- readOGR(dsn = dsn, layer = 'Reach') %>%
 save(rchdat, file = 'data/rchdat.RData', compress = 'xz')
 save(reach, file = 'data/reach.RData', compress = 'xz')
 
+######
+# import and organize modelled flow data
+# june/july estimates for every year at select locations
+# based on best regression fit to two USGS flow gages
 
+##
+# June flow
+
+raw <- read_excel('../../Data/RawData/flow_ests/16-1022_JSSH_Results_2019-01-18.xlsx', sheet = 'June Results') 
+
+rwsel <- c(4:38)
+
+recs <- raw %>%
+  select(Site, X__8) %>% 
+  .[rwsel, ] %>% 
+  rename(
+    rec = X__8
+  )
+
+# soquel records
+soq <- raw %>% 
+  select(Site, `Estimated Monthly Average Flow for June Using Soquel Creek Gage Correlations (cfs)`:X__56)
+nmssoq <- soq[1, , drop = T ] %>% 
+  unlist %>% 
+  na.omit() %>% 
+  as.numeric() %>% 
+  c('Site', .)
+soq <- soq[rwsel, ]
+names(soq) <- nmssoq
+soq <- soq %>% 
+  gather('yr', 'flo', -Site) %>% 
+  mutate(
+    rec = 'Soquel',
+    mo = 6
+  )
+
+# big tree records
+big <- raw %>% 
+  select(Site, `Estimated Monthly Average Flow for June Using Big Trees Gage Correlations (cfs)`:X__32)
+nmssoq <- big[1, , drop = T ] %>% 
+  unlist %>% 
+  na.omit() %>% 
+  as.numeric() %>% 
+  c('Site', .)
+big <- big[rwsel, ]
+names(big) <- nmssoq
+big <- big %>% 
+  gather('yr', 'flo', -Site) %>% 
+  mutate(
+    rec = 'Big Trees',
+    mo = 6
+  )
+
+soqbig <- bind_rows(soq, big)
+
+junest <- inner_join(recs, soqbig, by = c('Site', 'rec'))
+
+##
+# September flow
+
+raw <- read_excel('../../Data/RawData/flow_ests/16-1022_JSSH_Results_2019-01-18.xlsx', sheet = 'September Results') 
+
+rwsel <- c(4:38)
+
+recs <- raw %>%
+  select(Site, X__8) %>% 
+  .[rwsel, ] %>% 
+  rename(
+    rec = X__8
+  )
+
+# soquel records
+soq <- raw %>% 
+  select(Site, `Estimated Monthly Average Flow (cfs) for Septemeber Using Soquel Creek Gage Correlations`:X__56)
+nmssoq <- soq[1, , drop = T ] %>% 
+  unlist %>% 
+  na.omit() %>% 
+  as.numeric() %>% 
+  c('Site', .)
+soq <- soq[rwsel, ]
+names(soq) <- nmssoq
+soq <- soq %>% 
+  gather('yr', 'flo', -Site) %>% 
+  mutate(
+    rec = 'Soquel',
+    mo = 9
+  )
+
+# big tree records
+big <- raw %>% 
+  select(Site, `Estimated Monthly Average Flow (cfs) for Septemeber Using Big Trees Gage Correlations`:X__32)
+nmssoq <- big[1, , drop = T ] %>% 
+  unlist %>% 
+  na.omit() %>% 
+  as.numeric() %>% 
+  c('Site', .)
+big <- big[rwsel, ]
+names(big) <- nmssoq
+big <- big %>% 
+  gather('yr', 'flo', -Site) %>% 
+  mutate(
+    rec = 'Big Trees',
+    mo = 9
+  )
+
+soqbig <- bind_rows(soq, big)
+
+sepest <- inner_join(recs, soqbig, by = c('Site', 'rec'))
+
+## 
+# all out, need to find how these sites match to fish sites
+
+floest <- bind_rows(junest, sepest) %>% 
+  mutate(
+    dy = 15
+  ) %>% 
+  unite('date', yr, mo, dy, sep = '-') %>% 
+  mutate(
+    date = ymd(date)
+  ) %>% 
+  select(Site, date, flo)
+
+# save(floest, file = 'data/floest.RData', compress = 'xz')
