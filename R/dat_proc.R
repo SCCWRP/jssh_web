@@ -440,7 +440,7 @@ raw <- read_excel('../../Data/RawData/flow_ests/16-1022_JSSH_Results_2019-01-18.
 rwsel <- c(4:38)
 
 recs <- raw %>%
-  select(Site, X__8) %>% 
+  dplyr::select(Site, X__8) %>% 
   .[rwsel, ] %>% 
   rename(
     rec = X__8
@@ -448,7 +448,7 @@ recs <- raw %>%
 
 # soquel records
 soq <- raw %>% 
-  select(Site, `Estimated Monthly Average Flow for June Using Soquel Creek Gage Correlations (cfs)`:X__56)
+  dplyr::select(Site, `Estimated Monthly Average Flow for June Using Soquel Creek Gage Correlations (cfs)`:X__56)
 nmssoq <- soq[1, , drop = T ] %>% 
   unlist %>% 
   na.omit() %>% 
@@ -465,7 +465,7 @@ soq <- soq %>%
 
 # big tree records
 big <- raw %>% 
-  select(Site, `Estimated Monthly Average Flow for June Using Big Trees Gage Correlations (cfs)`:X__32)
+  dplyr::select(Site, `Estimated Monthly Average Flow for June Using Big Trees Gage Correlations (cfs)`:X__32)
 nmssoq <- big[1, , drop = T ] %>% 
   unlist %>% 
   na.omit() %>% 
@@ -492,7 +492,7 @@ raw <- read_excel('../../Data/RawData/flow_ests/16-1022_JSSH_Results_2019-01-18.
 rwsel <- c(4:38)
 
 recs <- raw %>%
-  select(Site, X__8) %>% 
+  dplyr::select(Site, X__8) %>% 
   .[rwsel, ] %>% 
   rename(
     rec = X__8
@@ -500,7 +500,7 @@ recs <- raw %>%
 
 # soquel records
 soq <- raw %>% 
-  select(Site, `Estimated Monthly Average Flow (cfs) for Septemeber Using Soquel Creek Gage Correlations`:X__56)
+  dplyr::select(Site, `Estimated Monthly Average Flow (cfs) for Septemeber Using Soquel Creek Gage Correlations`:X__56)
 nmssoq <- soq[1, , drop = T ] %>% 
   unlist %>% 
   na.omit() %>% 
@@ -517,7 +517,7 @@ soq <- soq %>%
 
 # big tree records
 big <- raw %>% 
-  select(Site, `Estimated Monthly Average Flow (cfs) for Septemeber Using Big Trees Gage Correlations`:X__32)
+  dplyr::select(Site, `Estimated Monthly Average Flow (cfs) for Septemeber Using Big Trees Gage Correlations`:X__32)
 nmssoq <- big[1, , drop = T ] %>% 
   unlist %>% 
   na.omit() %>% 
@@ -547,6 +547,6 @@ floest <- bind_rows(junest, sepest) %>%
   mutate(
     date = ymd(date)
   ) %>% 
-  select(Site, date, flo)
+  dplyr::select(Site, date, flo)
 
 # save(floest, file = 'data/floest.RData', compress = 'xz')

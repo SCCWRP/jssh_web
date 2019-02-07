@@ -308,7 +308,7 @@ output$rchplopts <- renderPlot({
       legend.position = 'top', 
       legend.box = 'vertical'
       ) + 
-    guides(fill = guide_legend(override.aes = list(size = 5)))
+    guides(fill = guide_legend(override.aes = list(size = 5), title = NULL))
 
   return(p)
   
@@ -335,7 +335,8 @@ output$rchplobox <- renderPlot({
     theme_bw(base_family = 'serif', base_size = 16) + 
     theme(
       axis.title.x = element_blank(), 
-      legend.position = 'top'
+      legend.position = 'top', 
+      legend.title = element_blank()
       ) 
   
   return(p)
@@ -389,7 +390,7 @@ For the selected reach, the slider can further filter the data within the measur
 ```{r}
 column(12,
 column(4, 
-  selectInput("clas", "Choose color aesthetic:", choices = c('Gen Hab Type', 'Hab. type', 'wood'), selected = 'Gen Hab Type')
+  selectInput("clas", "Choose color aesthetic:", choices = list('Type 3 classification' = 'Gen Hab Type', 'Type 4 classification' = 'Hab. type', 'wood' = 'wood'), selected = 'Type 3 classification')
 ),
 column(4, 
   renderUI({
