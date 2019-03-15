@@ -59,7 +59,7 @@ pbase <- theme_bw(base_family = 'serif') +
 
 # prep species data, long format 
 spdat <- fishdat %>% 
-  select(Year, Watershed, SiteID, matches('^Sp_')) %>% 
+  dplyr::select(Year, Watershed, SiteID, matches('^Sp_')) %>% 
   gather('species', 'pa', -Year, -SiteID, -Watershed, -geometry) %>% 
   mutate(
     species = gsub('^Sp_', '', species)
@@ -71,7 +71,7 @@ spdat <- fishdat %>%
 siteshd <- fishdat
 st_geometry(siteshd) <- NULL
 siteshd <- siteshd %>% 
-  select(SiteID, Watershed) %>% 
+  dplyr::select(SiteID, Watershed) %>% 
   unique %>% 
   mutate_if(is.factor, as.character)
 ```
@@ -139,13 +139,13 @@ spyrsocc <- reactive({
   # get species, year selection
   toplo <- spdat %>% 
     filter(species %in% sp) %>% 
-    filter(Year >= yrs[1] & Year <= yrs[2])
-  
+    unique
+ 
   # get geometry for later join
   spgeo <- toplo %>% 
-    select(SiteID) %>% 
+    dplyr::select(SiteID) %>% 
     unique
-  
+
   # remove geometry for aggregate, get cats
   st_geometry(toplo) <- NULL
   toplo <- toplo %>%  
@@ -156,8 +156,8 @@ spyrsocc <- reactive({
     ) %>% 
     mutate(
       prcsit = 100 * nprs / nsites, 
-      catsit = cut(prcsit, breaks = c(-Inf, 25, 50, 75, Inf), labels = c('rare', 'occasional', 'frequent', 'common')),
-      catcol = factor(catsit, levels = c('rare', 'occasional', 'frequent', 'common'), labels = c("#E31A1C", "#FB9A99", "#B2DF8A", "#33A02C")), 
+      catsit = cut(prcsit, breaks = c(-Inf, 0, 25, 50, 75, Inf), labels = c('absent', 'rare', 'occasional', 'frequent', 'common')),
+      catcol = factor(catsit, levels = c('absent', 'rare', 'occasional', 'frequent', 'common'), labels = c("#FFFFFF", "#E31A1C", "#FB9A99", "#B2DF8A", "#33A02C")), 
       catcol = as.character(catcol)
     ) %>% 
     left_join(spgeo, ., by = 'SiteID')
@@ -302,13 +302,15 @@ renderLeaflet({mapspyr()@map})
 
 This map shows the occurrence of `r renderText({input$sptm})` at each site from `r renderText({input$yrs[1]})` to `r renderText({input$yrs[2]})`.  The colors indicate if a species was commonly (dark green), frequently (light green), occasionally (light red), or rarely (dark green) observed at a site.  Frequency occurrence was the sum of years for which a species was observed divided by the total number of years that a site was sampled.
 
-<span style="color:#33A02C">Common</span>: 76-100% of all sampled years 
+<span style="color:#33A02C">Common</span>: 76 - 100% of all sampled years 
 
-<span style="color:#B2DF8A">Frequently present</span>: 51-75% of all sampled years 
+<span style="color:#B2DF8A">Frequently present</span>: 51 - 75% of all sampled years 
 
-<span style="color:#FB9A99">Occasionally present</span>: 26-50% of all sampled years 
+<span style="color:#FB9A99">Occasionally present</span>: 26 - 50% of all sampled years 
 
-<span style="color:#E31A1C">Rare</span>: 0-25% of all sampled years 
+<span style="color:#E31A1C">Rare</span>: >0 - 25% of all sampled years 
+
+No fill: Absent
 
 ```{r tmsel2}
 column(2, NULL)
@@ -383,7 +385,7 @@ mltdatyr1 <- reactive({
     group_by(species) %>% 
     mutate(totsp = sum(pa)) %>% 
     filter(totsp > remrr) %>% 
-    select(-totsp) %>% 
+    dplyr::select(-totsp) %>% 
     spread(species, pa) %>% 
     data.frame(stringsAsFactors = F)
   rownames(toord) <- NULL
@@ -412,7 +414,7 @@ dis1 <- reactive({
   distyp <- 'jaccard'
   
   toord <- mltdatyr1() %>% 
-    select(-Watershed) 
+    dplyr::select(-Watershed) 
   
   # metaMDS
   dis <- toord %>% 
@@ -429,7 +431,7 @@ ord1 <- reactive({
   distyp <- 'jaccard'
   
   toord <- mltdatyr1() %>% 
-    select(-Watershed) 
+    dplyr::select(-Watershed) 
   
   # metaMDS
   ord <- toord %>% 
@@ -672,7 +674,7 @@ mapclst <- reactive({
     rownames_to_column('SiteID')
   
   toplo <- spdat %>%
-    select(SiteID) %>% 
+    dplyr::select(SiteID) %>% 
     unique %>% 
     mutate(SiteID = as.character(SiteID)) %>% 
     inner_join(clstgrps, by = 'SiteID')
@@ -699,7 +701,7 @@ renderPlot({
   # inputs
   clstgrps <- clstgrps()
   toord <- mltdatyr1() %>% 
-    select(-Watershed) 
+    dplyr::select(-Watershed) 
   
   # toplo
   toplo <- toord %>% 

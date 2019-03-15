@@ -537,11 +537,15 @@ renderPlot({
 
   }
 
-  pord <- ggord(ccaord, grp_in = grpin, axes = c(axsx, axsy), vec_ext = 4, col = colsub, ptslab = T, parse = T,
+  pord <- try({ggord(ccaord, grp_in = grpin, axes = c(axsx, axsy), vec_ext = 4, col = colsub, ptslab = T, parse = T,
         alpha = 1, alpha_el = 0.2, size = 4, txt = 5, addsize = 4, arrow = 0.5, repel = F, coord_fix = F) +
     theme_bw(base_family = 'serif', base_size = 16) +
-    theme(legend.position = 'top')
+    theme(legend.position = 'top')})
 
+  validate(
+    need(!inherits(pord, 'try-error'), 'Insufficient data')
+    )
+    
   return(pord)
 
 }, width = 700, height = 700)
