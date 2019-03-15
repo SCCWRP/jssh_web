@@ -390,7 +390,7 @@ For the selected reach, the slider can further filter the data within the measur
 ```{r}
 column(12,
 column(4, 
-  selectInput("clas", "Choose color aesthetic:", choices = list('Type 3 classification' = 'Gen Hab Type', 'Type 4 classification' = 'Hab. type', 'wood' = 'wood'), selected = 'Type 3 classification')
+  selectInput("clas", "Choose color aesthetic:", choices = list('Type 3 classification' = 'Gen Hab Type', 'Type 4 classification' = 'HAB abbrev', 'wood' = 'wood'), selected = 'Type 3 classification')
 ),
 column(4, 
   renderUI({

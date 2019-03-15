@@ -366,9 +366,30 @@ newstr <- c("main", "bean", "bear", "bldr", "bran", "brwn", "carb", "cass", "cor
 # reaches on SLR main
 slrmain <- as.character(c(seq(0, 12), '12a', '12b'))
 
+# habitat level codes
+habcodes <- read_excel('../../Data/RawData/HABITAT_SEG_MASTER_2006-2018_narcodes.xlsx',
+                       sheet = 'Sheet3'
+                       ) %>% 
+  rename(
+    level4 = UNIT, 
+    level1 = CODE_LVL1, 
+    level2 = CODE_LVL2, 
+    level3 = CODE_LVL3, 
+    `HAB abbrev` = CODE_LV4
+  ) %>% 
+  mutate(
+    level4 = gsub('\\s\\(.*$', '', level4), 
+    level1 = tools::toTitleCase(tolower(level1)),
+    level2 = tools::toTitleCase(tolower(level2)),
+    level3 = tools::toTitleCase(tolower(level3))
+  ) %>% 
+  dplyr::select(`HAB abbrev`, level4)
+
 # format reach hab data
-rchdat <- read_excel('../../Data/RawData/HABITAT_SEG_MASTER_Final_1Aug.xlsx',
-                     na = c('', 'na', 'NA')) %>% 
+rchdat <- read_excel('../../Data/RawData/HABITAT_SEG_MASTER_2006-2018_narcodes.xlsx',
+                     na = c('', 'na', 'NA', 'n/a'),
+                     sheet = 'Sheet1'
+                     ) %>% 
   unique %>% 
   mutate(
     Reach = gsub('\\.|\\,\\s*', ',', Reach),
@@ -395,17 +416,34 @@ rchdat <- read_excel('../../Data/RawData/HABITAT_SEG_MASTER_Final_1Aug.xlsx',
       Watershed %in% 'SLR-trib' & Reach %in% c('16') ~ 'newl',
       Watershed %in% 'SLR-main' & is.na(Stream) ~ 'main',
       T ~ Stream
-      ), 
+    ), 
     Year = factor(Year),
-    `Gen Hab Type` = gsub('-+', ' ', `Gen Hab Type`),
-    `Hab. type` = gsub('-+', ' ', `Hab. type`),
     `avg. embedd.` = gsub('n/a', '', `avg. embedd.`),
-    `avg. embedd.` = as.numeric(`avg. embedd.`)
+    `avg. embedd.` = as.numeric(`avg. embedd.`),
+    `Gen Hab Type` = case_when(
+      `Gen Hab Type` %in% c('other', 'Other') ~ 'other',
+      T ~ `Gen Hab Type`
+    ), 
+    `Gen Hab Type` = tools::toTitleCase(tolower(`Gen Hab Type`)),
+    `HAB abbrev` = case_when(
+      `HAB abbrev` %in% c('LSB0') ~ 'LSBo', 
+      `HAB abbrev` %in% c('Run') ~ 'RUN', 
+      `HAB abbrev` %in% c('SLBk') ~ 'LSBk',
+      `HAB abbrev` %in% c('SLBo') ~ 'LSBo',
+      T ~ `HAB abbrev`
+    )
   ) %>% 
   filter(!is.na(Watershed)) %>% 
   filter(!is.na(Reach)) %>% 
   filter(!is.na(`Hab. #`)) %>% 
-  unite('ReachID', Watershed, Stream, Reach, sep = '-', remove = F)
+  unite('ReachID', Watershed, Stream, Reach, sep = '-', remove = F) %>% 
+  dplyr::select(-`Hab. type`, -`CDFW level IV CODE`, -`CDFW level II`, -`Artificial (True/False)`, -`Wood (True/False)`, -`Boulder (True/False)`, -`Bedrock (True/False)`, -`Dominant Feature (Primary Habitat Feature)`) %>%
+  filter(!Year %in% '2018') %>% 
+  left_join(habcodes, by = 'HAB abbrev') %>% 
+  dplyr::select(-`HAB abbrev`) %>% 
+  rename(`HAB abbrev` = level4)
+
+# clean up 
 
 # sf object of reach, is an incomplete match with rchdat 
 reach <- readOGR(dsn = dsn, layer = 'Reach') %>% 
