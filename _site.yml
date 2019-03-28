@@ -18,6 +18,8 @@ navbar:
           href: "haban.Rmd"
         - text: "Reach"
           href: "rchan.Rmd"
+        - text: "Soquel flow"
+          href: "soqflo.Rmd"
 output_dir: "."
 output:
   html_document:

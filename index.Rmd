@@ -6,8 +6,9 @@ output: html_document
 
 <br>
 
-
-![](./sites.JPG)  
+```{r, fig.align = 'center', out.height = '60%', echo = F}
+knitr::include_graphics('www/report_image.png')
+```
 
 <br>
 

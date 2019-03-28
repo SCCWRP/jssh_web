@@ -587,4 +587,4 @@ floest <- bind_rows(junest, sepest) %>%
   ) %>% 
   dplyr::select(Site, date, flo)
 
-# save(floest, file = 'data/floest.RData', compress = 'xz')
+save(floest, file = 'data/floest.RData', compress = 'xz')

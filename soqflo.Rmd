@@ -1,0 +1,528 @@
+---
+title: "Evaluation of flow trends at Soquel"
+runtime: shiny
+output: 
+  html_document:
+    toc: true
+    toc_float: 
+      collapsed: false
+---
+
+```{r setup, include = FALSE}
+# globals
+library(knitr)
+opts_chunk$set(echo = F, message = F, warning = F)
+
+library(tidyverse)
+library(lubridate)
+library(sf)
+library(mapview)
+library(plotly)
+library(shiny)
+library(scales)
+library(leaflet)
+library(stargazer)
+library(EnvStats)
+library(kableExtra)
+library(patchwork)
+
+prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+
+source('R/funcs.R')
+
+data(fishdat)
+data(floest)
+
+pbase <- theme_bw(base_family = 'serif', base_size = 14) +
+  theme(
+    panel.grid.major = element_blank(), 
+    panel.grid.minor = element_blank(), 
+    axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 12), 
+    axis.text.y = element_text(size = 12),
+    legend.position = 'top',
+    legend.direction = 'horizontal',
+    # plot.margin = unit(c(4,4,0,0), "lines"),
+    strip.background = element_blank(), 
+    strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5)
+  ) 
+
+soqflo <- floest %>% 
+  filter(grepl('Soquel', Site)) %>% 
+  filter(date > ymd('1997-01-01')) %>% 
+  mutate(
+    Year = year(date),
+    mo = as.character(month(date, abbr = TRUE, label = T))
+  ) %>% 
+  unite('mosite', mo, Site, sep = ' - ', remove = F) 
+soqfsh <- fishdat %>% 
+  filter(grepl('SOQ', Watershed)) %>% 
+  dplyr::select(Year, SiteID, SampleDate, Dens_S1, Dens_S2) %>% 
+  gather('Size class', 'density', Dens_S1, Dens_S2) 
+```
+
+```{r rctvs}
+fshyrs <- reactive({
+  
+  # input
+  yrssel <- input$yrssel
+  sizsel <- input$sizsel
+  
+  out <- soqfsh %>% 
+    filter(Year >= yrssel[1] & Year <= yrssel[2]) %>% 
+    filter(`Size class` %in% sizsel) %>% 
+    group_by(SiteID) %>% 
+    mutate(
+      avedens = mean(density, na.rm = T), 
+      density_df = density - avedens
+      ) %>% 
+    group_by(SiteID) %>% 
+    nest %>% 
+    mutate(
+      tnd = purrr::map(data, function(x){
+
+        knout <- kendallTrendTest(density_df ~ Year, x)
+        outest <- round(knout$estimate, 2)
+        outpval <- p_ast(knout$p.value) %>% 
+          factor(levels = c('ns', '*', '**'))
+        out <- tibble(tau = outest['tau'], slope = outest['slope'], pval = outpval)
+        
+        return(out)
+
+      })
+    )
+  
+  return(out)
+    
+})
+
+floyrs <- reactive({
+  
+  # input
+  yrssel <- input$yrssel
+
+  out <- soqflo %>% 
+    filter(Year >= yrssel[1] & Year <= yrssel[2]) %>% 
+    group_by(mosite) %>% 
+    mutate(
+      aveflo = mean(flo, na.rm = T), 
+      flo_df = flo - aveflo
+      ) %>% 
+    group_by(mosite) %>% 
+    nest %>% 
+    mutate(
+      tnd = purrr::map(data, function(x){
+
+        knout <- kendallTrendTest(flo_df ~ Year, x)
+        outest <- round(knout$estimate, 2)
+        outpval <- p_ast(knout$p.value) %>% 
+          factor(levels = c('ns', '*', '**'))
+        out <- tibble(tau = outest['tau'], slope = outest['slope'], pval = outpval)
+        
+        return(out)
+
+      })
+    )
+  
+  return(out)
+  
+})
+
+fshind <- reactive({
+  
+  # input
+  sitfsh <- input$sitfsh
+  fshyrs <- fshyrs()
+  
+  out <- fshyrs %>% 
+    filter(SiteID %in% sitfsh) %>% 
+    dplyr::select(-tnd) %>% 
+    unnest
+  
+  return(out)
+  
+})
+
+floind<- reactive({
+  
+  # input
+  sitflo <- input$sitflo
+  floyrs <- floyrs()
+
+  out <- floyrs %>% 
+    filter(mosite %in% sitflo) %>% 
+    dplyr::select(-tnd) %>% 
+    unnest
+
+  return(out)  
+  
+})
+
+flotxt <- reactive({
+  
+  # input 
+  floyrs <- floyrs()
+  yrssel <- input$yrssel
+  
+  sigs <- floyrs %>% 
+    dplyr::select(-data) %>% 
+    unnest %>% 
+    filter(!pval %in% 'ns')
+
+  if(nrow(sigs) == 0)
+    return(paste0('Zero flow records had significant trends from ', yrssel[1], ' to ', yrssel[2], '.'))
+  
+  if(nrow(sigs) == 1)
+    out <- 'One flow record'
+
+  if(nrow(sigs) > 1)
+    out <- english::as.english(nrow(sigs)) %>% paste(., 'flow records')
+  
+  out <- out %>% 
+    paste0(., ' had significant trends from ', yrssel[1], ' to ', yrssel[2] , ', ', english::as.english(sum(sigs$tau < 0)), ' decreasing and ', english::as.english(sum(sigs$tau >= 0)), ' increasing.')
+  
+  out <- paste('Trends:', out)
+  
+  return(out)
+  
+})
+
+fshtxt <- reactive({
+  
+  # input 
+  fshyrs <- fshyrs()
+  yrssel <- input$yrssel
+  
+  sigs <- fshyrs %>% 
+    dplyr::select(-data) %>% 
+    unnest %>% 
+    filter(!pval %in% 'ns')
+
+  if(nrow(sigs) == 0)
+    return(paste0('Zero fish sites had significant trends from ', yrssel[1], ' to ', yrssel[2], '.'))
+  
+  if(nrow(sigs) == 1)
+    out <- 'One fish site'
+
+  if(nrow(sigs) > 1)
+    out <- english::as.english(nrow(sigs)) %>% paste(., 'fish sites')
+  
+  out <- out %>% 
+    paste0(., ' had significant trends from ', yrssel[1], ' to ', yrssel[2] , ', ', english::as.english(sum(sigs$tau < 0)), ' decreasing and ', english::as.english(sum(sigs$tau >= 0)), ' increasing.')
+  
+  out <- paste('Trends:', out)
+  
+  return(out)
+  
+})
+```
+
+```{r}
+column(12, 
+column(2, NULL),
+column(4, 
+  sliderInput("yrssel", label = 'Select year ranges:',  
+        min = 1997, max = 2017, 
+        value = c(1997, 2017),
+        sep = '', ticks = FALSE
+      )
+),
+column(4,
+       selectInput('sizsel', label = 'Select size class:', choices = c('Dens_S1', 'Dens_S2'))
+       
+       ), 
+column(2, NULL)
+)
+```
+
+This page can be used to compare steelhead density estimates with modelled flow in the Soquel watershed.  The sections include an assessment of overall trends, summary trends, and plots by site.  The year slider can be used to choose the date range for all plots and trend analyses.  The size class selector shows which size class is evaluated for steelhead. All flow estimates are modelled for July and September at different locations on Soquel Creek that do not coincide with the fish sampling sites.  
+
+## Overall trends {.tabset}
+
+These plots show individual time series for flow and fish at all selected sites. The left plot shows observed values and the right plot shows differences in the observed values from the station or site average within the selected years.  Green indicates above average and red indicated below average.  The left plots also include a grey horizontal line for the site average and a dotted line for the linear trend.
+
+### Flow
+
+```{r}
+renderPlot({
+  
+  # input
+  floyrs <- floyrs()
+  
+  toplo <- floyrs %>% 
+    dplyr::select(-tnd) %>% 
+    unnest
+
+  pall <- ggplot(toplo, aes(x = date, y = flo, fill = flo_df)) + 
+    geom_hline(aes(yintercept = aveflo), colour = 'grey') +
+    geom_line() + 
+    geom_point(pch = 21, colour = 'black', size = 3) + 
+    geom_smooth(method = 'lm', se = F, linetype = 'dashed', colour = 'black') +
+    facet_grid(mosite ~ .) +
+    pbase +
+    theme(
+      axis.title.x = element_blank(),
+      legend.position = 'none',   
+      axis.text.y = element_text(size = 9),
+      ) +
+    scale_y_log10('log-Flow (cfs)') + 
+    scale_fill_gradient2('Difference from average,\nby location', low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0) +
+    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0)))
+  
+  toplorev <- toplo %>%
+    ungroup %>% 
+    mutate(
+      mosite = factor(mosite), 
+      mosite = factor(mosite, levels = rev(levels(mosite)))
+    )
+  
+  # difference tiled plot
+  pdif <- ggplot(toplorev, aes(x = Year, y = mosite, fill = flo_df)) + 
+    geom_tile(colour = 'black') + 
+    pbase +
+    theme(
+      panel.background = element_rect(fill = 'lightgrey'), 
+      axis.text.y = element_blank()
+      ) +
+    scale_x_continuous('', expand = c(0, 0)) + 
+    scale_y_discrete('', expand = c(0, 0)) +
+    scale_fill_gradient2('Difference from average,\nby location', low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0) +
+    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0)))
+  
+  pall + pdif + plot_layout(ncol = 2, widths = c(0.6, 1))
+  
+}, height = 650)
+```
+
+### Fish
+
+```{r}
+renderPlot({
+  
+  # input
+  fshyrs <- fshyrs()
+  
+  toplo <- fshyrs %>% 
+    dplyr::select(-tnd) %>% 
+    unnest
+  
+  pall <- ggplot(toplo, aes(x = SampleDate, y = density, fill = density_df)) + 
+    geom_hline(aes(yintercept = avedens), colour = 'grey') +
+    geom_line() + 
+    geom_point(pch = 21, colour = 'black', size = 3) + 
+    geom_smooth(method = 'lm', se = F, linetype = 'dashed', colour = 'black') +
+    facet_grid(SiteID ~ .) +
+    pbase +
+    theme(
+      axis.title.x = element_blank(),
+      legend.position = 'none',
+      axis.text.y = element_text(size = 9)
+      ) +
+    scale_y_continuous('Density (fish/100 ft)') + 
+    scale_fill_gradient2('Difference from average,\nby location', low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0) +
+    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0)))
+  
+  toplorev <- toplo %>% 
+    ungroup %>% 
+    mutate(
+      SiteID = factor(SiteID),
+      SiteID = factor(SiteID, levels = rev(levels(SiteID)))
+    )
+  
+  # difference tiled plot
+  pdif <- ggplot(toplorev) + 
+    geom_tile(aes(x = Year, y = SiteID, fill = density_df), colour = 'black') + 
+    pbase +
+    theme(
+      panel.background = element_rect(fill = 'lightgrey'),
+      axis.text.y = element_blank()
+      ) +
+    scale_x_continuous('', expand = c(0, 0)) + 
+    scale_y_discrete('', expand = c(0, 0)) +
+    scale_fill_gradient2('Difference from average,\nby site', low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0) +
+    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) 
+  
+  pall + pdif + plot_layout(ncol = 2, widths = c(0.6, 1))
+  
+}, height = 900)
+```
+
+## Summary trends {.tabset}
+
+These plots show the estimated trend and significance for flow and fish density estimates at the sites.  Trends are based on a Kendall test for the time series at each site that evaluates the magnitude, direction, and significance of a change between the selected years. The value for tau ranges from -1 to 1 and provides a measure of trend direction. Bars for each site are outlined in black if the trend is significant, with the appropriate text indication above/below each bar (ns = not significant, \* p < 0.05, \* p < 0.005).
+
+### Flow
+
+`r renderText({flotxt()})`
+```{r}
+renderPlot({
+  
+  # input
+  floyrs <- floyrs()
+
+  toplo <- floyrs %>% 
+    dplyr::select(mosite, tnd) %>% 
+    unnest %>% 
+    arrange(tau) %>% 
+    mutate(
+      mosite = factor(mosite, levels = mosite), 
+      vjsval = ifelse(tau < 0, 1, -0.5)
+    )
+  
+  p <- ggplot(toplo, aes(x = mosite, y = tau)) + 
+    geom_bar(stat = 'identity', aes(colour = pval, fill = tau), size = 1) + 
+    geom_text(aes(label = pval), vjust = toplo$vjsval) + 
+    scale_fill_gradient2(low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0, limits = c(-1, 1)) +
+    scale_colour_manual(values = c(`ns` = NA, `*` = 'black', `**` = 'black'), drop = F, guide = F) + 
+    pbase +
+    geom_hline(yintercept = 0) + 
+    theme(
+      axis.title.x = element_blank(),
+      legend.position = 'none'
+      ) +
+    scale_y_continuous(limits = c(-1, 1)) +
+    ylab('Trend (tau)') 
+    
+  return(p)
+
+}, height = 500)
+```
+
+### Fish
+
+`r renderText({fshtxt()})`
+```{r}
+renderPlot({
+  
+  # input
+  fshyrs <- fshyrs()
+
+  toplo <- fshyrs %>% 
+    dplyr::select(SiteID, tnd) %>% 
+    unnest %>% 
+    arrange(tau) %>% 
+    mutate(
+      SiteID = factor(SiteID, levels = SiteID), 
+      vjsval = ifelse(tau < 0, 1, -0.5)
+    )
+  
+  p <- ggplot(toplo, aes(x = SiteID, y = tau)) + 
+    geom_bar(stat = 'identity', aes(colour = pval, fill = tau), size = 1) + 
+    geom_text(aes(label = pval), vjust = toplo$vjsval) + 
+    scale_fill_gradient2(low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0, limits = c(-1, 1)) +
+    scale_colour_manual(values = c(`ns` = NA, `*` = 'black', `**` = 'black'), drop = F, guide = F) + 
+    pbase +
+    geom_hline(yintercept = 0) + 
+    theme(
+      axis.title.x = element_blank(),
+      legend.position = 'none'
+      ) +
+    scale_y_continuous(limits = c(-1, 1)) +
+    ylab('Trend (tau)')
+    
+  return(p)
+
+}, height = 500)
+```
+
+## By site {.tabset}
+
+These plots show the trends at each individual site and provide a closer view of the plots in the overall trends section. The top plot shows the observed time series with a grey line indicating the overall average. The bottom plot shows the differnece from the average, with a linear trend fit through the values.  Points and bars are colored by difference from the average. 
+
+### Flow
+
+```{r}
+column(2, NULL)
+column(4, selectInput('sitflo', 'Select flow site:', choices = unique(soqflo$mosite)))
+column(6, NULL)
+```
+
+```{r}
+renderPlot({
+  
+  # input
+  floind <- floind()
+  yrssel <- input$yrssel
+  
+  toplo <- floind 
+
+  p1 <- ggplot(toplo, aes(x = date, y = flo)) + 
+    geom_hline(aes(yintercept = aveflo), color = 'darkgrey') + 
+    geom_line() +
+    geom_point(aes(fill = flo_df), colour = 'black', pch = 21, size = 6) + 
+    theme_bw(base_family = 'serif', base_size = 14) +
+    theme(
+      strip.background = element_blank(),
+      panel.grid = element_blank(), 
+      legend.position = 'none'
+    ) + 
+    scale_y_log10('log-Flow (cfs)') + 
+    scale_x_date(limits = ymd(paste0(c(yrssel[1], yrssel[2] + 1), c('-01-01')))) +
+    scale_fill_gradient2(low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0) +
+    xlab('Date')
+  
+  p2 <- ggplot(toplo, aes(x = Year, y = flo_df, fill = flo_df)) + 
+    geom_bar(stat = 'identity', colour = 'grey') + 
+    scale_fill_gradient2('', low = 'tomato1', mid = 'white', high = 'lightgreen', midpoint = 0) +
+    geom_smooth(method = 'lm', se = F, linetype = 'dashed', color = 'black') + 
+    theme_bw(base_family = 'serif', base_size = 14) +
+    theme(
+      strip.background = element_blank(),
+      panel.grid = element_blank()
+    ) + 
+    scale_y_continuous('Flow difference from average') +
+    scale_x_continuous(limits = yrssel) +
+    geom_hline(yintercept = 0)
+  
+  p1 + p2 + plot_layout(ncol = 1)
+
+}, height = 600, width = 800)
+```
+
+### Fish
+
+```{r}
+column(2, NULL)
+column(4, selectInput('sitfsh', 'Select fish sample site:', choices = unique(soqfsh$SiteID)))
+column(6, NULL)
+```
+
+```{r}
+renderPlot({
+  
+  # input
+  fshind <- fshind()
+  yrssel <- input$yrssel
+  
+  toplo <- fshind 
+
+  p1 <- ggplot(toplo, aes(x = SampleDate, y = density)) + 
+    geom_hline(aes(yintercept = avedens), color = 'darkgrey') + 
+    geom_line() +
+    geom_point(aes(fill = density_df), pch = 21, colour = 'black', size = 6) + 
+    theme_bw(base_family = 'serif', base_size = 14) +
+    theme(
+      strip.background = element_blank(),
+      panel.grid = element_blank(), 
+      legend.position = 'none'
+    ) + 
+    scale_x_date(limits = ymd(paste0(c(yrssel[1], yrssel[2] + 1), c('-01-01')))) +
+    scale_fill_gradient2(low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0) +
+    scale_y_continuous('Density (fish/100ft)')
+  
+  p2 <- ggplot(toplo, aes(x = Year, y = density_df, fill = density_df)) + 
+    geom_bar(stat = 'identity', colour = 'grey') + 
+    scale_fill_gradient2('', low = 'tomato1', mid = 'white', high = 'lightgreen', midpoint = 0) +
+    geom_smooth(method = 'lm', se = F, linetype = 'dashed', color = 'black') + 
+    theme_bw(base_family = 'serif', base_size = 14) +
+    theme(
+      strip.background = element_blank(),
+      panel.grid = element_blank()
+    ) + 
+    scale_x_continuous(limits = yrssel) +
+    scale_y_continuous('Density difference from average') +
+    geom_hline(yintercept = 0)
+  
+  p1 + p2 + plot_layout(ncol = 1)
+
+}, height = 600, width = 800)
+```

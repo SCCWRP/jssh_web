@@ -33,7 +33,7 @@ data(stream)
 data(trndst_prep)
 ```
 
-The objective of these analyses are to evaluate the status and trends of Steelhead salmon in the four watershed (note that San Lorenzo is divided by mainstem and tributaries):
+The objective of these analyses is to evaluate the status and trends of Steelhead salmon in the four watershed (note that San Lorenzo is divided by mainstem and tributaries):
 
 * SLR-main: San Lorenzo, mainstem
 * SLR-trib: San Lorenzo, tributaries
@@ -403,7 +403,7 @@ renderUI({
 
 <br></br>
 
-Kendall tests also provide an indication of a trend by evaluating magnitude, direction, and significance of a change in density between the selected years.  The test is a non-parametric equivalent to the regression analysis above.  The value for tau ranges from -1 to 1 and provides a measure of trend direcdtion.  The slope is the estimated change per year in density and the p-value shows the significance of the test. 
+Kendall tests also provide an indication of a trend by evaluating magnitude, direction, and significance of a change in density between the selected years.  The test is a non-parametric equivalent to the regression analysis above.  The value for tau ranges from -1 to 1 and provides a measure of trend direction.  The slope is the estimated change per year in density and the p-value shows the significance of the test. 
 
 ```{r, results = 'asis'}
 renderUI({
