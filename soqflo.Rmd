@@ -370,7 +370,7 @@ renderPlot({
   
   p <- ggplot(toplo, aes(x = mosite, y = tau)) + 
     geom_bar(stat = 'identity', aes(colour = pval, fill = tau), size = 1) + 
-    geom_text(aes(label = pval), vjust = toplo$vjsval) + 
+    geom_text(aes(label = pval), vjust = toplo$vjsval, size = 8) + 
     scale_fill_gradient2(low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0, limits = c(-1, 1)) +
     scale_colour_manual(values = c(`ns` = NA, `*` = 'black', `**` = 'black'), drop = F, guide = F) + 
     pbase +
@@ -407,7 +407,7 @@ renderPlot({
   
   p <- ggplot(toplo, aes(x = SiteID, y = tau)) + 
     geom_bar(stat = 'identity', aes(colour = pval, fill = tau), size = 1) + 
-    geom_text(aes(label = pval), vjust = toplo$vjsval) + 
+    geom_text(aes(label = pval), vjust = toplo$vjsval, size = 8) + 
     scale_fill_gradient2(low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0, limits = c(-1, 1)) +
     scale_colour_manual(values = c(`ns` = NA, `*` = 'black', `**` = 'black'), drop = F, guide = F) + 
     pbase +

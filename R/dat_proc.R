@@ -585,6 +585,7 @@ floest <- bind_rows(junest, sepest) %>%
   mutate(
     date = ymd(date)
   ) %>% 
-  dplyr::select(Site, date, flo)
+  dplyr::select(Site, date, flo) %>% 
+  filter(!Site %in% 'Upper Soquel Cr. Weir Sq02') # this site is junk
 
 save(floest, file = 'data/floest.RData', compress = 'xz')
