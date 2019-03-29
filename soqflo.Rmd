@@ -31,6 +31,7 @@ prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 source('R/funcs.R')
 
 data(fishdat)
+data(fishmtch)
 data(floest)
 
 pbase <- theme_bw(base_family = 'serif', base_size = 14) +
@@ -47,6 +48,7 @@ pbase <- theme_bw(base_family = 'serif', base_size = 14) +
     legend.text = element_text(size = 12)
   ) 
 
+# flow only
 soqflo <- floest %>% 
   filter(grepl('Soquel', Site)) %>% 
   filter(date > ymd('1997-01-01')) %>% 
@@ -55,10 +57,32 @@ soqflo <- floest %>%
     mo = as.character(month(date, abbr = TRUE, label = T))
   ) %>% 
   unite('mosite', mo, Site, sep = ' - ', remove = F) 
+
+# fish only
 soqfsh <- fishdat %>% 
   filter(grepl('SOQ', Watershed)) %>% 
   dplyr::select(Year, SiteID, SampleDate, Dens_S1, Dens_S2) %>% 
   gather('Size class', 'density', Dens_S1, Dens_S2) 
+
+# flow and fish aggregated, combined
+# standardize dates to september when fish sampling occurs to match with flow
+soqbth <- soqfsh %>% 
+  st_set_geometry(NULL) %>% 
+  filter(month(SampleDate) >= 8) %>% 
+  filter(SampleDate > ymd('1997-01-01')) %>% 
+  mutate(
+    mo = 9,
+    dy = 15,
+    SiteID = as.character(SiteID)
+    ) %>% 
+  unite('date', Year, mo, dy, sep = '-', remove = F) %>% 
+  mutate(date = ymd(date)) %>% 
+  left_join(fishmtch, by = c('SiteID', 'mo')) %>% 
+  mutate(mo = 'Sep') %>% 
+  unite('mosite', mo, SiteFlow, sep = ' - ', remove = F) %>% 
+  left_join(soqflo, by = c('mosite', 'date')) %>% 
+  dplyr::select(SiteID, Site, date, `Size class`, density, flo) %>% 
+  mutate(Year = year(date))
 ```
 
 ```{r rctvs}
@@ -215,6 +239,41 @@ fshtxt <- reactive({
   return(out)
   
 })
+
+soqbthyrs <- reactive({
+  
+  # input
+  yrssel <- input$yrssel
+  
+  out <- soqbth %>% 
+    filter(Year >= yrssel[1] & Year <= yrssel[2])
+  
+  return(out)
+  
+})
+
+soqtndmod <- reactive({
+  
+  # input
+  soqbthyrs <- soqbthyrs()
+
+  out <- soqbthyrs %>% 
+    group_by(`Size class`) %>% 
+    nest %>%
+    mutate(
+      mod = purrr::map(data, function(x){
+      
+        mod <- lm(log10(1 + density) ~ log10(1 + flo), x)
+        
+        return(mod)
+        
+      })
+    ) %>% 
+    pull(mod)
+  
+  return(out)
+  
+})
 ```
 
 ```{r}
@@ -235,7 +294,7 @@ column(2, NULL)
 )
 ```
 
-This page can be used to compare steelhead density estimates with modelled flow in the Soquel watershed.  The sections include an assessment of overall trends, summary trends, and plots by site.  The year slider can be used to choose the date range for all plots and trend analyses.  The size class selector shows which size class is evaluated for steelhead. All flow estimates are modelled for July and September at different locations on Soquel Creek that do not coincide with the fish sampling sites.  
+This page can be used to compare steelhead density estimates with modelled flow in the Soquel watershed.  The sections include an assessment of overall trends, summary trends, plots by site, and combined trends for fish density and flow.  The year slider can be used to choose the date range for all plots and trend analyses.  The size class selector shows which size class is evaluated for steelhead.
 
 ## Overall trends {.tabset}
 
@@ -527,3 +586,45 @@ renderPlot({
 
 }, height = 600, width = 800)
 ```
+
+## Combined fish and flow trends
+
+Fish sample sites were matched to the flow records (September only) as follows:
+
+```{r}
+totab <- soqbth %>% 
+  dplyr::select(SiteID, Site) %>% 
+  unique
+knitr::kable(totab, row.names = c(1:nrow(totab)))
+```
+
+`r renderText({paste0('Showing trends for ' , input$yrssel[1], ' to ', input$yrssel[2], '.')})`
+```{r}
+renderPlot({
+  
+  # input
+  soqbthyrs <- soqbthyrs()
+  
+  p <- ggplot(soqbthyrs, aes(x = flo, y = density)) + 
+    geom_point() + 
+    geom_smooth(method = 'lm', se = F, linetype = 'dashed') + 
+    scale_x_log10('log-Flow (cfs)') + 
+    scale_y_log10('log-Density (fish/100ft)') +
+    facet_wrap(~`Size class`, scales = 'free_y') + 
+    pbase
+  
+  return(p)
+  
+})
+```
+
+<br>
+```{r, results = 'asis'}
+renderUI({
+  HTML(stargazer(soqtndmod(), type = 'html', column.labels = c('S1', 'S2'),
+            dep.var.labels = c('Density (fish/100ft)')))
+  })
+```
+<br>
+
+
