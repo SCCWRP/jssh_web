@@ -43,7 +43,8 @@ pbase <- theme_bw(base_family = 'serif', base_size = 14) +
     legend.direction = 'horizontal',
     # plot.margin = unit(c(4,4,0,0), "lines"),
     strip.background = element_blank(), 
-    strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5)
+    strip.text.y = element_text(angle = 0, hjust = 0, vjust = 0.5),
+    legend.text = element_text(size = 12)
   ) 
 
 soqflo <- floest %>% 
@@ -262,11 +263,11 @@ renderPlot({
     theme(
       axis.title.x = element_blank(),
       legend.position = 'none',   
-      axis.text.y = element_text(size = 9),
+      axis.text.y = element_text(size = 8)
       ) +
     scale_y_log10('log-Flow (cfs)') + 
     scale_fill_gradient2('Difference from average,\nby location', low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0) +
-    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0)))
+    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 10, angle = 0)))
   
   toplorev <- toplo %>%
     ungroup %>% 
@@ -286,7 +287,7 @@ renderPlot({
     scale_x_continuous('', expand = c(0, 0)) + 
     scale_y_discrete('', expand = c(0, 0)) +
     scale_fill_gradient2('Difference from average,\nby location', low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0) +
-    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0)))
+    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 10, angle = 0, family = 'serif')))
   
   pall + pdif + plot_layout(ncol = 2, widths = c(0.6, 1))
   
@@ -315,11 +316,11 @@ renderPlot({
     theme(
       axis.title.x = element_blank(),
       legend.position = 'none',
-      axis.text.y = element_text(size = 9)
+      axis.text.y = element_text(size = 8)
       ) +
     scale_y_continuous('Density (fish/100 ft)') + 
     scale_fill_gradient2('Difference from average,\nby location', low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0) +
-    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0)))
+    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 10, angle = 0)))
   
   toplorev <- toplo %>% 
     ungroup %>% 
@@ -339,11 +340,11 @@ renderPlot({
     scale_x_continuous('', expand = c(0, 0)) + 
     scale_y_discrete('', expand = c(0, 0)) +
     scale_fill_gradient2('Difference from average,\nby site', low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0) +
-    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) 
+    guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 10, angle = 0, family = 'serif'))) 
   
   pall + pdif + plot_layout(ncol = 2, widths = c(0.6, 1))
   
-}, height = 900)
+}, height = 1100)
 ```
 
 ## Summary trends {.tabset}
@@ -365,12 +366,12 @@ renderPlot({
     arrange(tau) %>% 
     mutate(
       mosite = factor(mosite, levels = mosite), 
-      vjsval = ifelse(tau < 0, 1, -0.5)
+      vjsval = ifelse(tau < 0, 1.5, -0.5)
     )
   
   p <- ggplot(toplo, aes(x = mosite, y = tau)) + 
     geom_bar(stat = 'identity', aes(colour = pval, fill = tau), size = 1) + 
-    geom_text(aes(label = pval), vjust = toplo$vjsval, size = 8) + 
+    geom_text(aes(label = pval), vjust = toplo$vjsval, size = 6, family = 'serif') + 
     scale_fill_gradient2(low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0, limits = c(-1, 1)) +
     scale_colour_manual(values = c(`ns` = NA, `*` = 'black', `**` = 'black'), drop = F, guide = F) + 
     pbase +
@@ -402,12 +403,12 @@ renderPlot({
     arrange(tau) %>% 
     mutate(
       SiteID = factor(SiteID, levels = SiteID), 
-      vjsval = ifelse(tau < 0, 1, -0.5)
+      vjsval = ifelse(tau < 0, 1.5, -0.5)
     )
   
   p <- ggplot(toplo, aes(x = SiteID, y = tau)) + 
     geom_bar(stat = 'identity', aes(colour = pval, fill = tau), size = 1) + 
-    geom_text(aes(label = pval), vjust = toplo$vjsval, size = 8) + 
+    geom_text(aes(label = pval), vjust = toplo$vjsval, size = 6, family = 'serif') + 
     scale_fill_gradient2(low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = 0, limits = c(-1, 1)) +
     scale_colour_manual(values = c(`ns` = NA, `*` = 'black', `**` = 'black'), drop = F, guide = F) + 
     pbase +

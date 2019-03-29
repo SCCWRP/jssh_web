@@ -574,10 +574,46 @@ soqbig <- bind_rows(soq, big)
 
 sepest <- inner_join(recs, soqbig, by = c('Site', 'rec'))
 
-## 
-# all out, need to find how these sites match to fish sites
 
-floest <- bind_rows(junest, sepest) %>% 
+##
+# get usgs flow gauge data, june and september
+
+raw <- read_excel('../../Data/RawData/flow_ests/16-1022_JSSH_Results_2019-01-18.xlsx', sheet = 'USGS Soquel daily data', skip = 1) 
+
+usgsjun <- raw %>%
+  dplyr::select(Date, `Daily Average Flow (cfs)`) %>% 
+  rename(
+    date = Date, 
+    flo = `Daily Average Flow (cfs)`
+  )
+
+usgssep <- raw %>%
+  dplyr::select(Date__1, `Daily Average Flow (cfs)__1`) %>% 
+  rename(
+    date = Date__1, 
+    flo = `Daily Average Flow (cfs)__1`
+  )
+
+usgs <- rbind(usgsjun, usgssep) %>% 
+  na.omit %>% 
+  mutate(
+    yr = year(date),
+    mo = month(date)
+  ) %>% 
+  group_by(yr, mo) %>% 
+  summarise(flo = mean(flo, na.rm = T)) %>% 
+  ungroup %>% 
+  mutate(
+    Site = 'USGS Soquel',
+    rec = 'USGS Soquel', 
+    yr = as.character(yr)
+    ) %>% 
+  dplyr::select(Site, rec, yr, flo, mo)
+
+## 
+# all flow combined
+
+floest <- bind_rows(junest, sepest, usgs) %>% 
   mutate(
     dy = 15
   ) %>% 
@@ -589,3 +625,20 @@ floest <- bind_rows(junest, sepest) %>%
   filter(!Site %in% 'Upper Soquel Cr. Weir Sq02') # this site is junk
 
 save(floest, file = 'data/floest.RData', compress = 'xz')
+
+######
+# matching flow locations with fish sites, just a lookup table
+
+# flo location, fish site matchings (soquel only)
+fishmtch <- read_excel('../../Data/RawData/flow_ests/JSSH_KK_CorrTable_2019-03-28_mbedits.xlsx', sheet = 'Soquel Watershed') %>% 
+  gather('mo', 'SiteFlow', -`Fish Sampling Site`) %>% 
+  rename(SiteID = `Fish Sampling Site`) %>% 
+  mutate(
+    mo = case_when(
+      mo %in% 'June Flow Site' ~ 6, 
+      T ~ 9
+    )
+  )
+
+save(fishmtch, file = 'data/fishmtch.RData', compress = 'xz')
+
