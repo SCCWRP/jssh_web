@@ -11,11 +11,11 @@
 
 
 
-<title>JSSH web</title>
+<title>Juvenile Salmonid and Stream Habitat (JSSH) web</title>
 
 <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/yeti.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/flatly.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -103,34 +103,34 @@ button.code-folding-btn:focus {
 <style type="text/css">
 /* padding for bootstrap navbar */
 body {
-  padding-top: 45px;
+  padding-top: 60px;
   padding-bottom: 40px;
 }
 /* offset scroll position for anchor links (for fixed navbar)  */
 .section h1 {
-  padding-top: 50px;
-  margin-top: -50px;
+  padding-top: 65px;
+  margin-top: -65px;
 }
 
 .section h2 {
-  padding-top: 50px;
-  margin-top: -50px;
+  padding-top: 65px;
+  margin-top: -65px;
 }
 .section h3 {
-  padding-top: 50px;
-  margin-top: -50px;
+  padding-top: 65px;
+  margin-top: -65px;
 }
 .section h4 {
-  padding-top: 50px;
-  margin-top: -50px;
+  padding-top: 65px;
+  margin-top: -65px;
 }
 .section h5 {
-  padding-top: 50px;
-  margin-top: -50px;
+  padding-top: 65px;
+  margin-top: -65px;
 }
 .section h6 {
-  padding-top: 50px;
-  margin-top: -50px;
+  padding-top: 65px;
+  margin-top: -65px;
 }
 </style>
 
@@ -209,6 +209,9 @@ $(document).ready(function () {
     <li>
       <a href="rchan.Rmd">Reach</a>
     </li>
+    <li>
+      <a href="soqflo.Rmd">Soquel flow</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -223,7 +226,7 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">JSSH web</h1>
+<h1 class="title toc-ignore">Juvenile Salmonid and Stream Habitat (JSSH) web</h1>
 
 </div>
 
@@ -233,7 +236,8 @@ $(document).ready(function () {
 <p><br></p>
 <div id="overview" class="section level3">
 <h3>Overview</h3>
-<p>The Juvenile Salmonid and Stream Habitat (JSSH) database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California. Data have been collected every fall since 1994, with one survey available in 1981. Salmonid data include steelhead density in two size classes and presence/absence of Coho salmon. Additional presence/absence data are available for select species of fish, amphibians, and reptiles. Stream morphometry, riparian, and bed characteristics are measured in each reach separately for pools, runs, or riffles. All data have been combined in a geodatabase with spatially referenced information for each survey.</p>
+<p>Program website: <a href="http://scceh.com/steelhead.aspx" class="uri">http://scceh.com/steelhead.aspx</a></p>
+<p>The Juvenile Salmonid and Stream Habitat (JSSH) database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California. Since 1994, data have been collected every fall, with one survey available in 1981. Salmonid data include steelhead density in two size classes and presence/absence of Coho salmon. Additional presence/absence data are available for select species of fish, amphibians, and reptiles. Stream morphometry, riparian, and bed characteristics are measured in each reach separately for pools, runs, or riffles. All data have been combined in a geodatabase with spatially referenced information for each survey.</p>
 </div>
 <div id="objectives-and-approach" class="section level3">
 <h3>Objectives and approach</h3>
@@ -258,14 +262,14 @@ $(document).ready(function () {
 <h3>Variable names</h3>
 <p>Species and habitat variables are shown on the web page as in the raw data. For reference, the complete descriptions are shown here.</p>
 <p>Species names:</p>
-<p><strong>A_goby</strong>: Arrow Goby, <strong>BayPF</strong>: Bay Pipefish, <strong>Bl_Fg</strong>: Bull Frog, <strong>Bl_Gill</strong>: Bluegill, <strong>Brwn_Tr</strong>: Brown Turtle, <strong>Ca_Nwt</strong>: California Newt, <strong>Ca_Rch</strong>: California Roach, <strong>Coho</strong>: Coho Salmon, <strong>Cst_Sculp</strong>: Coastrange Sculpin, <strong>Dace</strong>: Dace, <strong>Gi_Sal</strong>: Giant Salamander, <strong>Gld_Fish</strong>: Goldfish, <strong>Gld_Shin</strong>: Golden Shiner, <strong>Grn_SF</strong>: Green Sunfish, <strong>HCH</strong>: Hitch, <strong>Lamp</strong>: Lamprey, <strong>LM_Bass</strong>: Large Mouth Bass, <strong>MQF</strong>: Mosquitofish, <strong>NWT</strong>: Newt, <strong>Pac_herr</strong>: Pacific Herring, <strong>Pike_Minw</strong>: Pike Minnow, <strong>Prk_Sculp</strong>: Prickly Sculpin, <strong>Rd_Fg</strong>: Redlegged Frog, <strong>Rgh_Nwt</strong>: Roughlegged Newt, <strong>Rif_Sculp</strong>: Riffle Sculpin, <strong>Sa_Suck</strong>: Sacramento Sucker, <strong>Shin_SP</strong>: Shiner species, <strong>Sln_Sal</strong>: Slender Salamander, <strong>Stag_Scul</strong>: Staghorn Sculpin, <strong>Sthd</strong>: Steelhead, <strong>SthdRT</strong>: Rainbow Trout, <strong>Stick</strong>: Stickleback, <strong>Stp_Mull</strong>: Striped Mullet, <strong>Str_Flo</strong>: Starry Flounder, <strong>T_goby</strong>: Tidewater Goby, <strong>Tp_Smlt</strong>: Topsmelt, <strong>Ws_Turt</strong>: Western Turtle, <strong>YF_goby</strong>: Yellowfin Goby, <strong>Ywl_Fg</strong>: Yellowlegged Frog</p>
+<p><strong>A_goby</strong>: Arrow Goby, <strong>BayPF</strong>: Bay Pipefish, <strong>Bl_Fg</strong>: Bull Frog, <strong>Bl_Gill</strong>: Bluegill, <strong>Brwn_Tr</strong>: Brown Turtle, <strong>Brwn_trt</strong>: Brown Trout, <strong>Ca_Nwt</strong>: California Newt, <strong>Ca_Rch</strong>: California Roach, <strong>Coho</strong>: Coho Salmon, <strong>Cst_Sculp</strong>: Coastrange Sculpin, <strong>Dace</strong>: Dace, <strong>Gi_Sal</strong>: Giant Salamander, <strong>Gld_Fish</strong>: Goldfish, <strong>Gld_Shin</strong>: Golden Shiner, <strong>Grn_SF</strong>: Green Sunfish, <strong>HCH</strong>: Hitch, <strong>Lamp</strong>: Lamprey, <strong>LM_Bass</strong>: Large Mouth Bass, <strong>MQF</strong>: Mosquitofish, <strong>NWT</strong>: Newt, <strong>Pac_herr</strong>: Pacific Herring, <strong>Pike_Minw</strong>: Pike Minnow, <strong>Prk_Sculp</strong>: Prickly Sculpin, <strong>Rd_Fg</strong>: Redlegged Frog, <strong>Rgh_Nwt</strong>: Roughlegged Newt, <strong>Rif_Sculp</strong>: Riffle Sculpin, <strong>Sa_Suck</strong>: Sacramento Sucker, <strong>Shin_SP</strong>: Shiner species, <strong>Sln_Sal</strong>: Slender Salamander, <strong>Stag_Scul</strong>: Staghorn Sculpin, <strong>Sthd</strong>: Steelhead, <strong>SthdRT</strong>: Rainbow Trout, <strong>Stick</strong>: Stickleback, <strong>Stp_Mull</strong>: Striped Mullet, <strong>Str_Flo</strong>: Starry Flounder, <strong>T_goby</strong>: Tidewater Goby, <strong>Tp_Smlt</strong>: Topsmelt, <strong>Ws_Turt</strong>: Western Pond Turtle, <strong>YF_goby</strong>: Yellowfin Goby, <strong>Ywl_Fg</strong>: Yellowlegged Frog</p>
 <p>Habitat variable names:</p>
 <p><strong>Can</strong>: Canopy cover (%), <strong>Decid</strong>: Deciduous canopy cover (%), <strong>DpthAvg</strong>: Average depth (ft), <strong>DpthMax</strong>: Maximum depth (ft), <strong>Embed</strong>: Embeddedness (%), <strong>EsCov</strong>: Escape cover (ratio), <strong>Fines</strong>: Fines (%), <strong>Lgth</strong>: Station length (ft), <strong>Wdth</strong>: Station width (ft)</p>
 </div>
 <div id="attribution" class="section level3">
 <h3>Attribution</h3>
-<p>All site content and analyses by <a href="mailto:marcusb@sccwrp.org">Marcus Beck</a>. Raw data collected and graciously provided by the <a href="http://scceh.com/steelhead.aspx">JSSH monitoring program</a> in Santa Cruz County, California. Please visit <a href="https://github.com/fawda123/jssh_web">here</a> to view the web page source content. Funding is provided in part by <a href="https://www.epa.gov/aboutepa/epa-region-9-pacific-southwest">USEPA Region 9</a> in coordination with <a href="https://www.mlml.calstate.edu/ccwg/">Central Coast Wetlands Group</a> at Moss Landing Marine Labs.</p>
-<p><img src="www/alllogo.png" alt="drawing" width="400"/></p>
+<p>All site content and analyses by <a href="mailto:marcusb@sccwrp.org">Marcus Beck</a>. Raw data collected and graciously provided by the <a href="http://scceh.com/steelhead.aspx">JSSH monitoring program</a> in Santa Cruz County, California. Please visit <a href="https://github.com/fawda123/jssh_web">here</a> to view the web page source content. Funding is provided in part by <a href="https://www.epa.gov/aboutepa/epa-region-9-pacific-southwest">USEPA Region 9</a> in coordination with <a href="https://www.mlml.calstate.edu/ccwg/">Central Coast Wetlands Group</a> at Moss Landing Marine Labs and the <a href="http://www.co.santa-cruz.ca.us/">County of Santa Cruz</a>.</p>
+<p><img src="www/alllogo.png" alt="drawing" width="550"/></p>
 </div>
 
 

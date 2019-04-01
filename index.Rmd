@@ -1,5 +1,5 @@
 ---
-title: "JSSH web"
+title: "Juvenile Salmonid and Stream Habitat (JSSH) web"
 self_contained: yes
 output: html_document
 ---
@@ -14,7 +14,9 @@ knitr::include_graphics('www/report_image.png')
 
 ### Overview
 
-The Juvenile Salmonid and Stream Habitat (JSSH) database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California.  Data have been collected every fall since 1994, with one survey available in 1981.  Salmonid data include steelhead density in two size classes and presence/absence of Coho salmon. Additional presence/absence data are available for select species of fish, amphibians, and reptiles.  Stream morphometry, riparian, and bed characteristics are measured in each reach separately for pools, runs, or riffles.  All data have been combined in a geodatabase with spatially referenced information for each survey.  
+Program website: <http://scceh.com/steelhead.aspx>
+
+The Juvenile Salmonid and Stream Habitat (JSSH) database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California.  Since 1994, data have been collected every fall, with one survey available in 1981.  Salmonid data include steelhead density in two size classes and presence/absence of Coho salmon. Additional presence/absence data are available for select species of fish, amphibians, and reptiles.  Stream morphometry, riparian, and bed characteristics are measured in each reach separately for pools, runs, or riffles.  All data have been combined in a geodatabase with spatially referenced information for each survey. 
 
 ### Objectives and approach 
 
@@ -48,7 +50,7 @@ Species and habitat variables are shown on the web page as in the raw data. For 
 
 Species names:
 
-__A_goby__: Arrow Goby, __BayPF__: Bay Pipefish, __Bl_Fg__: Bull Frog, __Bl_Gill__: Bluegill, __Brwn_Tr__: Brown Turtle, __Ca_Nwt__: California Newt, __Ca_Rch__: California Roach, __Coho__: Coho Salmon, __Cst_Sculp__: Coastrange Sculpin, __Dace__: Dace, __Gi_Sal__: Giant Salamander, __Gld_Fish__: Goldfish, __Gld_Shin__: Golden Shiner, __Grn_SF__: Green Sunfish, __HCH__: Hitch, __Lamp__: Lamprey, __LM_Bass__: Large Mouth Bass, __MQF__: Mosquitofish, __NWT__: Newt, __Pac_herr__: Pacific Herring, __Pike_Minw__: Pike Minnow, __Prk_Sculp__: Prickly Sculpin, __Rd_Fg__: Redlegged Frog, __Rgh_Nwt__: Roughlegged Newt, __Rif_Sculp__: Riffle Sculpin, __Sa_Suck__: Sacramento Sucker, __Shin_SP__: Shiner species, __Sln_Sal__: Slender Salamander, __Stag_Scul__: Staghorn Sculpin, __Sthd__: Steelhead, __SthdRT__: Rainbow Trout, __Stick__: Stickleback, __Stp_Mull__: Striped Mullet, __Str_Flo__: Starry Flounder, __T_goby__: Tidewater Goby, __Tp_Smlt__: Topsmelt, __Ws_Turt__: Western Turtle, __YF_goby__: Yellowfin Goby, __Ywl_Fg__: Yellowlegged Frog
+__A_goby__: Arrow Goby, __BayPF__: Bay Pipefish, __Bl_Fg__: Bull Frog, __Bl_Gill__: Bluegill, __Brwn_Tr__: Brown Turtle, __Brwn_trt__: Brown Trout, __Ca_Nwt__: California Newt, __Ca_Rch__: California Roach, __Coho__: Coho Salmon, __Cst_Sculp__: Coastrange Sculpin, __Dace__: Dace, __Gi_Sal__: Giant Salamander, __Gld_Fish__: Goldfish, __Gld_Shin__: Golden Shiner, __Grn_SF__: Green Sunfish, __HCH__: Hitch, __Lamp__: Lamprey, __LM_Bass__: Large Mouth Bass, __MQF__: Mosquitofish, __NWT__: Newt, __Pac_herr__: Pacific Herring, __Pike_Minw__: Pike Minnow, __Prk_Sculp__: Prickly Sculpin, __Rd_Fg__: Redlegged Frog, __Rgh_Nwt__: Roughlegged Newt, __Rif_Sculp__: Riffle Sculpin, __Sa_Suck__: Sacramento Sucker, __Shin_SP__: Shiner species, __Sln_Sal__: Slender Salamander, __Stag_Scul__: Staghorn Sculpin, __Sthd__: Steelhead, __SthdRT__: Rainbow Trout, __Stick__: Stickleback, __Stp_Mull__: Striped Mullet, __Str_Flo__: Starry Flounder, __T_goby__: Tidewater Goby, __Tp_Smlt__: Topsmelt, __Ws_Turt__: Western Pond Turtle, __YF_goby__: Yellowfin Goby, __Ywl_Fg__: Yellowlegged Frog
 
 Habitat variable names:
 
@@ -56,6 +58,6 @@ __Can__: Canopy cover (%), __Decid__: Deciduous canopy cover (%), __DpthAvg__: A
 
 ### Attribution
 
-All site content and analyses by [Marcus Beck](mailto:marcusb@sccwrp.org). Raw data collected and graciously provided by the [JSSH monitoring program](http://scceh.com/steelhead.aspx) in Santa Cruz County, California. Please visit [here](https://github.com/fawda123/jssh_web) to view the web page source content.  Funding is provided in part by [USEPA Region 9](https://www.epa.gov/aboutepa/epa-region-9-pacific-southwest) in coordination with [Central Coast Wetlands Group](https://www.mlml.calstate.edu/ccwg/) at Moss Landing Marine Labs.
+All site content and analyses by [Marcus Beck](mailto:marcusb@sccwrp.org). Raw data collected and graciously provided by the [JSSH monitoring program](http://scceh.com/steelhead.aspx) in Santa Cruz County, California. Please visit [here](https://github.com/fawda123/jssh_web) to view the web page source content.  Funding is provided in part by [USEPA Region 9](https://www.epa.gov/aboutepa/epa-region-9-pacific-southwest) in coordination with [Central Coast Wetlands Group](https://www.mlml.calstate.edu/ccwg/) at Moss Landing Marine Labs and the [County of Santa Cruz](http://www.co.santa-cruz.ca.us/).
 
-<img src="www/alllogo.png" alt="drawing" width="400"/>
+<img src="www/alllogo.png" alt="drawing" width="550"/>

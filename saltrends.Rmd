@@ -43,13 +43,15 @@ The objective of these analyses is to evaluate the status and trends of Steelhea
 
 Maps and summary plots show the changes in density (fish/100ft) over time of the different size classes (`Dens_S1` or `Dens_S2`). Salmonid density (fish/100ft) at each site is measured as S1 and S2, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are either fast-growing young-of-the-year or older fish. S3 fish (> 150 mm standard length) are also grouped with S2.  S2 fish are likely to migrate the following spring but may also be resident trout. Trend statistics of the different size classes for aggregated watershed data and by site are also provided.  The trend analyses only evaluate an increase or decrease (monotonic change) between selected years.
 
+Plese visit this website for a storymap overview of steelhead in the study region: <http://scceh.com/steelhead/overview/>
+
 ## Overview maps
 
 This map shows the stream network and sample sites by watershed.  Click on a stream reach or sample site for additional information.  All sites with data collected during any of the sample years are shown. 
 
 ```{r mapviewshed, out.width="100%"}
 mapview(stream, label = stream$STREAM_NM) +
-  mapview(fishdat, zcol = 'Watershed', legend = T)
+  mapview(fishdat, zcol = 'Watershed', legend = T, layer.name = 'Watershed')
 ```
 
 <br></br>
@@ -74,7 +76,7 @@ mapout <- reactive({
     filter(Year %in% input$yr)
   
   out <- mapview(stream, label = stream$STREAM_NM) +
-    mapview(toplo, zcol = 'Watershed', cex = input$cls, legend = T)
+    mapview(toplo, zcol = 'Watershed', cex = input$cls, legend = T, layer.name = 'Watershed')
   
   return(out)
   
@@ -88,7 +90,7 @@ renderLeaflet({mapout()@map})
 
 ## Overview plots
 
-The boxplots show the distribution of the density estimates across all sites for a given year, by watershed. 
+The boxplots (description [here](https://upload.wikimedia.org/wikipedia/commons/a/ac/Box_plot_description.jpg)) show the distribution of the density estimates across all sites for a given year, by watershed. 
 ```{r}
 column(2, NULL)
 column(4, 
@@ -126,7 +128,8 @@ renderPlot({
       strip.background = element_blank(), 
       axis.title.x = element_blank(), 
       legend.position = 'top'
-    ) 
+    ) + 
+    guides(fill = guide_legend(title = 'Size class'))
  
   if(scl == 'log10')
     p <- p + scale_y_continuous("Density (fish/100ft)", trans = 'log10')
@@ -467,7 +470,7 @@ This section evaluates status and trends of salmonid density at individual sites
 # reactive inputs for plots, tables 
 column(2, NULL)
 column(4, 
-  selectInput("clsst", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2'))
+  selectInput("clsst", "Choose density (S1: <75 mm, S2: >75 mm):", c('Dens_S1', 'Dens_S2'))
 )
 
 # year slider
