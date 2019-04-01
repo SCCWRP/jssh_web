@@ -25,6 +25,7 @@ library(stargazer)
 library(EnvStats)
 library(kableExtra)
 library(patchwork)
+library(shinyWidgets)
 
 prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
@@ -81,7 +82,7 @@ soqbth <- soqfsh %>%
   mutate(mo = 'Sep') %>% 
   unite('mosite', mo, SiteFlow, sep = ' - ', remove = F) %>% 
   left_join(soqflo, by = c('mosite', 'date')) %>% 
-  dplyr::select(SiteID, Site, date, `Size class`, density, flo) %>% 
+  dplyr::select(Group, SiteID, Site, date, `Size class`, density, flo) %>% 
   mutate(Year = year(date))
 ```
 
@@ -244,9 +245,11 @@ soqbthyrs <- reactive({
   
   # input
   yrssel <- input$yrssel
+  soqgrp <- input$soqgrp
   
   out <- soqbth %>% 
-    filter(Year >= yrssel[1] & Year <= yrssel[2])
+    filter(Year >= yrssel[1] & Year <= yrssel[2]) %>% 
+    filter(Group %in% soqgrp)
   
   return(out)
   
@@ -257,6 +260,8 @@ soqtndmod <- reactive({
   # input
   soqbthyrs <- soqbthyrs()
 
+  req(nrow(soqbthyrs) > 0)
+  
   out <- soqbthyrs %>% 
     group_by(`Size class`) %>% 
     nest %>%
@@ -589,14 +594,26 @@ renderPlot({
 
 ## Combined fish and flow trends
 
-Fish sample sites were matched to the flow records (September only) as follows:
+Fish densities and flow estimates were combined to explore associations between the two. Fish sample sites were matched to the flow records (September only) as follows:
 
 ```{r}
 totab <- soqbth %>% 
-  dplyr::select(SiteID, Site) %>% 
+  dplyr::select(Group, SiteID, Site) %>% 
   unique
 knitr::kable(totab, row.names = c(1:nrow(totab)))
 ```
+
+```{r}
+column(12, 
+  column(width = 4, 
+    pickerInput("soqgrp", label = 'Choose site location group:', choices = unique(fishmtch$Group),
+                                                selected = unique(fishmtch$Group),
+                                                multiple = TRUE
+                                    )
+  )
+)
+```
+
 
 `r renderText({paste0('Showing trends for ' , input$yrssel[1], ' to ', input$yrssel[2], '.')})`
 ```{r}
@@ -604,6 +621,8 @@ renderPlot({
   
   # input
   soqbthyrs <- soqbthyrs()
+  
+  req(nrow(soqbthyrs) > 0)
   
   p <- ggplot(soqbthyrs, aes(x = flo, y = density)) + 
     geom_point() + 

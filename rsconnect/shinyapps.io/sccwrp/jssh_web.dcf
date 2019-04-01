@@ -4,6 +4,6 @@ account: sccwrp
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 397940
-bundleId: 1974066
+bundleId: 1979716
 url: https://sccwrp.shinyapps.io/jssh_web/
-when: 1553880673.74005
+when: 1554149190.40394

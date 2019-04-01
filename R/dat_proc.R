@@ -631,7 +631,7 @@ save(floest, file = 'data/floest.RData', compress = 'xz')
 
 # flo location, fish site matchings (soquel only)
 fishmtch <- read_excel('../../Data/RawData/flow_ests/JSSH_KK_CorrTable_2019-03-28_mbedits.xlsx', sheet = 'Soquel Watershed') %>% 
-  gather('mo', 'SiteFlow', -`Fish Sampling Site`) %>% 
+  gather('mo', 'SiteFlow', -`Fish Sampling Site`, -Group) %>% 
   rename(SiteID = `Fish Sampling Site`) %>% 
   mutate(
     mo = case_when(
