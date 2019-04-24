@@ -16,7 +16,12 @@ library(lubridate)
 
 prj <- geo_wgs84
 
-dsn <- 'L:/Santa Cruz_fish trends_MB/Data/RawData/Steelhead_Monitoring_Data/2b6251fed87a403f880eb87ee4ed0951.gdb'
+# # old gdb
+# dsn <- 'L:/Santa Cruz_fish trends_MB/Data/RawData/Steelhead_Monitoring_Data/2b6251fed87a403f880eb87ee4ed0951.gdb'
+
+# new gdb with 2018
+dsn <- 'L:/Santa Cruz_fish trends_MB/Data/RawData/SteelheadData2018/062df19c7aa94541b7afca9a7c8bb28d.gdb'
+
 # ogrListLayers(dsn)
 
 ##
@@ -27,16 +32,22 @@ fishdat <- readOGR(dsn = dsn, layer = 'Site_Annual_Data') %>%
   st_as_sf %>% 
   mutate(
     Watershed = as.character(Watershed), 
-    Watershed = ifelse(grepl('^SLR-main', SiteID), 'SLR-main', Watershed),
-    Watershed = ifelse(Watershed %in% 'SLR', 'SLR-trib', Watershed),
-    Watershed = factor(Watershed, levels = c('SLR-main', 'SLR-trib', 'SOQ', 'APT', 'PAJ')), 
+    Watershed = case_when(
+      grepl('^SLR-main', SiteID) ~ 'SLR-main',
+      Watershed %in% c('SLR', 'San Lorenzo') ~ 'SLR-trib',
+      Watershed %in% c('APT', 'Aptos') ~ 'APT', 
+      Watershed %in% c('PAJ', 'Pajaro') ~ 'PAJ', 
+      Watershed %in% c('SOQ', 'Soquel') ~ 'SOQ'
+    ),
+    Watershed = factor(Watershed, levels = c('SLR-main', 'SLR-trib', 'SOQ', 'APT', 'PAJ')),
     SampleDate = gsub('00:00:00$', '', SampleDate),
     SampleDate = ymd(SampleDate),
     Year = ifelse(is.na(Year), year(SampleDate), Year)
     ) %>% 
   rename(
     Sp_BayPF = SP_BayPF
-  )
+  ) %>% 
+  dplyr::select(-YearLabel, -GlobalID, -Sp_Dwarf_SP, -Sp_CbznScp)
 
 save(fishdat, file = 'data/fishdat.RData')
 
@@ -62,9 +73,9 @@ SiteIDloc <- SiteIDloc %>%
     ) %>% 
   ungroup
 
-habitat <- sf::st_read(dsn = dsn, layer = 'Tb_Habitat') %>% 
+habitat <- sf::st_read(dsn = dsn, layer = 'Habitat') %>% 
   mutate(SiteID = as.character(SiteID)) %>% 
-  dplyr::select(-SiteYearID, -StnNumStrt, -StnNumEnd, -HabDetail, -AssessDate) %>% 
+  dplyr::select(-SiteYearID, -StnNumStrt, -StnNumEnd, -HabDetail, -AssessDate, -YearLabel, -GlobalID) %>% 
   gather('habvar', 'habval', -Year, -SiteID, -HabType) %>% 
   group_by(Year, SiteID, HabType, habvar) %>% 
   summarise(habval = mean(habval, na.rm = T)) %>% 
