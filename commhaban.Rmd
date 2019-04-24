@@ -42,6 +42,9 @@ spdat <- fishdat %>%
     species = gsub('^Sp_', '', species)
   ) %>% 
   filter(!is.na(Year)) %>% 
+  group_by(Year, species) %>% 
+  filter(!duplicated(SiteID)) %>% 
+  ungroup() %>%
   unique
 
 # prep species data for multivariate analysis
@@ -126,7 +129,7 @@ column(12,
   
        # select a year
        column(width = 4, 
-         selectInput('yrmlt', 'Select a year for comparison:', sort(unique(mlthbdat$Year)), selected = 2017)
+         selectInput('yrmlt', 'Select a year for comparison:', sort(unique(mlthbdat$Year)), selected = 2018)
        ),
 
        # select cluster cuts
@@ -450,7 +453,7 @@ column(12,
        
       # habitat type to evaluate
       column(width = 4, 
-             selectInput("habty", label = 'Choose habitat type to evaluate:', choices = c('run', 'riffle', 'pool'), selected  = 'riffle')
+             selectInput("habty", label = 'Choose habitat type:', choices = c('run', 'riffle', 'pool'), selected  = 'riffle')
       ),
 
       # habitat variables to consider

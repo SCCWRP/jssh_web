@@ -114,7 +114,7 @@ column(12,
   ),
   # select year to show
   column(width = 4,
-        selectInput('yr', 'Select a year:', selected = 2017, choices = sort(unique(habitat$Year)))
+        selectInput('yr', 'Select a year:', selected = 2018, choices = sort(unique(habitat$Year)))
   ),
   column(2, NULL)
 )
@@ -122,7 +122,7 @@ column(12,
   column(2, NULL),
   # habitat type to evaluate
   column(width = 4,
-      selectInput("habtyp", "Choose a habitat type to evaluate:", choices = c('run', 'riffle', 'pool'))
+      selectInput("habtyp", "Choose a habitat type:", choices = c('run', 'riffle', 'pool'))
   ),
   column(6, NULL)
 )
@@ -145,7 +145,7 @@ column(width = 12,
        
   # habitat type to evaluate
   column(width = 4, 
-  pickerInput("habtyp2", label = 'Choose a habitat type to evaluate:', choices = c('run', 'riffle', 'pool'),
+  pickerInput("habtyp2", label = 'Choose a habitat type:', choices = c('run', 'riffle', 'pool'),
                                                 selected = c('run'),
                                                 multiple = TRUE
                                     )
@@ -167,8 +167,8 @@ column(12,
   # year slider
   column(width = 4, 
     sliderInput("yrrng", label = 'Select year ranges to plot:',  
-          min = 2001, max = 2017, 
-          value = c(2001, 2017),
+          min = 2001, max = 2018, 
+          value = c(2001, 2018),
           sep = '', ticks = FALSE
         )
   ),
@@ -289,7 +289,7 @@ column(12,
        
         # habitat type to evaluate
         column(width = 4, 
-               selectInput("habtyp3", label = 'Choose a habitat type to evaluate:', choices = c('run', 'riffle', 'pool'))
+               selectInput("habtyp3", label = 'Choose a habitat type:', choices = c('run', 'riffle', 'pool'))
         ),
 
         # select habitat variable to show
@@ -308,8 +308,8 @@ column(width = 12,
   
   column(4, 
          sliderInput("yrrng2", label = 'Select year ranges to plot:',  
-          min = 2001, max = 2017, 
-          value = c(2001, 2017),
+          min = 2001, max = 2018, 
+          value = c(2001, 2018),
           sep = '', ticks = FALSE
         )
   ), 
@@ -447,7 +447,7 @@ column(12,
             unique %>% 
             sort
           
-          selectInput("st", "Select station to view map trends:", sts)
+          selectInput("st", "Select station to view trends:", sts)
         
         })
   ),

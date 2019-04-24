@@ -400,14 +400,14 @@ column(4,
     
     req(hbshsel)
     
-    pickerInput('hbsh', 'Choose habitat selections to show:', choices = hbshsel, multiple = T, selected = hbshsel,
+    pickerInput('hbsh', 'Choose habitat selections:', choices = hbshsel, multiple = T, selected = hbshsel,
       options = list(`actions-box` = TRUE)
       )
     
   })     
 ),
 column(4, 
-  selectInput("szas", "Choose variable for size or boxplots:", choices = c("mean width", "mean depth", "max depth", "avg. embedd.", "escape cover", "% fines", "% shade", "% deciduous", "cover/ length", "cover/ perimeter"), selected = 'mean width')
+  selectInput("szas", "Choose variable:", choices = c("mean width", "mean depth", "max depth", "avg. embedd.", "escape cover", "% fines", "% shade", "% deciduous", "cover/ length", "cover/ perimeter"), selected = 'mean width')
   )
 )
 column(12,

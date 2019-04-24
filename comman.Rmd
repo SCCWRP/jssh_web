@@ -65,6 +65,9 @@ spdat <- fishdat %>%
     species = gsub('^Sp_', '', species)
   ) %>% 
   filter(!is.na(Year)) %>% 
+  group_by(Year, species) %>% 
+  filter(!duplicated(SiteID)) %>% 
+  ungroup() %>% 
   unique
 
 # site, wshed lookup
@@ -94,8 +97,8 @@ column(width = 4,
 # year slider
 column(width = 4, 
   sliderInput("yrs", label = 'Select year ranges to plot:',  
-        min = 1981, max = 2017, 
-        value = c(1994, 2017),
+        min = 1981, max = 2018, 
+        value = c(1994, 2018),
         sep = '', ticks = FALSE
       )
 )
@@ -139,6 +142,7 @@ spyrsocc <- reactive({
   # get species, year selection
   toplo <- spdat %>% 
     filter(species %in% sp) %>% 
+    filter(Year >= yrs[1] & Year <= yrs[2]) %>% 
     unique
  
   # get geometry for later join
@@ -213,7 +217,7 @@ column(12,
       ), 
       
       column(width = 4, 
-             selectInput('yrsub', 'Select from years only when present:', selected = FALSE, choices = c(TRUE, FALSE))
+             selectInput('yrsub', 'Select from years when present:', selected = FALSE, choices = c(TRUE, FALSE))
       ),
       column(2, NULL)
 )
@@ -300,7 +304,7 @@ renderLeaflet({mapspyr()@map})
 
 ## Frequency occurrence over time
 
-This map shows the occurrence of `r renderText({input$sptm})` at each site from `r renderText({input$yrs[1]})` to `r renderText({input$yrs[2]})`.  The colors indicate if a species was commonly (dark green), frequently (light green), occasionally (light red), or rarely (dark green) observed at a site.  Frequency occurrence was the sum of years for which a species was observed divided by the total number of years that a site was sampled.
+This map shows the occurrence of `r renderText({input$sptm})` at each site from `r renderText({input$yrs2[1]})` to `r renderText({input$yrs2[2]})`.  The colors indicate if a species was commonly (dark green), frequently (light green), occasionally (light red), or rarely (dark red) observed at a site.  Frequency occurrence was the sum of years for which a species was observed divided by the total number of years that a site was sampled.
 
 <span style="color:#33A02C">Common</span>: 76 - 100% of all sampled years 
 
@@ -322,8 +326,8 @@ column(width = 4,
 # year slider
 column(width = 4, 
   sliderInput("yrs2", label = 'Select year ranges to plot:',  
-        min = 1981, max = 2017, 
-        value = c(1994, 2017),
+        min = 1981, max = 2018, 
+        value = c(1994, 2018),
         sep = '', ticks = FALSE
       )
 )
@@ -355,7 +359,7 @@ column(12,
        
        # select a year 
        column(width = 4, 
-              selectInput('yrmlt1', 'Select a year for first comparison:', sort(unique(mltdat$Year)), selected = 2017)
+              selectInput('yrmlt1', 'Select a year for comparison:', sort(unique(mltdat$Year)), selected = 2018)
        ),
        
        # select cluster cuts

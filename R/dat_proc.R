@@ -47,7 +47,8 @@ fishdat <- readOGR(dsn = dsn, layer = 'Site_Annual_Data') %>%
   rename(
     Sp_BayPF = SP_BayPF
   ) %>% 
-  dplyr::select(-YearLabel, -GlobalID, -Sp_Dwarf_SP, -Sp_CbznScp)
+  dplyr::select(-YearLabel, -GlobalID, -Sp_Dwarf_SP, -Sp_CbznScp) %>% 
+  group_by(Year)
 
 save(fishdat, file = 'data/fishdat.RData')
 
