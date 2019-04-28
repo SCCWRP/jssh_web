@@ -641,8 +641,10 @@ save(floest, file = 'data/floest.RData', compress = 'xz')
 ######
 # matching flow locations with fish sites, just a lookup table
 
+data(floest)
+
 # flo location, fish site matchings (soquel only)
-fishmtch <- read_excel('../../Data/RawData/flow_ests/JSSH_KK_CorrTable_2019-03-28_mbedits.xlsx', sheet = 'Soquel Watershed') %>% 
+fishmtch_soq <- read_excel('../../Data/RawData/flow_ests/JSSH_KK_CorrTable_2019-03-28_mbedits.xlsx', sheet = 'Soquel Watershed') %>% 
   gather('mo', 'SiteFlow', -`Fish Sampling Site`, -Group) %>% 
   rename(SiteID = `Fish Sampling Site`) %>% 
   mutate(
@@ -650,7 +652,52 @@ fishmtch <- read_excel('../../Data/RawData/flow_ests/JSSH_KK_CorrTable_2019-03-2
       mo %in% 'June Flow Site' ~ 6, 
       T ~ 9
     )
-  )
+  ) %>% 
+  mutate(Watershed = 'SOQ')
+
+# San lorenzo
+fishmtch_slr <- read_excel('../../Data/RawData/flow_ests/JSSH_KK_CorrTable_2019-03-28_mbedits.xlsx', 
+                           sheet = 'San Lorenzo Watershed',
+                           skip = 1
+                           ) %>% 
+  mutate(
+    mo = 9, 
+    Watershed = 'SLR',
+    Represents = gsub('(^SLR)', '\\1-', Represents),
+    Represents = gsub('([0-9]+)', '-\\1', Represents),
+    Represents = gsub('BEAN', 'bean', Represents),
+    Represents = gsub('Zayt|ZAYT', 'zayt', Represents),
+    Represents = gsub('Lomp', 'lomp', Represents),
+    Represents = gsub('a\\-1$', 'a1', Represents)
+    ) %>% 
+  rename(
+    SiteFlow = Site,
+    SiteID = Represents
+    ) %>% 
+  filter(SiteFlow %in% floest$Site) %>% # there are five sites in the lookup table that aren't in floest
+  filter(!duplicated(SiteFlow)) %>% 
+  dplyr::select(SiteID, Group, mo, SiteFlow, Watershed) %>% 
+  filter(SiteID %in% fishdat$SiteID) # two are not in fishdat
+
+# Pajaro
+fishmtch_paj <- read_excel('../../Data/RawData/flow_ests/JSSH_KK_CorrTable_2019-03-28_mbedits.xlsx', 
+                       sheet = 'Pajaro Watershed',
+                       skip = 1
+  ) %>% 
+  mutate(
+    mo = 9, 
+    Watershed = 'SLR'
+    ) %>% 
+  rename(
+    SiteFlow = Site,
+    SiteID = Represents
+  ) %>% 
+  filter(SiteFlow %in% floest$Site) %>% # there are five sites in the lookup table that aren't in floest
+  filter(!duplicated(SiteFlow)) %>% 
+  dplyr::select(SiteID, Group, mo, SiteFlow, Watershed)
+
+# combine all
+fishmtch <- rbind(fishmtch_slr, fishmtch_soq, fishmtch_paj)
 
 save(fishmtch, file = 'data/fishmtch.RData', compress = 'xz')
 
