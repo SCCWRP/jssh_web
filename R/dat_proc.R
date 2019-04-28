@@ -676,6 +676,7 @@ fishmtch_slr <- read_excel('../../Data/RawData/flow_ests/JSSH_KK_CorrTable_2019-
     ) %>% 
   filter(SiteFlow %in% floest$Site) %>% # there are five sites in the lookup table that aren't in floest
   filter(!duplicated(SiteFlow)) %>% 
+  filter(!duplicated(SiteID)) %>% 
   dplyr::select(SiteID, Group, mo, SiteFlow, Watershed) %>% 
   filter(SiteID %in% fishdat$SiteID) # two are not in fishdat
 
@@ -686,7 +687,7 @@ fishmtch_paj <- read_excel('../../Data/RawData/flow_ests/JSSH_KK_CorrTable_2019-
   ) %>% 
   mutate(
     mo = 9, 
-    Watershed = 'SLR'
+    Watershed = 'PAJ'
     ) %>% 
   rename(
     SiteFlow = Site,
@@ -694,6 +695,7 @@ fishmtch_paj <- read_excel('../../Data/RawData/flow_ests/JSSH_KK_CorrTable_2019-
   ) %>% 
   filter(SiteFlow %in% floest$Site) %>% # there are five sites in the lookup table that aren't in floest
   filter(!duplicated(SiteFlow)) %>% 
+  filter(!duplicated(SiteID)) %>% 
   dplyr::select(SiteID, Group, mo, SiteFlow, Watershed)
 
 # combine all

@@ -20,6 +20,8 @@ navbar:
           href: "rchan.Rmd"
         - text: "Soquel flow"
           href: "soqflo.Rmd"
+        - text: "San Lorenzo flow"
+          href: "slrflo.Rmd"
 output_dir: "."
 output:
   html_document:
