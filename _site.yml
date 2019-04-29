@@ -22,6 +22,8 @@ navbar:
           href: "soqflo.Rmd"
         - text: "San Lorenzo flow"
           href: "slrflo.Rmd"
+        - text: "Pajaro flow"
+          href: "pajflo.Rmd"
 output_dir: "."
 output:
   html_document:

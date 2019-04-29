@@ -6,6 +6,7 @@ output:
     toc: true
     toc_float: 
        collapsed: false
+    number_sections: true
 ---
 
 ```{r setup, include = FALSE}

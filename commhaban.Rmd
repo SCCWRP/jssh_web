@@ -6,6 +6,7 @@ output:
     toc: true
     toc_float: 
        collapsed: false
+    number_sections: true
 ---
 
 ```{r setupcommhaban, include = FALSE}
@@ -250,9 +251,9 @@ ccaord <- reactive({
 })
 ```
 
-## Species clustering results {.tabset}
+# Species clustering results {.tabset}
 
-### Dissimilarity matrix
+## Dissimilarity matrix
 
 Pairwise comparisons of site dissimilarities based on species presence/absence.  Comparisons in red are more dissimilar, whereas those in blue are more similar.
 
@@ -347,7 +348,7 @@ renderPlot({
 }, width = 650, height = 700)
 ```
 
-### Dendrogram
+## Dendrogram
 
 Cluster dendrogram colored by selected number of groups.
 
@@ -409,7 +410,7 @@ renderPlot({
 })
 ```
 
-### Cluster map
+## Cluster map
 
 Sites are colored by the selected number of cluster groups (see dendrogram tab).
 
@@ -443,7 +444,7 @@ mapclst <- reactive({
 renderLeaflet({mapclst()@map})
 ```
 
-## Constrained ordination {.tabset}
+# Constrained ordination {.tabset}
 
 ```{r}
 
@@ -468,7 +469,7 @@ column(12,
 )
 ```
 
-### Triplot
+## Triplot
 
 The ordination below shows results for constrained correspondence analysis, which is similar to the ordination on the [community](comman.Rmd) page with an additional multivariate constraint for the habitat variables.  Species associations are grouped relative to the habitat variables and the groups can be interpreted relative to both.  
 
@@ -554,7 +555,7 @@ renderPlot({
 }, width = 700, height = 700)
 ```
 
-### Dominant species by group
+## Dominant species by group
 
 These plots show the proportion of sites in a group where a species was observed.  This provides a measure of relative abundance based solely on presence/absence data. 
 
@@ -606,7 +607,7 @@ renderPlot({
 }, height = 500, width = 900)
 ```
 
-### Relative habitat variables by group
+## Relative habitat variables by group
 
 These plots show the relative associations of habitat variables with the selected groups.  All habitat variables were scaled and centered to have zero mean and unit variance (standard deviation = 1) for ordination.  This allows for relative comparisons between the magnitudes of the values associated with each habitat variable, i.e., negative values are lower and positive values are higher.
 ```{r}

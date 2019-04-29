@@ -6,6 +6,7 @@ output:
     toc: true
     toc_float: 
        collapsed: false
+    number_sections: true
 ---
 
 ```{r setup, include = FALSE}
@@ -45,7 +46,7 @@ Maps and summary plots show the changes in density (fish/100ft) over time of the
 
 Plese visit this website for a storymap overview of steelhead in the study region: <http://scceh.com/steelhead/overview/>
 
-## Overview maps
+# Overview maps
 
 This map shows the stream network and sample sites by watershed.  Click on a stream reach or sample site for additional information.  All sites with data collected during any of the sample years are shown. 
 
@@ -88,7 +89,7 @@ renderLeaflet({mapout()@map})
 
 <br></br>
 
-## Overview plots
+# Overview plots
 
 The boxplots (description [here](https://upload.wikimedia.org/wikipedia/commons/a/ac/Box_plot_description.jpg)) show the distribution of the density estimates across all sites for a given year, by watershed. 
 ```{r}
@@ -224,7 +225,7 @@ pdif
 
 <br></br>
 
-## Trend statistics, by watershed {.tabset}
+# Trend statistics, by watershed {.tabset}
 
 These plots evaluate trends as measured by the significance of the regression through the trend anomalies. The trend anomalies are shown as positive (green) or negative (red) values around the long-term average (black-line) for a selected watershed and year range.  The dashed line is the regression fit through the anomalies.  All sites in a watershed are grouped. The slider can be used to adjust the range of years that are evaluated, e.g., a trend may be observed for one range but not another.
 
@@ -369,7 +370,7 @@ totabs2kn <- reactive({
 
 ```
 
-### S1 year class
+## S1 year class
 
 ```{r s1trnd, fig.height = 4, fig.width = 8, out.width = "100%"}
 renderPlot({
@@ -415,7 +416,7 @@ renderUI({
   })
 ```
 
-### S2 year class
+## S2 year class
 
 ```{r s2trnd, fig.height = 4, fig.width = 8, out.width = "100%"}
 renderPlot({
@@ -461,7 +462,7 @@ renderUI({
   })
 ```
 
-## Trend statistics, by site
+# Trend statistics, by site
 
 This section evaluates status and trends of salmonid density at individual sites, rather than aggregated by watershed as above.  Select the year range and size density class to evaluate the trends.  The map shows the value for tau (direction of trend) for a Kendall test of density changes within the selected years, green for increasing and red for decreasing.  Size of the point is the magnitude of the estimated change. Note that some sites may not have data spanning the full range of selected years.  Click an individual site on the map to see the available years within the selected range. 
 

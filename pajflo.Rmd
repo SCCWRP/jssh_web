@@ -1,5 +1,5 @@
 ---
-title: "Evaluation of flow trends at Soquel"
+title: "Evaluation of flow trends at Pajaro"
 runtime: shiny
 output: 
   html_document:
@@ -50,14 +50,14 @@ pbase <- theme_bw(base_family = 'serif', base_size = 14) +
     legend.text = element_text(size = 12)
   ) 
 
-# fishmtch for soquel
+# fishmtch for pajaro
 fishmtch <- fishmtch %>% 
-  filter(Watershed %in% 'SOQ') %>% 
+  filter(Watershed %in% 'PAJ') %>% 
   dplyr::select(-Watershed)
 
 # flow only
-soqflo <- floest %>% 
-  filter(grepl('Soquel', Site)) %>% 
+pajflo <- floest %>% 
+  filter(Site %in% fishmtch$SiteFlow) %>% 
   filter(date > ymd('1997-01-01')) %>% 
   mutate(
     Year = year(date),
@@ -66,15 +66,15 @@ soqflo <- floest %>%
   unite('mosite', mo, Site, sep = ' - ', remove = F) 
 
 # fish only
-soqfsh <- fishdat %>% 
-  filter(grepl('SOQ', Watershed)) %>% 
+pajfsh <- fishdat %>% 
+  filter(grepl('PAJ', Watershed)) %>% 
   dplyr::select(Year, SiteID, SampleDate, Dens_S1, Dens_S2) %>% 
   gather('Size class', 'density', Dens_S1, Dens_S2) %>% 
-  filter(!is.na(density))  
+  filter(!is.na(density)) 
 
 # flow and fish aggregated, combined
 # standardize dates to september when fish sampling occurs to match with flow
-soqbth <- soqfsh %>% 
+pajbth <- pajfsh %>% 
   st_set_geometry(NULL) %>% 
   filter(month(SampleDate) >= 8) %>% 
   filter(SampleDate > ymd('1997-01-01')) %>% 
@@ -88,7 +88,7 @@ soqbth <- soqfsh %>%
   inner_join(fishmtch, by = c('SiteID', 'mo')) %>% 
   mutate(mo = 'Sep') %>% 
   unite('mosite', mo, SiteFlow, sep = ' - ', remove = F) %>% 
-  inner_join(soqflo, by = c('mosite', 'date')) %>% 
+  inner_join(pajflo, by = c('mosite', 'date')) %>% 
   dplyr::select(Group, SiteID, Site, date, `Size class`, density, flo) %>% 
   mutate(Year = year(date))
 ```
@@ -99,8 +99,8 @@ fshyrs <- reactive({
   # input
   yrssel <- input$yrssel
   sizsel <- input$sizsel
-  
-  out <- soqfsh %>% 
+
+  out <- pajfsh %>% 
     filter(Year >= yrssel[1] & Year <= yrssel[2]) %>% 
     filter(`Size class` %in% sizsel) %>% 
     group_by(SiteID) %>% 
@@ -134,7 +134,7 @@ floyrs <- reactive({
   # input
   yrssel <- input$yrssel
 
-  out <- soqflo %>% 
+  out <- pajflo %>% 
     filter(Year >= yrssel[1] & Year <= yrssel[2]) %>% 
     group_by(mosite) %>% 
     mutate(
@@ -249,28 +249,28 @@ fshtxt <- reactive({
   
 })
 
-soqbthyrs <- reactive({
+pajbthyrs <- reactive({
   
   # input
   yrssel <- input$yrssel
-  soqgrp <- input$soqgrp
+  pajgrp <- input$pajgrp
   
-  out <- soqbth %>% 
+  out <- pajbth %>% 
     filter(Year >= yrssel[1] & Year <= yrssel[2]) %>% 
-    filter(Group %in% soqgrp)
+    filter(Group %in% pajgrp)
   
   return(out)
   
 })
 
-soqtndmod <- reactive({
+pajtndmod <- reactive({
   
   # input
-  soqbthyrs <- soqbthyrs()
+  pajbthyrs <- pajbthyrs()
 
-  req(nrow(soqbthyrs) > 0)
+  req(nrow(pajbthyrs) > 0)
   
-  out <- soqbthyrs %>% 
+  out <- pajbthyrs %>% 
     group_by(`Size class`) %>% 
     nest %>%
     mutate(
@@ -307,7 +307,7 @@ column(2, NULL)
 )
 ```
 
-This page can be used to compare steelhead density estimates with modelled flow in the Soquel watershed.  The sections include an assessment of overall trends, summary trends, plots by site, and combined trends for fish density and flow.  The year slider can be used to choose the date range for all plots and trend analyses.  The size class selector shows which size class is evaluated for steelhead.
+This page can be used to compare steelhead density estimates with modelled flow in the Pajaro watershed.  The sections include an assessment of overall trends, summary trends, plots by site, and combined trends for fish density and flow.  The year slider can be used to choose the date range for all plots and trend analyses.  The size class selector shows which size class is evaluated for steelhead.
 
 # Overall trends {.tabset}
 
@@ -363,12 +363,13 @@ renderPlot({
   
   pall + pdif + plot_layout(ncol = 2, widths = c(0.6, 1))
   
-}, height = 650)
+}, height = 300)
 ```
 
 ## Fish
 
 ```{r}
+wellPanel(style = "overflow-y:scroll; max-height: 500px",
 renderPlot({
   
   # input
@@ -416,7 +417,8 @@ renderPlot({
   
   pall + pdif + plot_layout(ncol = 2, widths = c(0.6, 1))
   
-}, height = 1100)
+}, height = 1500)
+)
 ```
 
 # Summary trends {.tabset}
@@ -505,7 +507,7 @@ These plots show the trends at each individual site and provide a closer view of
 
 ```{r}
 column(2, NULL)
-column(4, selectInput('sitflo', 'Select flow site:', choices = unique(soqflo$mosite)))
+column(4, selectInput('sitflo', 'Select flow site:', choices = unique(pajflo$mosite)))
 column(6, NULL)
 ```
 
@@ -555,7 +557,7 @@ renderPlot({
 
 ```{r}
 column(2, NULL)
-column(4, selectInput('sitfsh', 'Select fish sample site:', choices = unique(soqfsh$SiteID)))
+column(4, selectInput('sitfsh', 'Select fish sample site:', choices = unique(pajfsh$SiteID)))
 column(6, NULL)
 ```
 
@@ -605,7 +607,7 @@ renderPlot({
 Fish densities and flow estimates were combined to explore associations between the two. Fish sample sites were matched to the flow records (September only) as follows:
 
 ```{r}
-totab <- soqbth %>% 
+totab <- pajbth %>% 
   dplyr::select(Group, SiteID, Site) %>% 
   unique
 row.names(totab) <- 1:nrow(totab)
@@ -615,7 +617,7 @@ knitr::kable(totab)
 ```{r}
 column(12, 
   column(width = 4, 
-    pickerInput("soqgrp", label = 'Choose site location group:', choices = unique(fishmtch$Group),
+    pickerInput("pajgrp", label = 'Choose site location group:', choices = unique(fishmtch$Group),
                                                 selected = unique(fishmtch$Group),
                                                 multiple = TRUE
                                     )
@@ -629,11 +631,11 @@ column(12,
 renderPlot({
   
   # input
-  soqbthyrs <- soqbthyrs()
+  pajbthyrs <- pajbthyrs()
   
-  req(nrow(soqbthyrs) > 0)
+  req(nrow(pajbthyrs) > 0)
   
-  p <- ggplot(soqbthyrs, aes(x = flo, y = density)) + 
+  p <- ggplot(pajbthyrs, aes(x = flo, y = density)) + 
     geom_point() + 
     geom_smooth(method = 'lm', se = F, linetype = 'dashed') + 
     scale_x_log10('log-Flow (cfs)') + 
@@ -649,7 +651,7 @@ renderPlot({
 <br>
 ```{r, results = 'asis'}
 renderUI({
-  HTML(stargazer(soqtndmod(), type = 'html', column.labels = c('S1', 'S2'),
+  HTML(stargazer(pajtndmod(), type = 'html', column.labels = c('S1', 'S2'),
             dep.var.labels = c('Density (fish/100ft)')))
   })
 ```

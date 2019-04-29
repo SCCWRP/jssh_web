@@ -6,6 +6,7 @@ output:
     toc: true
     toc_float: 
        collapsed: false
+    number_sections: true
 ---
 
 This set of analyses evaluates differences in habitat measurements at approximate 1/2 mile observations along reach segments.  The habitat data in this section were collected at fixed distances along reaches and are not identified by sites where fish sampling occurred.  As such, the information in this section is useful to identify changes at a high spatial resolution along reaches independent of the fisheries data collected at individual sites.  Habitat changes over time can also be evaluated for an individual reach.
@@ -344,7 +345,7 @@ output$rchplobox <- renderPlot({
 }, height = 400)
 ```
 
-## Reach selection map
+# Reach selection map
 
 Choose the watershed and reach for evaluating habitat changes.  The watershed selection in the first menu determines which reaches are available to select in the second menu. 
 
@@ -379,7 +380,7 @@ column(2, NULL)
 renderLeaflet({spasel()@map})
 ```
 
-## Habitat selection
+# Habitat selection
 
 *Results below are for reach `r renderText({input$rchid})`.*
 
@@ -429,9 +430,9 @@ column(8,
 )
 ```
 
-## {.tabset}
+# {.tabset}
 
-### Habitat data by sample distance, over time
+## Habitat data by sample distance, over time
 
 This plot shows the reach data across years from downstream (bottom of y-axis) to upstream (top of y-axis).  Points are colored by the habitat selections and sized by the chosen habitat variable.  The slider can be used to change the scaling of the point sizes to better distinguish changes along the reach and between years.  
 
@@ -445,7 +446,7 @@ column(4,
 plotOutput('rchplopts')
 ```
 
-### Habitat data distribution, over time
+## Habitat data distribution, over time
 
 This plot shows the distribution of the selected habitat variable as boxplots for each year, grouped and colored by the habitat selections.  Summary statistics are also shown based on the chosen comparison in the menu below.  The summary statistics can be used to evaluate differences __between habitat selections within the same year__ or __between years within the same habitat selection__.  Boxplots that share the same letter are not statistically different (at alpha = 0.05, p-values corrected for multiple comparisons). The comparison of letters are only relevant for the selected summary statistics from the drop down menu. That is, letters can be only be compared within the same year if "between groups, within years" is selected, or letters can only be compared between years for the same group (habitat selection) if "between years, within groups" is selected.  Comparisons for boxplots without letters are not shown if the test could not be completed due to sample size.
 

@@ -6,6 +6,7 @@ output:
     toc: true
     toc_float: 
        collapsed: false
+    number_sections: true
 ---
 
 ```{r setuphaban, include = FALSE}
@@ -101,7 +102,7 @@ habmap <- reactive({
 })
 ```
 
-## Overview maps
+# Overview maps
 
 This map shows the relative values for a selected habitat variable and year for the chosen habitat type. Observations are colored by watershed and points are sized by relative values of the selected variable.
 
@@ -134,7 +135,7 @@ renderLeaflet({habmap()@map})
 
 <br>
 
-## Watershed averages over time
+# Watershed averages over time
 
 This plot shows measured habitat variables over time, averaged across all sites that were measured each year in a given watershed. Habitat types (run, riffle, pool) can be plotted individually or together.  The numbers inside the boxes indicate the number of sites that were averaged for each year, watershed combination.  Note that the number of sites that were visited in each watershed varied by year and the trends must be interpreted accordingly.  Overlaying the observations can aid the interpretation.
 
@@ -277,7 +278,7 @@ renderPlot({
 
 <br>
 
-## Trends at individual sites {.tabset}
+# Trends at individual sites {.tabset}
 
 This section evaluates trends in selected habitat variables at individual sites, rather than aggregated by watershed as above.  Select the habitat type, habitat variable, and year range to evaluate the trends.  The map tab shows estimated trends across all sites in the selected years and the plot tab shows individual sites in more detail. 
 
@@ -319,7 +320,7 @@ column(width = 12,
 )
 ```
 
-### Map, all sites
+## Map, all sites
 
 The points on the map show the value for tau (direction of trend) for a Kendall test of changes of the selected habitat variable within the selected years, green for increasing and red for decreasing.  Size of the point is the magnitude of the estimated change. Note that some sites may not have data spanning the full range of selected years.  Click an individual site on the map to see the available years within the selected range. 
 
@@ -422,7 +423,7 @@ mapouthab <- reactive({
 renderLeaflet({mapouthab()@map})
 ```
 
-### Plot, one site
+## Plot, one site
 
 Trends for the measured habitat variable at a selected site are shown below.  Deviations from the mean are shown, where the means are estimated separately for different habitat types. These plots can confirm the results shown in the map.  
 

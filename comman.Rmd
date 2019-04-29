@@ -6,6 +6,7 @@ output:
     toc: true
     toc_float: 
        collapsed: false
+    number_sections: true
 ---
 
 ```{r setupcomman, include = FALSE}
@@ -83,7 +84,7 @@ siteshd <- siteshd %>%
 
 These analyses can be used to evaluate changes in community composition over time using the presence/absence data for all species.  The first two sections show general changes by species and the third section is a multivariate analysis showing ordination and clustering results of the communities for a selected year.  Changes over time can be assessed by comparing the results between years. 
 
-## Percent occupied sites over time
+# Percent occupied sites over time
 
 These plots show the percent of sampled sites over time that are occupied with a selected species, grouped by watershed.  __The total number of sites that were sampled in each watershed, year combination is shown inside the point.__
 
@@ -204,7 +205,7 @@ renderPlot({
 
 ```
 
-## Presence/absence by year
+# Presence/absence by year
 
 This map shows species presence/absence for a selected species and year.  Sites that were sampled for the selected year are shown on the map with small red points indicating a selected species was not found and large green points indicating a species was found at a site.  The year selector can be toggled to show only years when a species was present at any site versus all years for which sampling occurred but a species may or may not have been found (default). 
 
@@ -302,7 +303,7 @@ renderLeaflet({mapspyr()@map})
 ```
 <br>
 
-## Frequency occurrence over time
+# Frequency occurrence over time
 
 This map shows the occurrence of `r renderText({input$sptm})` at each site from `r renderText({input$yrs2[1]})` to `r renderText({input$yrs2[2]})`.  The colors indicate if a species was commonly (dark green), frequently (light green), occasionally (light red), or rarely (dark red) observed at a site.  Frequency occurrence was the sum of years for which a species was observed divided by the total number of years that a site was sampled.
 
@@ -340,7 +341,7 @@ renderLeaflet({spyrsocc()@map})
 
 <br>
 
-## Multivariate community analysis
+# Multivariate community analysis {.tabset}
 
 This section can be used to evaluate community changes over time by showing natural groupings between sites using species presence/absence data.  Some questions to consider when evaluating the data are:
 
@@ -446,9 +447,7 @@ ord1 <- reactive({
 })
 ```
 
-## {.tabset}
-
-### Biplot
+## Biplot
 
 ```{r}
 # some chatty stuff about the ordination
@@ -504,7 +503,7 @@ renderPlot({
 }, width = 550, height = 600)
 ```
 
-### Dissimilarity matrix
+## Dissimilarity matrix
 
 Pairwise comparisons of site dissimilarities based on species presence/absence.  Comparisons in red are more dissimilar, whereas those in blue are more similar.
 
@@ -599,7 +598,7 @@ renderPlot({
 }, width = 650, height = 700)
 ```
 
-### Dendrogram
+## Dendrogram
 
 Cluster dendrogram colored by selected number of groups.
 
@@ -661,7 +660,7 @@ renderPlot({
 })
 ```
 
-### Cluster map
+## Cluster map
 
 Sites are colored by the selected number of cluster groups (see dendrogram tab).
 
@@ -695,7 +694,7 @@ mapclst <- reactive({
 renderLeaflet({mapclst()@map})
 ```
 
-### Dominant species by group
+## Dominant species by group
 
 These plots show the proportion of sites in a group where a species was observed.  This provides a measure of relative abundance based solely on presence/absence data. 
 
