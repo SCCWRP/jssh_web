@@ -1,6 +1,6 @@
 ---
 title: "Salmonid status and trends"
-runtime: shiny
+runtime: shiny_prerendered
 output: 
   html_document:
     toc: true
@@ -28,7 +28,9 @@ library(kableExtra)
 prj <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
 
 source('R/funcs.R')
+```
 
+```{r data}
 data(fishdat)
 data(stream)
 data(trndst_prep)
@@ -69,7 +71,7 @@ column(4,
 )
 column(2, NULL)
 ```
-```{r}
+```{r, context = 'server'}
 
 mapout <- reactive({
   
@@ -82,10 +84,13 @@ mapout <- reactive({
   return(out)
   
 })
+
+output$mapout <- renderLeaflet({mapout()@map})
 ```
 ```{r}
-renderLeaflet({mapout()@map})
+leafletOutput('mapout')
 ```
+
 
 <br></br>
 
@@ -104,8 +109,8 @@ column(4,
 column(2, NULL)
 ```
 
-```{r densbox}
-renderPlot({
+```{r, context = 'server'}
+output$densbox <- renderPlot({
   
   # inputs
   shd <- input$shd
@@ -142,6 +147,10 @@ renderPlot({
 }, height = 400, width = 900)
 
 ```
+```{r}
+plotOutput('densbox')
+```
+
 
 <br></br>
 
@@ -245,7 +254,9 @@ column(4,
 ),
 column(4, NULL)
 )
+```
 
+```{r, context = 'server'}
 # plot data from year input, s1
 toplos1 <- reactive({
   
@@ -372,8 +383,8 @@ totabs2kn <- reactive({
 
 ## S1 year class
 
-```{r s1trnd, fig.height = 4, fig.width = 8, out.width = "100%"}
-renderPlot({
+```{r, context = 'server'}
+output$s1trnd <- renderPlot({
   
   p <- ggplot(toplos1(), aes(x = Year, y = density_df, fill = density_df)) + 
     geom_bar(stat = 'identity', colour = 'grey') + 
@@ -393,33 +404,42 @@ renderPlot({
   
 })
 ```
+```{r}
+plotOutput('s1trnd')
+```
 
 <br></br>
 
 This table shows the regression results from the above plots. 
 
-```{r, results = 'asis'}
-renderUI({
+```{r, context = 'server'}
+output$totabs1 <- renderUI({
   HTML(stargazer(totabs1()$res, type = 'html', column.labels = as.character(totabs1()$Watershed),
             dep.var.labels = 'Density (fish/100ft)'))
   })
+```
+```{r, results = 'asis'}
+tableOutput('totabs1')
 ```
 
 <br></br>
 
 Kendall tests also provide an indication of a trend by evaluating magnitude, direction, and significance of a change in density between the selected years.  The test is a non-parametric equivalent to the regression analysis above.  The value for tau ranges from -1 to 1 and provides a measure of trend direction.  The slope is the estimated change per year in density and the p-value shows the significance of the test. 
 
-```{r, results = 'asis'}
-renderUI({
+```{r, context = 'server'}
+output$totabs1kn <- renderUI({
   HTML(knitr::kable(totabs1kn(), format = 'html') %>% 
     kable_styling(full_width = T, font_size = 14))
   })
 ```
+```{r, results = 'asis'}
+tableOutput('totabs1kn')
+```
 
 ## S2 year class
 
-```{r s2trnd, fig.height = 4, fig.width = 8, out.width = "100%"}
-renderPlot({
+```{r, context = 'server'}
+output$s2trnd <- renderPlot({
   
   p <- ggplot(toplos2(), aes(x = Year, y = density_df, fill = density_df)) + 
     geom_bar(stat = 'identity', colour = 'grey') + 
@@ -439,34 +459,43 @@ renderPlot({
   
 })
 ```
+```{r}
+plotOutput('s2trnd')
+```
 
 <br></br>
 
 This table shows the regression results from the above plots. 
 
-```{r, results = 'asis'}
-renderUI({
+```{r, context = 'server'}
+output$totabs2 <- renderUI({
   HTML(stargazer(totabs2()$res, type = 'html', column.labels = as.character(totabs2()$Watershed),
             dep.var.labels = 'Density (fish/100ft)'))
   })
+```
+```{r, results = 'asis'}
+tableOutput('totabs2')
 ```
 
 <br></br>
 
 Kendall tests also provide an indication of a trend by by evaluating magnitude, direction, and significance of a change in density between the selected years.  The test is a non-parametric equivalent to the regression analysis above.  The value for tau ranges from -1 to 1 and provides a measure of trend direcdtion.  The slope is the estimated change per year in density and the p-value shows the significance of the test. 
 
-```{r, results = 'asis'}
-renderUI({
+```{r, context = 'server'}
+output$totabs2kn <- renderUI({
   HTML(knitr::kable(totabs2kn(), format = 'html') %>% 
     kable_styling(full_width = T, font_size = 14))
   })
+```
+```{r, results = 'asis'}
+tableOutput('totabs2kn')
 ```
 
 # Trend statistics, by site
 
 This section evaluates status and trends of salmonid density at individual sites, rather than aggregated by watershed as above.  Select the year range and size density class to evaluate the trends.  The map shows the value for tau (direction of trend) for a Kendall test of density changes within the selected years, green for increasing and red for decreasing.  Size of the point is the magnitude of the estimated change. Note that some sites may not have data spanning the full range of selected years.  Click an individual site on the map to see the available years within the selected range. 
 
-```{r sitetrndmapprp}
+```{r}
 ##
 # reactive inputs for plots, tables 
 column(2, NULL)
@@ -483,7 +512,9 @@ column(4,
       )
 )
 column(2, NULL)
+```
 
+```{r, context = 'server'}
 # filter site data by density class, years
 # get kendall results where appropriate
 mapdatst <- reactive({
@@ -564,28 +595,31 @@ mapoutst <- reactive({
   
   
   })
+
+output$sitetrndmap <- renderLeaflet({mapoutst()@map})
 ```
-```{r sitetrndmap}
-# render the site trend map  
-renderLeaflet({mapoutst()@map})
+```{r}
+leafletOutput('sitetrndmap')
 ```
 
 A regression through the trend anomalies for the size class densities at a selected site is shown below.  These plots can confirm the results shown in the map. 
 
-```{r sitetrndpltprp}
 
+
+```{r}
 column(4, NULL)
+column(4, uiOutput('stinpsel'))
+column(4, NULL)
+```
+
+```{r, context = 'server'}
 # dynamic ui that changes with year selections on map, differents sites depending on year combos
-column(4, 
-  renderUI({
+output$stinpsel <- renderUI({
   
     sts <- mapdatst()$SiteID %>% unique %>% sort
     selectInput("st", "Select station to view map trends:", sts)
   
   })
-)
-column(4, NULL)
-
 
 # filter site data by years, individual site
 trndatst <- reactive({
@@ -609,11 +643,9 @@ trndatst <- reactive({
   return(toplo)
 
   })
-```
 
-```{r sitetrndplt, fig.height = 4, fig.width = 8, out.width = "100%"}
 # plot of year trends at a site
-renderPlot({
+output$sitetrndplt <- renderPlot({
   
   toplo <- trndatst()
   stsel <- input$st
@@ -639,7 +671,6 @@ renderPlot({
 })
 
 ```
-
-```{r test}
-plot(rnorm(100))
+```{r}
+plotOutput('sitetrndplt')
 ```
