@@ -32,7 +32,7 @@ source('R/funcs.R')
 data(fishdat)
 data(habitat)
 data(allfctprs)
-data(alltops)
+# data(alltops)
 
 # combined salmonid, habitat data, only where years intersect
 saldat <- fishdat
@@ -479,138 +479,138 @@ renderUI({
 ```
 <br>
 
-# Model selection, all habitat variables {.tabset}
+<!-- # Model selection, all habitat variables {.tabset} -->
 
-Models of salmonid density in relation to year and habitat variables are shown below.  Models were developed separately for each watershed and habitat type using all available data, where the station identifier was used as a random effect.  All combinations of habitat variables with a year effect from one to all were evaluated.  The top five models based on minimum AIC are shown.
+<!-- Models of salmonid density in relation to year and habitat variables are shown below.  Models were developed separately for each watershed and habitat type using all available data, where the station identifier was used as a random effect.  All combinations of habitat variables with a year effect from one to all were evaluated.  The top five models based on minimum AIC are shown. -->
 
-```{r}
-column(12, 
-       column(4, NULL),
-       column(4,
-      selectInput('shd3', 'Select waterhsed:', sort(unique(dat$Watershed))) 
-       ),
-      column(4, NULL)
-)
-```
+<!-- ```{r} -->
+<!-- column(12,  -->
+<!--        column(4, NULL), -->
+<!--        column(4, -->
+<!--       selectInput('shd3', 'Select waterhsed:', sort(unique(dat$Watershed)))  -->
+<!--        ), -->
+<!--       column(4, NULL) -->
+<!-- ) -->
+<!-- ``` -->
 
-```{r}
-# alltops, S1, selected shed
-alltops1 <- reactive({
-  
-  # inputs
-  shd3 <- input$shd3
-  
-  tabout <- alltops %>% 
-    filter(Watershed %in% shd3 & densvar %in% 'Dens_S1')
-  
-  return(tabout)
-  
-})
+<!-- ```{r} -->
+<!-- # alltops, S1, selected shed -->
+<!-- alltops1 <- reactive({ -->
 
-# alltops, S2, selected shed
-alltops2 <- reactive({
-  
-  # inputs
-  shd3 <- input$shd3
-  
-  tabout <- alltops %>% 
-    filter(Watershed %in% shd3 & densvar %in% 'Dens_S2')
-  
-  return(tabout)
-  
-})
-```
+<!--   # inputs -->
+<!--   shd3 <- input$shd3 -->
 
-## S1 year class {.tabset .tabset-fade .tabset-pills}
+<!--   tabout <- alltops %>%  -->
+<!--     filter(Watershed %in% shd3 & densvar %in% 'Dens_S1') -->
 
-### pool
+<!--   return(tabout) -->
 
-```{r, results = 'asis'}
-renderUI({
-  
-  totab <- alltops1() %>% 
-    filter(HabType %in% 'pool')
+<!-- }) -->
 
-  HTML(stargazer(totab$mods, type = 'html',
-          dep.var.labels = 'S1 density (fish/100ft)'))
-  
-  })
-```
-<br>
+<!-- # alltops, S2, selected shed -->
+<!-- alltops2 <- reactive({ -->
 
-### riffle
+<!--   # inputs -->
+<!--   shd3 <- input$shd3 -->
 
-```{r, results = 'asis'}
-renderUI({
-  
-  totab <- alltops1() %>% 
-    filter(HabType %in% 'riffle')
+<!--   tabout <- alltops %>%  -->
+<!--     filter(Watershed %in% shd3 & densvar %in% 'Dens_S2') -->
 
-  HTML(stargazer(totab$mods, type = 'html',
-          dep.var.labels = 'S1 density (fish/100ft)'))
-  
-  })
-```
-<br>
+<!--   return(tabout) -->
 
-### run
+<!-- }) -->
+<!-- ``` -->
 
-```{r, results = 'asis'}
-renderUI({
-  
-  totab <- alltops1() %>% 
-    filter(HabType %in% 'run')
+<!-- ## S1 year class {.tabset .tabset-fade .tabset-pills} -->
 
-  HTML(stargazer(totab$mods, type = 'html',
-          dep.var.labels = 'S1 density (fish/100ft)'))
-  
-  })
-```
-<br>
+<!-- ### pool -->
 
-## S2 year class {.tabset .tabset-fade .tabset-pills}
+<!-- ```{r, results = 'asis'} -->
+<!-- renderUI({ -->
 
-### pool
+<!--   totab <- alltops1() %>%  -->
+<!--     filter(HabType %in% 'pool') -->
 
-```{r, results = 'asis'}
-renderUI({
-  
-  totab <- alltops2() %>% 
-    filter(HabType %in% 'pool')
+<!--   HTML(stargazer(totab$mods, type = 'html', -->
+<!--           dep.var.labels = 'S1 density (fish/100ft)')) -->
 
-  HTML(stargazer(totab$mods, type = 'html',
-          dep.var.labels = 'S2 density (fish/100ft)'))
-  
-  })
-```
-<br>
+<!--   }) -->
+<!-- ``` -->
+<!-- <br> -->
 
-### riffle
+<!-- ### riffle -->
 
-```{r, results = 'asis'}
-renderUI({
-  
-  totab <- alltops2() %>% 
-    filter(HabType %in% 'riffle')
+<!-- ```{r, results = 'asis'} -->
+<!-- renderUI({ -->
 
-  HTML(stargazer(totab$mods, type = 'html',
-          dep.var.labels = 'S2 density (fish/100ft)'))
-  
-  })
-```
-<br>
+<!--   totab <- alltops1() %>%  -->
+<!--     filter(HabType %in% 'riffle') -->
 
-### run
+<!--   HTML(stargazer(totab$mods, type = 'html', -->
+<!--           dep.var.labels = 'S1 density (fish/100ft)')) -->
 
-```{r, results = 'asis'}
-renderUI({
-  
-  totab <- alltops2() %>% 
-    filter(HabType %in% 'run')
+<!--   }) -->
+<!-- ``` -->
+<!-- <br> -->
 
-  HTML(stargazer(totab$mods, type = 'html',
-          dep.var.labels = 'S2 density (fish/100ft)'))
-  
-  })
-```
-<br>
+<!-- ### run -->
+
+<!-- ```{r, results = 'asis'} -->
+<!-- renderUI({ -->
+
+<!--   totab <- alltops1() %>%  -->
+<!--     filter(HabType %in% 'run') -->
+
+<!--   HTML(stargazer(totab$mods, type = 'html', -->
+<!--           dep.var.labels = 'S1 density (fish/100ft)')) -->
+
+<!--   }) -->
+<!-- ``` -->
+<!-- <br> -->
+
+<!-- ## S2 year class {.tabset .tabset-fade .tabset-pills} -->
+
+<!-- ### pool -->
+
+<!-- ```{r, results = 'asis'} -->
+<!-- renderUI({ -->
+
+<!--   totab <- alltops2() %>%  -->
+<!--     filter(HabType %in% 'pool') -->
+
+<!--   HTML(stargazer(totab$mods, type = 'html', -->
+<!--           dep.var.labels = 'S2 density (fish/100ft)')) -->
+
+<!--   }) -->
+<!-- ``` -->
+<!-- <br> -->
+
+<!-- ### riffle -->
+
+<!-- ```{r, results = 'asis'} -->
+<!-- renderUI({ -->
+
+<!--   totab <- alltops2() %>%  -->
+<!--     filter(HabType %in% 'riffle') -->
+
+<!--   HTML(stargazer(totab$mods, type = 'html', -->
+<!--           dep.var.labels = 'S2 density (fish/100ft)')) -->
+
+<!--   }) -->
+<!-- ``` -->
+<!-- <br> -->
+
+<!-- ### run -->
+
+<!-- ```{r, results = 'asis'} -->
+<!-- renderUI({ -->
+
+<!--   totab <- alltops2() %>%  -->
+<!--     filter(HabType %in% 'run') -->
+
+<!--   HTML(stargazer(totab$mods, type = 'html', -->
+<!--           dep.var.labels = 'S2 density (fish/100ft)')) -->
+
+<!--   }) -->
+<!-- ``` -->
+<!-- <br> -->

@@ -45,8 +45,7 @@ spdat <- fishdat %>%
   filter(!is.na(Year)) %>% 
   group_by(Year, species) %>% 
   filter(!duplicated(SiteID)) %>% 
-  ungroup() %>%
-  unique
+  ungroup() 
 
 # prep species data for multivariate analysis
 # same as spdat, but no geometry
@@ -425,14 +424,14 @@ mapclst <- reactive({
   clstgrps <- clstgrps %>% 
     data.frame(clstgrps = .) %>% 
     rownames_to_column('SiteID')
-  
+
   toplo <- spdat %>%
     dplyr::select(SiteID) %>% 
-    unique %>% 
+    filter(!duplicated(SiteID)) %>% 
     mutate(SiteID = as.character(SiteID)) %>% 
     inner_join(clstgrps, by = 'SiteID')
 
-  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
+  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F, legend = F) +
     mapview(toplo, zcol = 'clstgrps', legend = F, homebutton = F)
 
   return(out)

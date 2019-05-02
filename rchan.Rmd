@@ -77,13 +77,13 @@ spasel <- reactive({
     filter(ReachID %in% rchid)
   
   # base map
-  out <- mapview(reach, label = reach$ReachID, homebutton = F, lwd = 1) +
-    mapview(wshdflt, label = wshdflt$ReachID, homebutton = F, lwd = 3) 
+  out <- mapview(reach, label = reach$ReachID, homebutton = F, lwd = 1, legend = F) +
+    mapview(wshdflt, label = wshdflt$ReachID, homebutton = F, lwd = 3, legend = F) 
   
   # add selected reach if on map
   if(nrow(rchflt) > 0)
     out <- out +
-      mapview(rchflt, label = rchflt$ReachID, lwd = 5, color = 'tomato1')
+      mapview(rchflt, label = rchflt$ReachID, lwd = 5, color = 'tomato1', legend = F)
     
   return(out)
   
@@ -380,7 +380,7 @@ column(2, NULL)
 renderLeaflet({spasel()@map})
 ```
 
-# Habitat selection
+# Habitat selection {.tabset}
 
 *Results below are for reach `r renderText({input$rchid})`.*
 
@@ -429,8 +429,6 @@ column(8,
 )
 )
 ```
-
-# {.tabset}
 
 ## Habitat data by sample distance, over time
 

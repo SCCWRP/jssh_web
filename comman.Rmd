@@ -68,8 +68,7 @@ spdat <- fishdat %>%
   filter(!is.na(Year)) %>% 
   group_by(Year, species) %>% 
   filter(!duplicated(SiteID)) %>% 
-  ungroup() %>% 
-  unique
+  ungroup() 
 
 # site, wshed lookup
 siteshd <- fishdat
@@ -143,17 +142,17 @@ spyrsocc <- reactive({
   # get species, year selection
   toplo <- spdat %>% 
     filter(species %in% sp) %>% 
-    filter(Year >= yrs[1] & Year <= yrs[2]) %>% 
-    unique
+    filter(Year >= yrs[1] & Year <= yrs[2]) 
  
   # get geometry for later join
   spgeo <- toplo %>% 
     dplyr::select(SiteID) %>% 
-    unique
+    filter(!duplicated(SiteID))
 
   # remove geometry for aggregate, get cats
   st_geometry(toplo) <- NULL
   toplo <- toplo %>%  
+    unique %>% 
     group_by(SiteID) %>% 
     summarize(
       nprs = sum(pa),
@@ -170,7 +169,7 @@ spyrsocc <- reactive({
   # colors must be passed as vector
   cols <- toplo$catcol
   
-  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
+  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F, legend = F) +
     mapview(toplo, zcol = 'catsit', cex = 5, label = paste0(toplo$SiteID, ': ', toplo$catsit), legend = F, homebutton = F, col.region = cols)
   
   return(out)
@@ -290,7 +289,7 @@ mapspyr <- reactive({
   # colors must be passed as vector
   cols <- toplo$cols
   
-  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
+  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F, legend = F) +
     mapview(toplo, zcol = 'pa', cex = toplo$cexv, label = paste0(toplo$SiteID, ': ', toplo$pa), legend = F, homebutton = F, col.region = cols)
    
   return(out)
@@ -678,11 +677,11 @@ mapclst <- reactive({
   
   toplo <- spdat %>%
     dplyr::select(SiteID) %>% 
-    unique %>% 
+    filter(!duplicated(SiteID)) %>% 
     mutate(SiteID = as.character(SiteID)) %>% 
     inner_join(clstgrps, by = 'SiteID')
 
-  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
+  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F, legend = F) +
     mapview(toplo, zcol = 'clstgrps', legend = F, homebutton = F)
 
   return(out)

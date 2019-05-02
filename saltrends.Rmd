@@ -51,7 +51,7 @@ Plese visit this website for a storymap overview of steelhead in the study regio
 This map shows the stream network and sample sites by watershed.  Click on a stream reach or sample site for additional information.  All sites with data collected during any of the sample years are shown. 
 
 ```{r mapviewshed, out.width="100%"}
-mapview(stream, label = stream$STREAM_NM) +
+mapview(stream, label = stream$STREAM_NM, legend = F) +
   mapview(fishdat, zcol = 'Watershed', legend = T, layer.name = 'Watershed')
 ```
 
@@ -74,7 +74,7 @@ mapout <- reactive({
   toplo <- fishdat %>% 
     filter(Year %in% input$yr)
   
-  out <- mapview(stream, label = stream$STREAM_NM) +
+  out <- mapview(stream, label = stream$STREAM_NM, legend = F) +
     mapview(toplo, zcol = 'Watershed', cex = input$cls, legend = T, layer.name = 'Watershed')
   
   return(out)
@@ -556,7 +556,7 @@ mapoutst <- reactive({
   # hover pt labels
   labs <- paste(mapdatst$SiteID, ': ', mapdatst$trend, ', tau = ', mapdatst$tau, ', p = ', mapdatst$pval)
   
-  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F) +
+  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F, legend = F) +
     mapview(mapdatst, zcol = 'trend', cex = cexv, label = labs, col.regions = cols, legend = F, homebutton = F)
   
   return(out)
