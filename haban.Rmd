@@ -253,7 +253,7 @@ renderPlot({
   # create rest of plot
   p <- p + 
     stat_smooth(aes(y = avehab), method = 'lm', se = F, linetype = 'dashed') +
-    geom_label(aes(y = avehab, label = n), size = 5, colour = 'black') +
+    geom_label(aes(y = avehab, label = n), size = 5, colour = 'black', show.legend = F) +
     facet_wrap(~Watershed, ncol = 2) +
     theme_bw(base_family = 'serif', base_size = 18) +
     theme(

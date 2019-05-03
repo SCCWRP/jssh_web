@@ -635,9 +635,9 @@ renderPlot({
   
   req(nrow(pajbthyrs) > 0)
   
-  p <- ggplot(pajbthyrs, aes(x = flo, y = density)) + 
-    geom_point() + 
-    geom_smooth(method = 'lm', se = F, linetype = 'dashed') + 
+  p <- ggplot(pajbthyrs, aes(x = flo, y = density, size = Year)) + 
+    geom_point(alpha = 0.6) + 
+    geom_smooth(method = 'lm', se = F, linetype = 'dashed', show.legend = F) + 
     scale_x_log10('log-Flow (cfs)') + 
     scale_y_log10('log-Density (fish/100ft)') +
     facet_wrap(~`Size class`, scales = 'free_y') + 
