@@ -30,7 +30,7 @@ Analysis of the JSSH Database (see [here](https://www.arcgis.com/home/item.html?
 
 * How can information about the steelhead and coho salmon populations and stream habitat conditions inform conservation and restoration efforts?  
 
-The analysis will be exploratory to address the general questions and to provide information for follow-up analysis. Our approach will begin by addressing each question in sequence as a means to address the final question.  Unless noted otherwise, all analyses will be separate for each watershed. __The tabs above link to each step described below.__
+The analysis will be exploratory to address the general questions and to provide information for follow-up analysis. Our approach will begin by addressing each question in sequence as a means to address the final question.  Unless noted otherwise, all analyses will be separate for each watershed. __The tabs above link to each step described below.  Please be patient for each page to load - there is no loading bar.__
 
 1) [__Salmonid status and trends__](saltrends.Rmd): Comparison of status and annual trends in salmonid density by size class and individual sites
 
@@ -40,9 +40,17 @@ The analysis will be exploratory to address the general questions and to provide
 
 1) [__Community and habitat analysis__](commhaban.Rmd): Multivariate analysis of association between habitat measurements and community composition, changes over time, uses habitat data collected at fish sampling sites
 
-1) [__Habitat analysis - site__](haban.Rmd): Analysis of habitat differences between riffle, runs, and pools, changes over time, uses habitat data collected at fish sampling sites
+1) Habitat analysis
 
-1) [__Habitat analysis - reach__](rchan.Rmd): Analysis of habitat changes at approximate 1/2 mile reach segments
+     * [__Site__](haban.Rmd): Analysis of habitat differences between riffle, runs, and pools, changes over time, uses habitat data collected at fish sampling sites
+
+     * [__Reach__](rchan.Rmd): Analysis of habitat changes at approximate 1/2 mile reach segments
+
+     * [__San Lorenzo flow__](slrflo.Rmd): Analysis of modelled flow changes in the San Lorenzo watershed, comparisons with changes in salmonid density
+          
+     * [__Soquel flow__](soqflo.Rmd): Analysis of modelled flow changes in the Soquel watershed, comparisons with changes in salmonid density
+
+     * [__Pajaro flow__](pajflo.Rmd): Analysis of modelled flow changes in the Pajaro watershed, comparisons with changes in salmonid density
 
 ### Variable names
 
