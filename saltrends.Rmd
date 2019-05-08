@@ -51,8 +51,8 @@ Plese visit this website for a storymap overview of steelhead in the study regio
 This map shows the stream network and sample sites by watershed.  Click on a stream reach or sample site for additional information.  All sites with data collected during any of the sample years are shown. 
 
 ```{r mapviewshed, out.width="100%"}
-mapview(stream, label = stream$STREAM_NM, legend = F) +
-  mapview(fishdat, zcol = 'Watershed', legend = T, layer.name = 'Watershed')
+mapview(stream, label = stream$STREAM_NM, legend = F, homebutton = F) +
+  mapview(fishdat, zcol = 'Watershed', legend = T, label = fishdat$SiteID, layer.name = 'Watershed', homebutton = F)
 ```
 
 <br></br>
@@ -62,7 +62,7 @@ This map shows the density of S1 or S2 individuals for a chosen year where data 
 ```{r mapviewsel}
 column(2, NULL)
 column(4, 
-  selectInput("cls", "Choose density (S1: yoy, S2: adult):", c('Dens_S1', 'Dens_S2'))
+  selectInput("cls", "Choose density (S1: <75 mm, S2: >75 mm):", c('Dens_S1', 'Dens_S2'))
 )
 column(4, 
   selectInput("yr", "Choose a year to plot:", fishdat$Year %>% unique %>% na.omit)
@@ -73,9 +73,9 @@ mapout <- reactive({
   
   toplo <- fishdat %>% 
     filter(Year %in% input$yr)
-  
-  out <- mapview(stream, label = stream$STREAM_NM, legend = F) +
-    mapview(toplo, zcol = 'Watershed', cex = input$cls, legend = T, layer.name = 'Watershed')
+
+  out <- mapview(stream, label = stream$STREAM_NM, legend = F, homebutton = F) +
+    mapview(toplo, zcol = 'Watershed', cex = input$cls, label = as.character(toplo[[input$cls]]), legend = T, layer.name = 'Watershed', homebutton = F)
   
   return(out)
   
