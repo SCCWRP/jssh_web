@@ -198,9 +198,9 @@ pave <- ggplot(toploave, aes(x = Watershed, y = density_av, fill = density_av)) 
   geom_bar(stat = 'identity', colour = 'lightgrey') + 
   geom_errorbar(aes(ymin = lo, ymax = hi), width = 0.5) + 
   coord_flip() +
-  scale_y_log10('Average density across years (fish/100ft, log-scale)') + #, expand = c(0, 0)) +
+  scale_y_log10('Average density across years (fish/100ft)') + #, expand = c(0, 0)) +
   facet_wrap(~`Size class`, ncol = 1) +
-  scale_fill_gradient2('Long-term log-average', low = 'tomato1', mid = "white", high = 'lightgreen', midpoint = mean(toploave$density_av)) +
+  scale_fill_gradient('Long-term average', low = 'white', high = 'lightblue') +
   guides(fill = guide_colourbar(barheight = 0.5, barwidth = 5, label.theme = element_text(size = 6, angle = 0))) +
   pbase +
   theme(
@@ -369,7 +369,7 @@ totabs2kn <- reactive({
 
 ```
 
-## S1 year class
+## S1 size class
 
 ```{r s1trnd, fig.height = 4, fig.width = 8, out.width = "100%"}
 renderPlot({
@@ -415,7 +415,7 @@ renderUI({
   })
 ```
 
-## S2 year class
+## S2 size class
 
 ```{r s2trnd, fig.height = 4, fig.width = 8, out.width = "100%"}
 renderPlot({
