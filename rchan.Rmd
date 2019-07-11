@@ -298,7 +298,8 @@ output$rchplopts <- renderPlot({
 
   # changes over time by dist
   p <- ggplot(rchtpl, aes(x = Year)) + 
-    geom_point(aes(y = mdlen, size = szas, fill = clas), colour = 'black', pch = 21, alpha = 0.9)+ 
+    geom_line(aes(y = mdlen)) +
+    geom_point(aes(y = mdlen, size = szas, fill = clas), colour = 'black', pch = 21, alpha = 0.95)+ 
     ylab('Reach distance (m, downstream to upstream)') + 
     scale_y_continuous(limits = ylim) +
     scale_fill_manual(clas, values = colcat, drop = F) + 

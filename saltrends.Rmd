@@ -1,5 +1,5 @@
 ---
-title: "Salmonid status and trends"
+title: "Steelhead status and trends"
 runtime: shiny
 output: 
   html_document:
@@ -34,7 +34,7 @@ data(stream)
 data(trndst_prep)
 ```
 
-The objective of these analyses is to evaluate the status and trends of Steelhead salmon in the four watershed (note that San Lorenzo is divided by mainstem and tributaries):
+The objective of these analyses is to evaluate the status and trends of steelhead salmon in the four watershed (note that San Lorenzo is divided by mainstem and tributaries):
 
 * SLR-main: San Lorenzo, mainstem
 * SLR-trib: San Lorenzo, tributaries
@@ -42,7 +42,7 @@ The objective of these analyses is to evaluate the status and trends of Steelhea
 * APT: Aptos
 * PAJ: Pajaro
 
-Maps and summary plots show the changes in density (fish/100ft) over time of the different size classes (`Dens_S1` or `Dens_S2`). Salmonid density (fish/100ft) at each site is measured as S1 and S2, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are either fast-growing young-of-the-year or older fish. S3 fish (> 150 mm standard length) are also grouped with S2.  S2 fish are likely to migrate the following spring but may also be resident trout. Trend statistics of the different size classes for aggregated watershed data and by site are also provided.  The trend analyses only evaluate an increase or decrease (monotonic change) between selected years.
+Maps and summary plots show the changes in density (no. fish/100ft) over time of the different size classes (`Dens_S1` or `Dens_S2`). Salmonid density (no. fish/100ft) at each site is measured as S1 and S2, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are either fast-growing young-of-the-year or older fish. S3 fish (> 150 mm standard length) are also grouped with S2.  S2 fish are likely to migrate the following spring but may also be resident trout. Trend statistics of the different size classes for aggregated watershed data and by site are also provided.  The trend analyses only evaluate an increase or decrease (monotonic change) between selected years.
 
 Plese visit this website for a storymap overview of steelhead in the study region: <http://scceh.com/steelhead/overview/>
 

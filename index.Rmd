@@ -16,7 +16,7 @@ knitr::include_graphics('www/report_image.png')
 
 Program website: <http://scceh.com/steelhead.aspx>
 
-The Juvenile Salmonid and Stream Habitat (JSSH) database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California.  Since 1994, data have been collected every fall, with one survey available in 1981.  Salmonid data include steelhead density in two size classes and presence/absence of Coho salmon. Additional presence/absence data are available for select species of fish, amphibians, and reptiles.  Stream morphometry, riparian, and bed characteristics are measured in each reach separately for pools, runs, or riffles.  All data have been combined in a geodatabase with spatially referenced information for each survey. 
+The Juvenile Salmonid and Stream Habitat (JSSH) Database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California.  Since 1994, data have been collected every fall, with one survey available in 1981.  Salmonid data include steelhead density in two size classes and presence/absence of Coho salmon. Additional presence/absence data are available for select species of fish, amphibians, and reptiles.  Stream morphometry, riparian, and bed characteristics are measured in each reach separately for pools, runs, or riffles.  All data have been combined in a geodatabase with spatially referenced information for each survey. 
 
 ### Objectives and approach 
 
@@ -32,9 +32,9 @@ Analysis of the JSSH Database (see [here](https://www.arcgis.com/home/item.html?
 
 The analysis will be exploratory to address the general questions and to provide information for follow-up analysis. Our approach will begin by addressing each question in sequence as a means to address the final question.  Unless noted otherwise, all analyses will be separate for each watershed. __The tabs above link to each step described below.  Please be patient for each page to load - there is no loading bar.__
 
-1) [__Salmonid status and trends__](saltrends.Rmd): Comparison of status and annual trends in salmonid density by size class and individual sites
+1) [__Steelhead status and trends__](saltrends.Rmd): Status and annual trends in steelhead density by size class and individual sites
 
-1) [__Factor associated with trends__](varimp.Rmd): Factors associated with salmonid density trends 
+1) [__Factor associated with trends__](varimp.Rmd): Factors associated with steelhead density trends 
 
 1) [__Community analysis__](comman.Rmd): Community analysis of each watershed using species presence/absence, changes over time
 
@@ -46,11 +46,11 @@ The analysis will be exploratory to address the general questions and to provide
 
      * [__Reach__](rchan.Rmd): Analysis of habitat changes at approximate 1/2 mile reach segments
 
-     * [__San Lorenzo flow__](slrflo.Rmd): Analysis of modelled flow changes in the San Lorenzo watershed, comparisons with changes in salmonid density
+     * [__San Lorenzo flow__](slrflo.Rmd): Analysis of modelled flow changes in the San Lorenzo watershed, comparisons with changes in steelhead density
           
-     * [__Soquel flow__](soqflo.Rmd): Analysis of modelled flow changes in the Soquel watershed, comparisons with changes in salmonid density
+     * [__Soquel flow__](soqflo.Rmd): Analysis of modelled flow changes in the Soquel watershed, comparisons with changes in steelhead density
 
-     * [__Pajaro flow__](pajflo.Rmd): Analysis of modelled flow changes in the Pajaro watershed, comparisons with changes in salmonid density
+     * [__Pajaro flow__](pajflo.Rmd): Analysis of modelled flow changes in the Pajaro watershed, comparisons with changes in steelhead density
 
 ### Variable names
 
@@ -58,7 +58,7 @@ Species and habitat variables are shown on the web page as in the raw data. For 
 
 Species names:
 
-__A_goby__: Arrow Goby, __BayPF__: Bay Pipefish, __Bl_Fg__: Bull Frog, __Bl_Gill__: Bluegill, __Brwn_Tr__: Brown Turtle, __Brwn_trt__: Brown Trout, __Ca_Nwt__: California Newt, __Ca_Rch__: California Roach, __Coho__: Coho Salmon, __Cst_Sculp__: Coastrange Sculpin, __Dace__: Dace, __Gi_Sal__: Giant Salamander, __Gld_Fish__: Goldfish, __Gld_Shin__: Golden Shiner, __Grn_SF__: Green Sunfish, __HCH__: Hitch, __Lamp__: Lamprey, __LM_Bass__: Large Mouth Bass, __MQF__: Mosquitofish, __NWT__: Newt, __Pac_herr__: Pacific Herring, __Pike_Minw__: Pike Minnow, __Prk_Sculp__: Prickly Sculpin, __Rd_Fg__: Redlegged Frog, __Rgh_Nwt__: Roughlegged Newt, __Rif_Sculp__: Riffle Sculpin, __Sa_Suck__: Sacramento Sucker, __Shin_SP__: Shiner species, __Sln_Sal__: Slender Salamander, __Stag_Scul__: Staghorn Sculpin, __Sthd__: Steelhead, __SthdRT__: Rainbow Trout, __Stick__: Stickleback, __Stp_Mull__: Striped Mullet, __Str_Flo__: Starry Flounder, __T_goby__: Tidewater Goby, __Tp_Smlt__: Topsmelt, __Ws_Turt__: Western Pond Turtle, __YF_goby__: Yellowfin Goby, __Ywl_Fg__: Yellowlegged Frog
+__A_goby__: arrow goby, __BayPF__: bay pipefish, __Bl_Fg__: bull frog, __Bl_Gill__: bluegill, __Brwn_Tr__: brown turtle, __Brwn_trt__: brown trout, __Ca_Nwt__: California newt, __Ca_Rch__: California roach, __Coho__: coho salmon, __Cst_Sculp__: coastrange sculpin, __Dace__: dace, __Gi_Sal__: giant salamander, __Gld_Fish__: goldfish, __Gld_Shin__: golden shiner, __Grn_SF__: green sunfish, __HCH__: hitch, __Lamp__: lamprey, __LM_Bass__: large mouth bass, __MQF__: mosquitofish, __NWT__: newt, __Pac_herr__: Pacific herring, __Pike_Minw__: pike minnow, __Prk_Sculp__: prickly sculpin, __Rd_Fg__: redlegged frog, __Rgh_Nwt__: roughlegged newt, __Rif_Sculp__: riffle sculpin, __Sa_Suck__: Sacramento sucker, __Shin_SP__: shiner species, __Sln_Sal__: slender salamander, __Stag_Scul__: staghorn sculpin, __Sthd__: steelhead, __SthdRT__: rainbow trout, __Stick__: stickleback, __Stp_Mull__: striped mullet, __Str_Flo__: starry flounder, __T_goby__: tidewater goby, __Tp_Smlt__: topsmelt, __Ws_Turt__: western pond turtle, __YF_goby__: yellowfin goby, __Ywl_Fg__: yellowlegged frog
 
 Habitat variable names:
 

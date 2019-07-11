@@ -70,7 +70,9 @@ h6 {
 
 <link rel="stylesheet" href="styles.css" type="text/css" />
 
+</head>
 
+<body>
 
 <style type = "text/css">
 .main-container {
@@ -189,6 +191,8 @@ $(document).ready(function () {
 });
 </script>
 
+<div class="container-fluid main-container">
+
 <!-- tabsets -->
 
 <style type="text/css">
@@ -262,15 +266,6 @@ $(document).ready(function () {
 
 
 
-</head>
-
-<body>
-
-
-<div class="container-fluid main-container">
-
-
-
 
 <div class="navbar navbar-default  navbar-fixed-top" role="navigation">
   <div class="container">
@@ -288,7 +283,7 @@ $(document).ready(function () {
   <a href="index.Rmd">Home</a>
 </li>
 <li>
-  <a href="saltrends.Rmd">Salmonid status and trends</a>
+  <a href="saltrends.Rmd">Steelhead status and trends</a>
 </li>
 <li>
   <a href="varimp.Rmd">Factors associated with trends</a>
@@ -346,7 +341,7 @@ $(document).ready(function () {
 <div id="overview" class="section level3">
 <h3>Overview</h3>
 <p>Program website: <a href="http://scceh.com/steelhead.aspx" class="uri">http://scceh.com/steelhead.aspx</a></p>
-<p>The Juvenile Salmonid and Stream Habitat (JSSH) database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California. Since 1994, data have been collected every fall, with one survey available in 1981. Salmonid data include steelhead density in two size classes and presence/absence of Coho salmon. Additional presence/absence data are available for select species of fish, amphibians, and reptiles. Stream morphometry, riparian, and bed characteristics are measured in each reach separately for pools, runs, or riffles. All data have been combined in a geodatabase with spatially referenced information for each survey.</p>
+<p>The Juvenile Salmonid and Stream Habitat (JSSH) Database includes monitoring data of salmonid density and stream habitat characteristics in four watersheds in Santa Cruz County, California. Since 1994, data have been collected every fall, with one survey available in 1981. Salmonid data include steelhead density in two size classes and presence/absence of Coho salmon. Additional presence/absence data are available for select species of fish, amphibians, and reptiles. Stream morphometry, riparian, and bed characteristics are measured in each reach separately for pools, runs, or riffles. All data have been combined in a geodatabase with spatially referenced information for each survey.</p>
 </div>
 <div id="objectives-and-approach" class="section level3">
 <h3>Objectives and approach</h3>
@@ -359,17 +354,17 @@ $(document).ready(function () {
 </ul>
 <p>The analysis will be exploratory to address the general questions and to provide information for follow-up analysis. Our approach will begin by addressing each question in sequence as a means to address the final question. Unless noted otherwise, all analyses will be separate for each watershed. <strong>The tabs above link to each step described below. Please be patient for each page to load - there is no loading bar.</strong></p>
 <ol style="list-style-type: decimal">
-<li><p><a href="saltrends.Rmd"><strong>Salmonid status and trends</strong></a>: Comparison of status and annual trends in salmonid density by size class and individual sites</p></li>
-<li><p><a href="varimp.Rmd"><strong>Factor associated with trends</strong></a>: Factors associated with salmonid density trends</p></li>
+<li><p><a href="saltrends.Rmd"><strong>Steelhead status and trends</strong></a>: Status and annual trends in steelhead density by size class and individual sites</p></li>
+<li><p><a href="varimp.Rmd"><strong>Factor associated with trends</strong></a>: Factors associated with steelhead density trends</p></li>
 <li><p><a href="comman.Rmd"><strong>Community analysis</strong></a>: Community analysis of each watershed using species presence/absence, changes over time</p></li>
 <li><p><a href="commhaban.Rmd"><strong>Community and habitat analysis</strong></a>: Multivariate analysis of association between habitat measurements and community composition, changes over time, uses habitat data collected at fish sampling sites</p></li>
 <li><p>Habitat analysis</p>
 <ul>
 <li><p><a href="haban.Rmd"><strong>Site</strong></a>: Analysis of habitat differences between riffle, runs, and pools, changes over time, uses habitat data collected at fish sampling sites</p></li>
 <li><p><a href="rchan.Rmd"><strong>Reach</strong></a>: Analysis of habitat changes at approximate 1/2 mile reach segments</p></li>
-<li><p><a href="slrflo.Rmd"><strong>San Lorenzo flow</strong></a>: Analysis of modelled flow changes in the San Lorenzo watershed, comparisons with changes in salmonid density</p></li>
-<li><p><a href="soqflo.Rmd"><strong>Soquel flow</strong></a>: Analysis of modelled flow changes in the Soquel watershed, comparisons with changes in salmonid density</p></li>
-<li><p><a href="pajflo.Rmd"><strong>Pajaro flow</strong></a>: Analysis of modelled flow changes in the Pajaro watershed, comparisons with changes in salmonid density</p></li>
+<li><p><a href="slrflo.Rmd"><strong>San Lorenzo flow</strong></a>: Analysis of modelled flow changes in the San Lorenzo watershed, comparisons with changes in steelhead density</p></li>
+<li><p><a href="soqflo.Rmd"><strong>Soquel flow</strong></a>: Analysis of modelled flow changes in the Soquel watershed, comparisons with changes in steelhead density</p></li>
+<li><p><a href="pajflo.Rmd"><strong>Pajaro flow</strong></a>: Analysis of modelled flow changes in the Pajaro watershed, comparisons with changes in steelhead density</p></li>
 </ul></li>
 </ol>
 </div>
@@ -377,7 +372,7 @@ $(document).ready(function () {
 <h3>Variable names</h3>
 <p>Species and habitat variables are shown on the web page as in the raw data. For reference, the complete descriptions are shown here.</p>
 <p>Species names:</p>
-<p><strong>A_goby</strong>: Arrow Goby, <strong>BayPF</strong>: Bay Pipefish, <strong>Bl_Fg</strong>: Bull Frog, <strong>Bl_Gill</strong>: Bluegill, <strong>Brwn_Tr</strong>: Brown Turtle, <strong>Brwn_trt</strong>: Brown Trout, <strong>Ca_Nwt</strong>: California Newt, <strong>Ca_Rch</strong>: California Roach, <strong>Coho</strong>: Coho Salmon, <strong>Cst_Sculp</strong>: Coastrange Sculpin, <strong>Dace</strong>: Dace, <strong>Gi_Sal</strong>: Giant Salamander, <strong>Gld_Fish</strong>: Goldfish, <strong>Gld_Shin</strong>: Golden Shiner, <strong>Grn_SF</strong>: Green Sunfish, <strong>HCH</strong>: Hitch, <strong>Lamp</strong>: Lamprey, <strong>LM_Bass</strong>: Large Mouth Bass, <strong>MQF</strong>: Mosquitofish, <strong>NWT</strong>: Newt, <strong>Pac_herr</strong>: Pacific Herring, <strong>Pike_Minw</strong>: Pike Minnow, <strong>Prk_Sculp</strong>: Prickly Sculpin, <strong>Rd_Fg</strong>: Redlegged Frog, <strong>Rgh_Nwt</strong>: Roughlegged Newt, <strong>Rif_Sculp</strong>: Riffle Sculpin, <strong>Sa_Suck</strong>: Sacramento Sucker, <strong>Shin_SP</strong>: Shiner species, <strong>Sln_Sal</strong>: Slender Salamander, <strong>Stag_Scul</strong>: Staghorn Sculpin, <strong>Sthd</strong>: Steelhead, <strong>SthdRT</strong>: Rainbow Trout, <strong>Stick</strong>: Stickleback, <strong>Stp_Mull</strong>: Striped Mullet, <strong>Str_Flo</strong>: Starry Flounder, <strong>T_goby</strong>: Tidewater Goby, <strong>Tp_Smlt</strong>: Topsmelt, <strong>Ws_Turt</strong>: Western Pond Turtle, <strong>YF_goby</strong>: Yellowfin Goby, <strong>Ywl_Fg</strong>: Yellowlegged Frog</p>
+<p><strong>A_goby</strong>: arrow goby, <strong>BayPF</strong>: bay pipefish, <strong>Bl_Fg</strong>: bull frog, <strong>Bl_Gill</strong>: bluegill, <strong>Brwn_Tr</strong>: brown turtle, <strong>Brwn_trt</strong>: brown trout, <strong>Ca_Nwt</strong>: California newt, <strong>Ca_Rch</strong>: California roach, <strong>Coho</strong>: coho salmon, <strong>Cst_Sculp</strong>: coastrange sculpin, <strong>Dace</strong>: dace, <strong>Gi_Sal</strong>: giant salamander, <strong>Gld_Fish</strong>: goldfish, <strong>Gld_Shin</strong>: golden shiner, <strong>Grn_SF</strong>: green sunfish, <strong>HCH</strong>: hitch, <strong>Lamp</strong>: lamprey, <strong>LM_Bass</strong>: large mouth bass, <strong>MQF</strong>: mosquitofish, <strong>NWT</strong>: newt, <strong>Pac_herr</strong>: Pacific herring, <strong>Pike_Minw</strong>: pike minnow, <strong>Prk_Sculp</strong>: prickly sculpin, <strong>Rd_Fg</strong>: redlegged frog, <strong>Rgh_Nwt</strong>: roughlegged newt, <strong>Rif_Sculp</strong>: riffle sculpin, <strong>Sa_Suck</strong>: Sacramento sucker, <strong>Shin_SP</strong>: shiner species, <strong>Sln_Sal</strong>: slender salamander, <strong>Stag_Scul</strong>: staghorn sculpin, <strong>Sthd</strong>: steelhead, <strong>SthdRT</strong>: rainbow trout, <strong>Stick</strong>: stickleback, <strong>Stp_Mull</strong>: striped mullet, <strong>Str_Flo</strong>: starry flounder, <strong>T_goby</strong>: tidewater goby, <strong>Tp_Smlt</strong>: topsmelt, <strong>Ws_Turt</strong>: western pond turtle, <strong>YF_goby</strong>: yellowfin goby, <strong>Ywl_Fg</strong>: yellowlegged frog</p>
 <p>Habitat variable names:</p>
 <p><strong>Can</strong>: Canopy cover (%), <strong>Decid</strong>: Deciduous canopy cover (%), <strong>DpthAvg</strong>: Average depth (ft), <strong>DpthMax</strong>: Maximum depth (ft), <strong>Embed</strong>: Embeddedness (%), <strong>EsCov</strong>: Escape cover (ratio), <strong>Fines</strong>: Fines (%), <strong>Lgth</strong>: Station length (ft), <strong>Wdth</strong>: Station width (ft)</p>
 </div>

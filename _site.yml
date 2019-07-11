@@ -4,7 +4,7 @@ navbar:
   left:
     - text: "Home"
       href: index.Rmd
-    - text: "Salmonid status and trends"
+    - text: "Steelhead status and trends"
       href: saltrends.Rmd
     - text: "Factors associated with trends"
       href: varimp.Rmd
