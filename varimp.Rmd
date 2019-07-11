@@ -75,13 +75,13 @@ habvrs <- list(
 
 The objective of these analyses is to identify habitat factors that are associated with salmonid trends. Trends are evaluated separately for the following:
 
-* Salmonid density size classes (S1 and S2)
+* Steelhead density size classes (S1 and S2)
 * Watershed (APT, PAJ, SLR, SOQ)
 * Habitat type (run, riffle, pool)
 
 # Bivariate comparisons, averaged by watershed {.tabset}
 
-These analyses test bivariate comparisons of a selected habitat variable (by habitat type) and year against changes in salmonid density.  Analyses are evaluated by each watershed where all density and habitat estimates are averaged across stations within each year prior to analysis.
+These analyses test bivariate comparisons of a selected habitat variable (by habitat type) and year against changes in steelhead density.  Analyses are evaluated by each watershed where all density and habitat estimates are averaged across stations within each year prior to analysis.
 
 ```{r inps}
 column(4, 

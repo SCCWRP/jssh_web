@@ -42,7 +42,7 @@ The objective of these analyses is to evaluate the status and trends of steelhea
 * APT: Aptos
 * PAJ: Pajaro
 
-Maps and summary plots show the changes in density (no. fish/100ft) over time of the different size classes (`Dens_S1` or `Dens_S2`). Salmonid density (no. fish/100ft) at each site is measured as S1 and S2, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are either fast-growing young-of-the-year or older fish. S3 fish (> 150 mm standard length) are also grouped with S2.  S2 fish are likely to migrate the following spring but may also be resident trout. Trend statistics of the different size classes for aggregated watershed data and by site are also provided.  The trend analyses only evaluate an increase or decrease (monotonic change) between selected years.
+Maps and summary plots show the changes in density (no. fish/100ft) over time of the different size classes (`Dens_S1` or `Dens_S2`). Steelhead density (no. fish/100ft) at each site is measured as S1 and S2, where S1 is considered young-of-the-year (< 75mm standard length) and S2 is larger individuals that are either fast-growing young-of-the-year or older fish. S3 fish (> 150 mm standard length) are also grouped with S2.  S2 fish are likely to migrate the following spring but may also be resident trout. Trend statistics of the different size classes for aggregated watershed data and by site are also provided.  The trend analyses only evaluate an increase or decrease (monotonic change) between selected years.
 
 Plese visit this website for a storymap overview of steelhead in the study region: <http://scceh.com/steelhead/overview/>
 
@@ -463,7 +463,7 @@ renderUI({
 
 # Trend statistics, by site
 
-This section evaluates status and trends of salmonid density at individual sites, rather than aggregated by watershed as above.  Select the year range and size density class to evaluate the trends.  The map shows the value for tau (direction of trend) for a Kendall test of density changes within the selected years, green for increasing and red for decreasing.  Size of the point is the magnitude of the estimated change. Note that some sites may not have data spanning the full range of selected years.  Click an individual site on the map to see the available years within the selected range. 
+This section evaluates status and trends of steelhead density at individual sites, rather than aggregated by watershed as above.  Select the year range and size density class to evaluate the trends.  The map shows the value for tau (direction of trend) for a Kendall test of density changes within the selected years, green for increasing and red for decreasing.  Size of the point is the magnitude of the estimated change. Note that some sites may not have data spanning the full range of selected years.  Click an individual site on the map to see the available years within the selected range. 
 
 ```{r sitetrndmapprp}
 ##

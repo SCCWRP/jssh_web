@@ -8,7 +8,7 @@ Data from the compiled geodatabase were extracted for exploratory analysis:
 
 * `allfctprs` Pairwise evaluations of year plus habitat variables on S1/S2 density, by watershed and habitat type. Sites averaged within year by watershed, used in `varimp.Rmd`
 
-* `alltops` top five models of salmonid density in relation to year and habitat variables, separate for each watershed and habitat type, station id is a random variable
+* `alltops` top five models of steelhead density in relation to year and habitat variables, separate for each watershed and habitat type, station id is a random variable
 
 * `fishdat` spatial data of steelhead and coho salmon surveys, steelhead density is recorded for two size classes (shorter than 75mm, 75mm or longer)
 
@@ -28,4 +28,4 @@ Additional data were created for the website analyses:
 
 * `trndhab_prep.RData` preprocessed habitat data for trend analyses at individual sites, used in `saltrends.Rmd`
 
-* `trndst_prep.RData` preprocessed salmonid data for trend analyses at individual sites, used in `haban.Rmd`
+* `trndst_prep.RData` preprocessed steelhead data for trend analyses at individual sites, used in `haban.Rmd`
