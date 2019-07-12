@@ -16,7 +16,7 @@ knitr::include_graphics('www/report_image.png')
 
 Program website: <http://scceh.com/steelhead.aspx>
 
-The Juvenile Steelhead and Stream Habitat (JSSH) Database includes monitoring data of steelhead (*Oncorhynchus mykiss*) density and stream habitat characteristics in four watersheds in Santa Cruz County, California.  Since 1994, data have been collected every fall, with one survey available in 1981.  Data include steelhead density in two size classes and presence/absence of Coho salmon. Additional presence/absence data are available for select species of fish, amphibians, and reptiles.  Stream morphometry, riparian, and bed characteristics are measured in each reach separately for pools, runs, or riffles.  All data have been combined in a geodatabase with spatially referenced information for each survey. 
+The Juvenile Steelhead and Stream Habitat (JSSH) Database includes monitoring data of steelhead (*Oncorhynchus mykiss*) density and stream habitat characteristics in four watersheds in Santa Cruz County, California.  Since 1994, data have been collected every fall, with one survey available in 1981.  Data include steelhead density in two size classes and presence/absence of coho salmon. Additional presence/absence data are available for select species of fish, amphibians, and reptiles.  Stream morphometry, riparian, and bed characteristics are measured in each reach separately for pools, runs, or riffles.  All data have been combined in a geodatabase with spatially referenced information for each survey. 
 
 ### Objectives and approach 
 
