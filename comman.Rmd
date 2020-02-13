@@ -97,8 +97,8 @@ column(width = 4,
 # year slider
 column(width = 4, 
   sliderInput("yrs", label = 'Select year ranges to plot:',  
-        min = 1981, max = 2018, 
-        value = c(1994, 2018),
+        min = 1981, max = 2019, 
+        value = c(1994, 2019),
         sep = '', ticks = FALSE
       )
 )
@@ -326,8 +326,8 @@ column(width = 4,
 # year slider
 column(width = 4, 
   sliderInput("yrs2", label = 'Select year ranges to plot:',  
-        min = 1981, max = 2018, 
-        value = c(1994, 2018),
+        min = 1981, max = 2019, 
+        value = c(1994, 2019),
         sep = '', ticks = FALSE
       )
 )
@@ -359,7 +359,7 @@ column(12,
        
        # select a year 
        column(width = 4, 
-              selectInput('yrmlt1', 'Select a year for comparison:', sort(unique(mltdat$Year)), selected = 2018)
+              selectInput('yrmlt1', 'Select a year for comparison:', sort(unique(mltdat$Year)), selected = 2019)
        ),
        
        # select cluster cuts

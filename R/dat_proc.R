@@ -15,8 +15,6 @@ library(lubridate)
 
 prj <- geo_wgs84
 
-# fishdat -----------------------------------------------------------------
-
 # # old gdb
 # dsn <- 'L:/Santa Cruz_fish trends_MB/Data/RawData/Steelhead_Monitoring_Data/2b6251fed87a403f880eb87ee4ed0951.gdb'
 
@@ -24,6 +22,8 @@ prj <- geo_wgs84
 dsn <- 'L:/Santa Cruz_fish trends_MB/Data/RawData/SteelheadData2018/062df19c7aa94541b7afca9a7c8bb28d.gdb'
 
 # ogrListLayers(dsn)
+
+# fishdat -----------------------------------------------------------------
 
 ##
 # steelhead annual site data
@@ -48,8 +48,66 @@ fishdat <- readOGR(dsn = dsn, layer = 'Site_Annual_Data') %>%
   rename(
     Sp_BayPF = SP_BayPF
   ) %>% 
-  dplyr::select(-YearLabel, -GlobalID, -Sp_Dwarf_SP, -Sp_CbznScp) %>% 
+  dplyr::select(-SiteYearID, -Dry_rating, -DensTtl, -Dens_A1, -Dens_A2, -YearLabel, -GlobalID, -Sp_Dwarf_SP, -Sp_CbznScp, -SiteSort) %>% 
   group_by(Year)
+
+##
+# 2019 data update
+
+# get geometry
+fishgeo <- read_excel('T:/04_STAFF/MARCUS/02_DOCUMENTS/Santa_Cruz_fish_trends_MB/JSSH Data including Pajaro_2019.xls', 
+                  sheet = 'SiteKey') %>% 
+  dplyr::select(SiteID, X, Y)
+
+fishnew <- read_excel('T:/04_STAFF/MARCUS/02_DOCUMENTS/Santa_Cruz_fish_trends_MB/JSSH Data including Pajaro_2019.xls', 
+                      sheet = 'SiteDensityData') %>% 
+  dplyr::select(-Stream, -Dry_rating, -`# STH snorkel`, -`# STH captured`, -`% YOY`, -Ttl_Dens, -YOY_Den, -Yr_Den, 
+                -`Black Sal`, -Anchovy, -`Dwarf SP`, -`Cabzn Sculp`) %>% 
+  filter(!is.na(SampleDate)) %>% 
+  left_join(fishgeo, by = 'SiteID') %>% 
+  mutate(
+    X = case_when(
+      SiteID %in% 'PAJ-corr-0' ~ -121.803495,
+      SiteID %in% 'PAJ-cass-3' ~ -121.739362063986, 
+      SiteID %in% 'SLR-bean-14c-2' ~ -122.01131693599, 
+      T ~ X
+    ), 
+    Y = case_when(
+      SiteID %in% 'PAJ-corr-0' ~ 36.99027747,
+      SiteID %in% 'PAJ-cass-3' ~ 36.9883953639739,
+      SiteID %in% 'SLR-bean-14c-2' ~ 37.0786908549217, 
+      T ~ Y
+    )
+  ) %>% 
+  mutate(
+    SiteID = case_when(
+      SiteID %in% 'SLR-bean-14c-2' ~ 'SLR-bean-14c2', 
+      T ~ SiteID
+    ),
+    Watershed = as.character(Watershed), 
+    Watershed = case_when(
+      grepl('^SLR-main', SiteID) ~ 'SLR-main',
+      Watershed %in% c('SLR', 'San Lorenzo') ~ 'SLR-trib',
+      Watershed %in% c('APT', 'Aptos') ~ 'APT', 
+      Watershed %in% c('PAJ', 'Pajaro') ~ 'PAJ', 
+      Watershed %in% c('SOQ', 'Soquel') ~ 'SOQ'
+    ),
+    Watershed = factor(Watershed, levels = c('SLR-main', 'SLR-trib', 'SOQ', 'APT', 'PAJ')),
+    SampleDate = as.Date(SampleDate, origin = "1899-12-30"),
+    Year = year(SampleDate)
+  ) %>% 
+  rename(
+    Dens_S1 = Sz1_Den, 
+    Dens_S2 = Sz2_Den,
+    SthdRT = STHRT, 
+    Tp_Smlt = Smlt
+  ) %>% 
+  rename_at(vars(-c(Watershed, SiteID, SampleDate, Dens_S1, Dens_S2, Year, X, Y)), list(~paste0('Sp_', .))) %>% 
+  mutate_at(vars(matches('^SP')), list(~ifelse(. %in% 'yes', 1, 0))) %>% 
+  st_as_sf(coords = c('X', 'Y'), crs = prj)
+
+# combine with old fishdat
+fishdat <- rbind(fishdat, fishnew)
 
 save(fishdat, file = 'data/fishdat.RData')
 
