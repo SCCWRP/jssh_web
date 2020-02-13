@@ -1,4 +1,3 @@
-######
 # processing JSSH (juvenile steelhead and stream habitat) survey data
 # from Austin Robey, https://www.arcgis.com/home/item.html?id=6d9b81bf5b2b4b309f5ff097e0edcfaa#overview
 
@@ -15,6 +14,8 @@ library(nlme)
 library(lubridate)
 
 prj <- geo_wgs84
+
+# fishdat -----------------------------------------------------------------
 
 # # old gdb
 # dsn <- 'L:/Santa Cruz_fish trends_MB/Data/RawData/Steelhead_Monitoring_Data/2b6251fed87a403f880eb87ee4ed0951.gdb'
@@ -52,6 +53,8 @@ fishdat <- readOGR(dsn = dsn, layer = 'Site_Annual_Data') %>%
 
 save(fishdat, file = 'data/fishdat.RData')
 
+# habitat -----------------------------------------------------------------
+
 ##
 # habitat 
 
@@ -87,6 +90,8 @@ habitat <- sf::st_read(dsn = dsn, layer = 'Habitat') %>%
 
 save(habitat, file = 'data/habitat.RData')
 
+# stream ------------------------------------------------------------------
+
 ## 
 # all streams, only useful for mapping
 
@@ -95,15 +100,8 @@ stream <- readOGR(dsn = dsn, layer = 'Stream') %>%
   st_as_sf
 
 save(stream, file = 'data/stream.RData')
-  
-##
-# segments with a monitoring site
 
-segment <- readOGR(dsn = dsn, layer = 'Segment') %>% 
-  spTransform(prj) %>% 
-  st_as_sf
-
-save(segment, file = 'data/segment.RData')
+# trndst_prep -------------------------------------------------------------
 
 ##
 # prepping site, size class density for trend eval
@@ -140,6 +138,8 @@ trndst_prep <- trndst_prep %>%
 
 save(trndst_prep, file = 'data/trndst_prep.RData', compress = 'xz')
 
+# trndhab_prep ------------------------------------------------------------
+
 ##
 # prep habitat site data for trends
 
@@ -173,7 +173,9 @@ trndhab_prep <- trndhab_prep %>%
 
 save(trndhab_prep, file = 'data/trndhab_prep.RData', compress = 'xz')
 
-######
+# allfctpers --------------------------------------------------------------
+
+##
 # get allfctpers, a nested list of models for watershed, habitat type, density measure comparisons of density changes
 # by year and selected habitat variable.  models are pairwise evaluations of year plus a habitat variable.  includes 
 # only those where a variable other than or in addition to year was significant.  Site values for density and habitat
@@ -279,88 +281,9 @@ allfctprs <- dat %>%
 
 save(allfctprs, file = 'data/allfctprs.RData', compress = 'xz')
 
-######
-# alltops, linear mixed models of salmonid density by habitat variables and year
-# each watershed, habitat type group is modelled separately, station id is a random effect
-# all combinations of habitat variables are tested, top five with minimum AIC are selected
+# rchdat ------------------------------------------------------------------
 
-data(fishdat)
-data(habitat)
-
-# combined salmonid, habitat data, only where years intersect
-saldat <- fishdat
-st_geometry(saldat) <- NULL
-saldat <- saldat %>% 
-  dplyr::select(Year, SiteID, Watershed, Dens_S1, Dens_S2) %>% 
-  group_by(Year, SiteID, Watershed) %>% 
-  summarise(
-    Dens_S1 = mean(Dens_S1, na.rm = T), 
-    Dens_S2 = mean(Dens_S2, na.rm = T)
-  ) %>% 
-  ungroup %>% 
-  mutate(SiteID = as.character(SiteID))
-
-habdat <- habitat
-st_geometry(habdat) <- NULL
-habdat <- habdat %>% 
-  dplyr::select(-Watershed) %>% 
-  group_by(Year, SiteID, HabType) %>% 
-  filter(!habvar %in% 'StnSthd') %>% 
-  nest %>% 
-  filter(HabType %in% c('pool', 'riffle', 'run'))
-
-# habitat combinations to model, year is always included
-cmbs <- habitat %>% 
-  filter(!habvar %in% 'StnSthd') %>% 
-  pull(habvar) %>% 
-  unique %>% 
-  c('Year', .)
-cmbs <- map(1:length(cmbs), ~ combn(cmbs, m = .x, simplify = F)) %>% 
-  do.call('c', .) %>% 
-  map(paste, collapse = ' + ') %>% 
-  unlist
-
-# all models, filtered by top five AIC within each watershed, density class, and habitat type groups
-alltops <- inner_join(saldat, habdat, by = c('Year', 'SiteID')) %>% 
-  unnest %>% 
-  spread(habvar, habval) %>% 
-  gather('densvar', 'densval', Dens_S1, Dens_S2) %>% 
-  group_by(Watershed, HabType, densvar) %>% 
-  nest %>% 
-  crossing(cmbs) %>% 
-  mutate(
-    mods = pmap(list(densvar, cmbs, data), function(densvar, cmbs, data){
-      
-      names(data)[names(data) %in% 'densval'] <- densvar
-      
-      # formula as text
-      frm <- paste0('log10(1 + ', densvar, ') ~ ', cmbs) 
-
-      # model as text
-      tomod <- paste0('lme(', frm, ', random = ~1 |SiteID, data = na.omit(data))')
-      
-      # parse to mod
-      modout <- try({eval(parse(text = tomod))})
-      
-      if(inherits(modout, 'try-error')) 
-        return(NA)
-      
-      return(modout)
-      
-    }), 
-    modaic = map(mods, function(x) ifelse(anyNA(x), x, AIC(x)))
-  ) %>% 
-  unnest(modaic) %>% 
-  dplyr::select(-data) %>% 
-  group_by(Watershed, HabType, densvar) %>% 
-  filter(!is.na(modaic)) %>%
-  top_n(-5) %>% 
-  arrange(modaic) %>% 
-  ungroup
-
-save(alltops, file = 'data/alltops.RData', compress = 'xz')
-
-######
+##
 # 1/2 mile reach segment habitat data
 # reach shapefile data
 
@@ -455,7 +378,9 @@ rchdat <- read_excel('../../Data/RawData/HABITAT_SEG_MASTER_2006-2018_narcodes.x
   dplyr::select(-`HAB abbrev`) %>% 
   rename(`HAB abbrev` = level4)
 
-# clean up 
+save(rchdat, file = 'data/rchdat.RData', compress = 'xz')
+
+# reach -------------------------------------------------------------------
 
 # sf object of reach, is an incomplete match with rchdat 
 reach <- readOGR(dsn = dsn, layer = 'Reach') %>% 
@@ -474,10 +399,11 @@ reach <- readOGR(dsn = dsn, layer = 'Reach') %>%
   dplyr::select(-CreekMile, -ReachID) %>% 
   unite('ReachID', Watershed, Stream, Reach, sep = '-', remove = F)
 
-save(rchdat, file = 'data/rchdat.RData', compress = 'xz')
 save(reach, file = 'data/reach.RData', compress = 'xz')
 
-######
+# floest ------------------------------------------------------------------
+
+##
 # import and organize modelled flow data
 # june/july estimates for every year at select locations
 # based on best regression fit to two USGS flow gages
@@ -638,7 +564,9 @@ floest <- bind_rows(junest, sepest, usgs) %>%
 
 save(floest, file = 'data/floest.RData', compress = 'xz')
 
-######
+# fishmtch ----------------------------------------------------------------
+
+##
 # matching flow locations with fish sites, just a lookup table
 
 data(floest)
