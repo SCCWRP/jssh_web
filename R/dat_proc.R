@@ -146,6 +146,36 @@ habitat <- sf::st_read(dsn = dsn, layer = 'Habitat') %>%
   st_as_sf(coords = c('X', 'Y'), crs = st_crs(fishdat)) %>% 
   ungroup
 
+##
+# update with 2019 data
+
+habnew <- read_excel('T:/04_STAFF/MARCUS/02_DOCUMENTS/Santa_Cruz_fish_trends_MB/JSSH Data including Pajaro_2019.xls', 
+                      sheet = 'StationHabitatData', na = 'na') %>% 
+  dplyr::select(-StnNumStrt, -StnNumEnd, -HabType2, -HabDetail) %>% 
+  rename(
+    SiteID = `SiteID *`,
+    SampleDate = AssessDate
+    ) %>% 
+  filter(!is.na(SampleDate)) %>%
+  filter(!is.na(HabType)) %>% 
+  mutate(
+    SiteID = case_when(
+      SiteID %in% 'SLR-bean-14c-2' ~ 'SLR-bean-14c2', 
+      T ~ SiteID
+    ),
+    SampleDate = as.Date(SampleDate, origin = "1899-12-30"),
+    Year = year(SampleDate)
+  ) %>% 
+  gather('habvar', 'habval', -Year, -SiteID, -HabType, -SampleDate) %>% 
+  group_by(Year, SiteID, HabType, habvar) %>% 
+  summarise(habval = mean(habval, na.rm = T)) %>% 
+  left_join(SiteIDloc, by = 'SiteID') %>% 
+  st_as_sf(coords = c('X', 'Y'), crs = prj) %>% 
+  ungroup
+
+# join with habitat
+habitat <- rbind(habitat, habnew)
+
 save(habitat, file = 'data/habitat.RData')
 
 # stream ------------------------------------------------------------------
@@ -282,7 +312,7 @@ habvrs <- list(
 
 # get the object
 allfctprs <- dat %>% 
-  unnest %>% 
+  unnest(data) %>% 
   group_by(Year, Watershed, HabType, habvar) %>% 
   summarise(
     Dens_S1 = mean(Dens_S1, na.rm = T), 
