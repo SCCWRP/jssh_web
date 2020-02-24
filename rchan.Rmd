@@ -130,7 +130,7 @@ colcat <- reactive({
   
 # reach data to plot
 rchtpl <- reactive({
-  
+
   # input 
   rchsel <- rchsel()
   hbshsel <- hbshsel()
@@ -141,7 +141,7 @@ rchtpl <- reactive({
   
   req(nrow(rchsel) > 0)
   
-  # filter by habitat selection, reach distances
+  # filter by habitat selection, reach disctances
   out <- rchsel %>% 
     rename(
       szas = !!szas,
@@ -169,6 +169,7 @@ rchstt <- reactive({
 
   # categorical variable, not for grouping 
   catvr <- unlist(sttls)[!unlist(sttls) %in% sttgrp]
+  names(catvr) <- NULL
   
   # rename grouping and category columns by inputs
   toout <- rchtpl %>%
@@ -223,12 +224,14 @@ rchstt <- reactive({
       })
     ) %>% 
     dplyr::select(-data) %>% 
-    unnest() 
+    unnest(lets) %>% 
+    ungroup
     
   # ymax by year and group for label placement on plot
   ymx <- toout %>% 
     group_by(grpvr, catvr) %>% 
-    summarise(ymax = max(szas, na.rm = T))
+    summarise(ymax = max(szas, na.rm = T)) %>% 
+    ungroup
   
   # combine ymx locations with out
   # reassign factor levels to habitat types correctly
