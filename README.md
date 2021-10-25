@@ -27,3 +27,7 @@ Additional data were created for the website analyses:
 * `trndhab_prep.RData` preprocessed habitat data for trend analyses at individual sites, used in `saltrends.Rmd`
 
 * `trndst_prep.RData` preprocessed steelhead data for trend analyses at individual sites, used in `haban.Rmd`
+
+### Metadata
+Resources: <a href="https://ftp.sccwrp.org/pub/download/DOCUMENTS/TechnicalReports/1082_SantaCruzSteelheads.pdf">report</a><br>
+Contact: <a href="https://www.sccwrp.org/about/staff/eric-stein/">Eric Stein</a><br>
