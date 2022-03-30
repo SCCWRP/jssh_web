@@ -10,7 +10,7 @@ Data from the compiled geodatabase were extracted for exploratory analysis:
 
 * `fishdat` spatial data of steelhead and coho salmon surveys, steelhead density is recorded for two size classes (shorter than 75mm, 75mm or longer)
 
-* `fishmtch` lookup table for matching locations where flow was esimated to fish sampling sites
+* `fishmtch` lookup table for matching locations where flow was estimated to fish sampling sites
 
 * `floest` modelled june/july flow estimates for every year at select locations
 
