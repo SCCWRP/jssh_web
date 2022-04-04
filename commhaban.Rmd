@@ -159,7 +159,7 @@ toord <- reactive({
     filter(Year == yrmlt) %>% 
     dplyr::select(SiteID, Watershed, species, pa) %>% 
     group_by(species) %>% 
-    mutate(totsp = sum(pa)) %>% 
+    mutate(totsp = sum(pa, na.rm = T)) %>% 
     filter(totsp > remrr) %>% 
     dplyr::select(-totsp) %>% 
     spread(species, pa) %>% 
@@ -179,6 +179,10 @@ toord <- reactive({
     filter(habvar %in% habvr) %>% 
     filter(HabType %in% habty) %>% 
     dplyr::select(SiteID, Watershed, habvar, habval) %>% 
+      # in order to run spread we need unique values
+      group_by(SiteID,Watershed,habvar) %>% 
+      summarise(habval = mean(habval)) %>% 
+      ungroup %>% 
     spread(habvar, habval) %>% 
     data.frame(stringsAsFactors = F) %>% 
     mutate_if(is.numeric, base::scale) %>% 
