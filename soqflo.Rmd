@@ -294,8 +294,8 @@ column(12,
 column(2, NULL),
 column(4, 
   sliderInput("yrssel", label = 'Select year ranges:',  
-        min = 1997, max = 2018, 
-        value = c(1997, 2018),
+        min = 1997, max = 2021, 
+        value = c(1997, 2021),
         sep = '', ticks = FALSE
       )
 ),

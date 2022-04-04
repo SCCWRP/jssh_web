@@ -237,8 +237,8 @@ column(4, NULL),
 # year slider
 column(4, 
   sliderInput("years", label = 'Select year ranges to test:',  
-        min = 1994, max = 2019, 
-        value = c(1994, 2019),
+        min = 1994, max = 2021, 
+        value = c(1994, 2021),
         sep = '', ticks = FALSE
       )
 ),
@@ -476,8 +476,8 @@ column(4,
 # year slider
 column(4, 
   sliderInput("yearsst", label = 'Select year ranges to test:',  
-        min = 1994, max = 2019, 
-        value = c(1994, 2019),
+        min = 1994, max = 2021, 
+        value = c(1994, 2021),
         sep = '', ticks = FALSE
       )
 )

@@ -20,7 +20,7 @@ library(mapview)
 library(shiny)
 library(scales)
 library(leaflet)
-library(ggord)
+library(ggord) # from fawda123 on github
 library(vegan)
 library(ggdendro)
 library(dendextend)
@@ -97,8 +97,8 @@ column(width = 4,
 # year slider
 column(width = 4, 
   sliderInput("yrs", label = 'Select year ranges to plot:',  
-        min = 1981, max = 2019, 
-        value = c(1994, 2019),
+        min = 1981, max = max(unique(fishdat$Year)), 
+        value = c(1994, max(unique(fishdat$Year))),
         sep = '', ticks = FALSE
       )
 )
@@ -326,8 +326,8 @@ column(width = 4,
 # year slider
 column(width = 4, 
   sliderInput("yrs2", label = 'Select year ranges to plot:',  
-        min = 1981, max = 2019, 
-        value = c(1994, 2019),
+        min = 1981, max = max(unique(fishdat$Year)), 
+        value = c(1994, max(unique(fishdat$Year))),
         sep = '', ticks = FALSE
       )
 )
@@ -359,7 +359,7 @@ column(12,
        
        # select a year 
        column(width = 4, 
-              selectInput('yrmlt1', 'Select a year for comparison:', sort(unique(mltdat$Year)), selected = 2019)
+              selectInput('yrmlt1', 'Select a year for comparison:', sort(unique(mltdat$Year)), selected = max(unique(mltdat$Year)))
        ),
        
        # select cluster cuts
@@ -387,18 +387,19 @@ mltdatyr1 <- reactive({
     filter(Year == yrmlt1) %>% 
     dplyr::select(SiteID, Watershed, species, pa) %>% 
     group_by(species) %>% 
-    mutate(totsp = sum(pa)) %>% 
+    mutate(totsp = sum(pa,na.rm = T)) %>% 
     filter(totsp > remrr) %>% 
     dplyr::select(-totsp) %>% 
     spread(species, pa) %>% 
     data.frame(stringsAsFactors = F)
-  rownames(toord) <- NULL
-  toord <- toord %>% 
-    column_to_rownames('SiteID')
+  #rownames(toord) <- NULL
+ 
 
   # remove sites with nothing found after rare spp removed
-  torm <- rowSums(toord[, !names(toord) %in% c('Watershed')])
-  toord <- toord[torm > 0, ]
+  torm <- rowSums(toord[, !names(toord) %in% c('Watershed','SiteID')])
+  toord <- toord[torm > 0, ] %>% filter(!is.na(SiteID))
+  # toord <- toord %>%
+  #   column_to_rownames('SiteID')
   
   return(toord)
   
@@ -417,12 +418,22 @@ dis1 <- reactive({
   # input
   distyp <- 'jaccard'
   
-  toord <- mltdatyr1() %>% 
+  toord <- mltdatyr1() 
+  print("dis1")
+  print(toord)
+  
+  toord <- toord %>% 
     dplyr::select(-Watershed) 
+ 
+  row.names(toord) <- toord$SiteID
+  
   
   # metaMDS
   dis <- toord %>% 
+    dplyr::select(-SiteID) %>%
     vegdist(method = distyp)
+  print("dis")
+  print(dis)
   
   return(dis)
   
@@ -434,8 +445,10 @@ ord1 <- reactive({
   # input
   distyp <- 'jaccard'
   
-  toord <- mltdatyr1() %>% 
-    dplyr::select(-Watershed) 
+  toord <- mltdatyr1() 
+ 
+  toord <- toord %>% 
+    dplyr::select(-Watershed, -SiteID) 
   
   # metaMDS
   ord <- toord %>% 
@@ -705,11 +718,17 @@ renderPlot({
   toord <- mltdatyr1() %>% 
     dplyr::select(-Watershed) 
   
+  row.names(toord) <- toord$SiteID
+  
   # toplo
   toplo <- toord %>% 
+    dplyr::select(-SiteID) %>%
     mutate(clstgrps = clstgrps) %>% 
     gather('spp', 'pa', -clstgrps) %>% 
-    group_by(clstgrps, spp) %>% 
+    group_by(clstgrps, spp) 
+    
+    
+    toplo <- toplo %>% 
     summarise(
       cnts = sum(pa)
       ) %>% 

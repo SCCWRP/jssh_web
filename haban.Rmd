@@ -115,7 +115,7 @@ column(12,
   ),
   # select year to show
   column(width = 4,
-        selectInput('yr', 'Select a year:', selected = 2019, choices = sort(unique(habitat$Year)))
+        selectInput('yr', 'Select a year:', selected = max(unique(habitat$Year)), choices = sort(unique(habitat$Year)))
   ),
   column(2, NULL)
 )
@@ -168,8 +168,8 @@ column(12,
   # year slider
   column(width = 4, 
     sliderInput("yrrng", label = 'Select year ranges to plot:',  
-          min = 2001, max = 2019, 
-          value = c(2001, 2019),
+          min = 2001, max = max(unique(habitat$Year)), 
+          value = c(2001, max(unique(habitat$Year))),
           sep = '', ticks = FALSE
         )
   ),
@@ -309,8 +309,8 @@ column(width = 12,
   
   column(4, 
          sliderInput("yrrng2", label = 'Select year ranges to plot:',  
-          min = 2001, max = 2019, 
-          value = c(2001, 2019),
+          min = 2001, max = max(unique(habitat$Year)), 
+          value = c(2001, max(unique(habitat$Year))),
           sep = '', ticks = FALSE
         )
   ), 

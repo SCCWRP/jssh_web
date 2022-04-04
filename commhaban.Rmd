@@ -129,7 +129,7 @@ column(12,
   
        # select a year
        column(width = 4, 
-         selectInput('yrmlt', 'Select a year for comparison:', sort(unique(mlthbdat$Year)), selected = 2019)
+         selectInput('yrmlt', 'Select a year for comparison:', sort(unique(mlthbdat$Year)), selected = max(unique(mlthbdat$Year)))
        ),
 
        # select cluster cuts

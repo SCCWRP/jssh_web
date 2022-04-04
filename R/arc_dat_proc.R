@@ -53,18 +53,20 @@ fishdat <- siteannual2022 %>%
     SampleDate = as.Date(gsub('00:00:00$', '', SampleDate)),
     Year = ifelse(is.na(Year), year(SampleDate), Year)
   ) %>% 
-  dplyr::select(-SiteYearID, -Dry_rating, -DensTtl, -Dens_A1, -Dens_A2, -YearLabel, -GlobalID, -Sp_Dwarf_SP, -Sp_CbznScp, -SiteSort) %>%
-  st_as_sf(coords=c('X','Y'))
+  dplyr::select(-SiteYearID, -Dry_rating, -DensTtl, -Dens_A1, -Dens_A2, -YearLabel, -GlobalID, -Sp_Dwarf_SP, -Sp_CbznScp, -SiteSort) 
 
-save(fishdat, file = 'data/fishdat.RData')
+
+
+# separate crds tibble for later joining
+crds <- fishdat %>% dplyr::select('X','Y','SiteID') %>% distinct() 
+
 
 # --------------------------------------------------------- trndst_prep ---------------------------------------------------------------
 trndst_prep <- fishdat %>% 
   filter(Year > 1981) %>% 
   filter(!(Year == 1994 & Watershed %in% c('PAJ', 'SOQ')))
 
-# separate crds tibble for later joining
-crds <- fishdat %>% dplyr::select('geometry','SiteID') %>% distinct() 
+
 
 # get trends by station, size class
 trndst_prep <- trndst_prep %>% 
@@ -82,7 +84,7 @@ save(trndst_prep, file = 'data/trndst_prep.RData', compress = 'xz')
 habitat <- habitat2022 %>% 
   dplyr::select(-SiteYearID, -StnNumStrt, -StnNumEnd, -HabDetail, -AssessDate, -YearLabel, -GlobalID, -OBJECTID) %>%
   left_join(
-    fishdat_new %>% dplyr::select(SiteID, Year, X, Y, Watershed) %>% distinct, 
+    fishdat %>% dplyr::select(SiteID, Year, X, Y, Watershed) %>% distinct, 
     by = c('SiteID','Year')
   )
 
@@ -106,9 +108,7 @@ save(habitat, file = 'data/habitat.RData')
 # prep habitat data, long format 
 trndhab_prep <- habitat
 
-# separate crds tibble for later joing
-# separate crds tibble for later joining
-crds <- fishdat %>% dplyr::select('geometry','SiteID') %>% distinct() 
+
 
 # get trends by station, size class
 trndhab_prep <- trndhab_prep %>% 
@@ -219,12 +219,12 @@ allfctprs <- dat %>%
 
 save(allfctprs, file = 'data/allfctprs.RData', compress = 'xz')
 
+fishdat <- fishdat %>%
+  dplyr::select(-OBJECTID) %>%
+  dplyr::mutate(SiteID = as.factor(SiteID)) %>%
+  st_as_sf(coords=c('X','Y'))
 
-
-
-
-
-
+save(fishdat, file = 'data/fishdat.RData')
 
 
 
