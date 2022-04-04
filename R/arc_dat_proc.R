@@ -56,6 +56,7 @@ fishdat <- siteannual2022 %>%
   dplyr::select(-SiteYearID, -Dry_rating, -DensTtl, -Dens_A1, -Dens_A2, -YearLabel, -GlobalID, -Sp_Dwarf_SP, -Sp_CbznScp, -SiteSort) %>%
   st_as_sf(coords=c('X','Y'))
 
+save(fishdat, file = 'data/fishdat.RData')
 
 # --------------------------------------------------------- trndst_prep ---------------------------------------------------------------
 trndst_prep <- fishdat %>% 
