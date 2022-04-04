@@ -1,0 +1,74 @@
+﻿OBJECTID,ReachID,Watershed,Stream,ReachNum,CreekMile,Boundaries,GlobalID,SHAPE_Length
+1,PAJ-brwn-1,PAJ,PAJ-brwn,1,NA,First Bridge Crossing on Browns Valley Road below the Diversion Dam to the Diversion Dam,{CDA0C2D5-20AA-463F-B073-7FB8141E29AB},0.00332778401199108
+2,PAJ-brwn-2,PAJ,PAJ-brwn,2,NA,Diversion Dam to Redwood Canyon Creek Confluence,{35572CE9-23B0-4F20-915E-B33AC480D610},0.0143974263829654
+3,PAJ-corr-1,PAJ,PAJ-corr,1,CM0.00 – CM10.25,Browns Creek Confluence to 0.25 miles Below Diversion Dam,{F453EB21-1743-4F5D-A2C9-22341A18B63E},0.0135248700981367
+4,PAJ-corr-2,PAJ,PAJ-corr,2,CM10.25.6 - CM10.5,0.25 miles below Diversion Dam to Diversion Dam,{4FD1783B-5F3D-43C0-A935-40F4E4594E57},0.00221101583802944
+5,PAJ-corr-3,PAJ,PAJ-corr,3,CM10.5 – CM11.77,Diversion Dam to Rider Creek Confluence,{64D3DAAC-3253-4B56-8C26-C47D885A8381},0.0141832454703752
+6,PAJ-corr-4,PAJ,PAJ-corr,4,CM11.77 – CM12.87,Rider Creek Confluence to Box Culvert Crossing above Rider Creek Confluence,{0164F43C-863F-4B1E-AEB0-2A0B3AD32EA0},0.0125540081102534
+7,PAJ-corr-5,PAJ,PAJ-corr,5,CM12.46 – CM12.87 CM2.7 -CM3.5,First Bridge Crossing Above Rider Creek to Clipper Gulch Confluence,{8D6204F6-9B22-4C01-B5D3-C8505B240EFC},0.00609648407276188
+8,PAJ-corr-6,PAJ,PAJ-corr,6,CM12.87 – CM13.33,Clipper Gulch Confluence to Eureka Gulch Confluence,{3BCF570C-7DF1-4D39-A02B-AC7E9C74D86A},0.00498065147659159
+9,PAJ-corr-7,PAJ,PAJ-corr,7,CM13.33 –CM13.98,Eureka Gulch Confluence to Shingle Mill Gulch Confluence,{2FF3F710-D29F-4485-AF1A-76C26CA30249},0.0117813893327938
+10,PAJ-shng-1,PAJ,PAJ-shng,1,CM0.0 – CM0.35,From Corralitos Creek Confluence to Second Eureka Canyon Road Crossing on Shingle Mill Gulch,{8BEA0728-17D4-4301-BAE2-E3B6279449AD},0.00624453654653119
+11,PAJ-shng-2,PAJ,PAJ-shng,2,CM0.35 – CM0.62,From 2nd Eureka Canyon Road Crossing of Shingle Gulch to 3rd Road Crossing,{46AB3E2D-3BD2-43FC-99E4-5A0A5E96578D},0.0061156654289124
+12,PAJ-shng-3,PAJ,PAJ-shng,3,CM0.62 –CM1.35,3rd Eureka Canyon Road Crossing of Shingle Mill Gulch to Beginning of Steep (Impassable) Gradient on Rattlesnake Gulch,{DCCD7AA1-4ED7-4DB2-8FFB-88CD20E5CE5A},0.0110187115952609
+13,SLR-bean-14a,SLR,SLR-bean,14a,CM0.0-CM1.27,Zayante Creek Confluence to Mt. Hermon Road Overpass,{ED7049EC-2B8A-46E3-A4EF-320F07C1A329},0.0239954874379019
+14,SLR-bean-14b,SLR,SLR-bean,14b,CM1.27-CM2.15,Mt. Hermon Road Overpass to Ruins Creek Confluence,{4AD67454-19CA-4132-B4D9-E2ED032A6821},0.0123994771585822
+15,SLR-bean-14c,SLR,SLR-bean,14c,CM2.15-CM5.45,Ruins Creek Confluence to Gradient Change Above the Second Glenwood Road Crossing,{F6F4AD94-1EA8-4EFE-8CC6-9AB99EC6A62C},0.0659693025847064
+16,SLR-bear-18a,SLR,SLR-bear,18a,CM0.0-CM2.42,San Lorenzo River Confluence to Unnamed Tributary at Narrowing of the Canyon Above Bear Creek Country Club,{E89605F0-5AE2-49AE-BD92-D3BEA2D44ECB},0.04867671261919
+17,SLR-bear-18b,SLR,SLR-bear,18b,CM2.42-CM4.69,Narrowing of the Canyon to the Deer Creek Confluence,{DF9DAD5B-8D2C-40FB-BC2B-976C293F020A},0.0394111810663141
+18,SLR-bldr-17a,SLR,SLR-bldr,17a,CM0.0-CM0.85,San Lorenzo River Confluence to Foreman Creek Confluence,{5A38582A-148B-4B94-A0B4-7D949FF2527D},0.0160065641313443
+19,SLR-bldr-17b,SLR,SLR-bldr,17b,CM0.85-CM2.0,Foreman Creek Confluence to Narrowing of Gorge Adjacent Forest Springs,{E49E4085-07CA-4DE1-AB11-97397E46B0AC},0.0202929713605908
+20,SLR-bldr-17c,SLR,SLR-bldr,17c,CM2.0-CM3.46,Narrow Gorge to Bedrock Chute At Kings Highway Junction with Big Basin Way,{6CBEE1B4-32E7-48B8-889F-57E55F856B8F},0.0237644671049298
+21,SLR-bran-21c,SLR,SLR-bran,21c, , ,{DF08F247-16C8-4BF3-AC03-ED15F3D2BD72},0.00557859492776308
+22,SLR-bran-21a,SLR,SLR-bran,21a,CM1.12-CM3.04,Carbonera Creek Confluence to Granite Creek Confluence,{AB4D2110-69D1-49D4-B9E1-F0E5E4C18349},0.0481483589491525
+23,SLR-bran-21b,SLR,SLR-bran,21b,CM3.04-CM5.73,Granite Creek Confluence to Tie Gulch Confluence,{B522951D-2F5D-49E9-BB92-3F1C00D22AF3},0.0402275151920122
+24,SLR-carb-20a,SLR,SLR-carb,20a,CM0.0-CM1.38,Branciforte Creek Confluence to Old Road Crossing and Gradient Increase,{9AAFC358-D4EE-4E36-8959-0FCF0FD59759},0.0203770291507259
+25,SLR-carb-20b,SLR,SLR-carb,20b,CM1.38-CM3.39,Old Road Crossing to Moose Lodge Falls,{A34E8C14-029E-4766-8D83-35DF5FC50EEA},0.0328038824238173
+26,SLR-fall-15a,SLR,SLR-fall,15a,CM0.0-CM1.58,San Lorenzo River Confluence to SLVWD Fish Ladder,{A20EC7AE-0C9B-4B63-A831-5BA75F68459F},0.00685967191744186
+27,SLR-fall-15b,SLR,SLR-fall,15b, ,From SLVWD Fish Ladder to gradeint drop,{4DE7231B-C182-49E1-A83F-9CB6BB2654C1},0.0184573533093901
+28,SLR-king-19a,SLR,SLR-king,19a,CM0.0-CM2.04,San Lorenzo River Confluence to Unnamed Tributary at Former Fragmented Dam Abutment Location,{EA0FD92B-04B3-4DA0-BBCE-48C5254EAFE0},0.0304404023969458
+29,SLR-king-19b,SLR,SLR-king,19b,CM2.04-CM3.73,Tributary to Bedrock-Boulder Cascade,{85E039DA-70C4-47D2-AEEA-0524B6E13040},0.0252476136326122
+30,SLR-lomp-13e,SLR,SLR-lomp,13e,CM0.0-CM0.5,Lompico Creekmouth to 1st Culvert Crossing,{DE7BC02C-1A47-44C5-BF6D-918B5951B007},0.00717888864353545
+31,SLR-lomp-13f,SLR,SLR-lomp,13f,CM0.5-CM1.77,1st Culvert Crossing to Carol Road Bridge,{30C1230A-CC4F-43DE-B7D9-CE1C8F4F25D3},0.0161429241119397
+32,SLR-lomp-13g,SLR,SLR-lomp,13g,CM1.77-CM2.35,Carol Road Bridge to Mill Creek Confluence,{E3500B8E-E692-41DC-AAE7-79FA64C3F467},0.00878024075798114
+33,SLR-lomp-13h,SLR,SLR-lomp,13h,CM2.35-CM3.73,Mill Creek Confluence to End of Perennial Channel,{C402FD9B-3F8A-49F8-8AFF-4C8FEBBDC3B4},0.0245765245943723
+34,SLR-main-0,SLR,SLR-main,0,CM0.92 – CM1.92,Water Street to Tait Street Diversion,{9916A2FC-8986-454A-ACD3-176BD342ED3F},0.0150569057779741
+35,SLR-main-1,SLR,SLR-main,1,CM1.92 - CM4.73,Highway 1 to Buckeye Trail Crossing,{7D64511F-49C6-4472-8485-1D08BAECE80A},0.0390694311813546
+36,SLR-main-10,SLR,SLR-main,10,CM18.38 - CM20.88,Boulder Creek Confluence to Kings Creek Confluence,{1701DB0F-825C-4F81-91A3-F5B0C3CF8378},0.0412928396108932
+37,SLR-main-11,SLR,SLR-main,11,CM20.88 - CM24.23,Kings Creek Confluence to San Lorenzo Park Bridge Crossing,{E7938E16-67D2-429D-898C-0FEC03FDAFC8},0.055495613341581
+38,SLR-main-12,SLR,SLR-main,12,CM24.23 - CM26.73,San Lorenzo Park Bridge to Gradient Change North of Waterman Gap,{814225F2-BFF2-49B5-91EC-A680E71E0327},0.0387923459546665
+39,SLR-main-2,SLR,SLR-main,2,CM4.73 - CM6.42,Buckeye Trail Crossing to the Upper End of the Wide Channel Representation on the Felton USGS Quad Map,{88412F41-4670-4908-872F-0339FE0B1D60},0.0281618873314822
+40,SLR-main-3,SLR,SLR-main,3,CM6.42 - CM7.50,From Beginning of Narrow Channel Representation in the Gorge to the Beginning of the Gorge (below the Eagle Creek),{F5BDCD1A-8897-4047-8052-9E49473360CE},0.016028886485629
+41,SLR-main-4,SLR,SLR-main,4,CM7.50 - CM9.12,From the Beginning of the Gorge to Felton Diversion Dam,{7AEC7422-CEC6-48E5-A079-B34D243D4F4C},0.0265689043788358
+42,SLR-main-5,SLR,SLR-main,5,CM9.12 - CM9.50,Felton Diversion Dam to Zayante Creek Confluence,{A117A107-6702-4BD0-841C-0126D6B5DB89},0.00579121500991216
+43,SLR-main-6,SLR,SLR-main,6,CM9.50 - CM12.88,Zayante Creek Confluence to Newell Creek Confluence,{E25084B3-137D-43D8-BAB6-5863F62CA142},0.0568008146760452
+44,SLR-main-7,SLR,SLR-main,7,CM12.88 - CM14.54,Newell Creek Confluence to Bend North of Ben Lomond,{72FC3DE0-BC79-495C-8A68-F77790B14585},0.0227614960438068
+45,SLR-main-8,SLR,SLR-main,8,CM14.54 - CM16.27,Bend North of Ben Lomond to Clear Creek Confluence in Brookdale,{6DEBF29B-3685-4EAD-9308-A07E74B31D36},0.0306833644018065
+46,SLR-main-9,SLR,SLR-main,9,CM16.27 - CM18.38,Clear Creek Confluence to Boulder Creek Confluence,{6D41FBB0-4277-431F-8143-06A10FB32C4D},0.0381049188576726
+47,SLR-newl-16,SLR,SLR-newl,16,CM0.0-CM1.04,San Lorenzo River Confluence to Bedrock Falls,{2A0F7A68-F8BE-47A8-AC24-CB97419F84A2},0.0155834911839945
+48,SLR-zayt-13a,SLR,SLR-zayt,13a,CM0.0-CM0.61,San Lorenzo River Confluence to Bean Creek Confluenece,{CCA9DDD6-C552-44CF-8E67-BC60E368FC1A},0.00913040943248657
+49,SLR-zayt-13b,SLR,SLR-zayt,13b,CM0.61-CM2.44,Bean Creek Confluence to Trib. Draining from S.Cruz Aggregate Quarry,{D2315BF7-5E73-413B-A48E-3B7D0DF563EE},0.0281951638639763
+50,SLR-zayt-13c,SLR,SLR-zayt,13c,CM2.44-CM3.09,Santa Cruz Aggregate Tributary to Lompico Creek Confluence,{80D910CE-42F3-4F46-992B-50417E90DFFD},0.0105199138279421
+51,SLR-zayt-13d,SLR,SLR-zayt,13d,CM3.09-CM5.72,Lompico Creek Confluence to Mt. Charlie Gulch Confluence,{7B5A975E-0693-4643-AF47-92DBE05FE67D},0.0438769719515253
+52,SLR-zayt-13i,SLR,SLR-zayt,13i, ,Mt. Charlie Gulch Confluence to stream 225 confluence,{E4FFE2A2-9882-48A4-A791-8FE00CBB80F6},0.0285161740513213
+53,SOQ-main-0,SOQ,SOQ-main,0,NA,Soquel Creek Lagoon,{F416F993-B5C0-4B4A-8C9D-EE16327492B5},0.00907786706031482
+54,SOQ-main-1,SOQ,SOQ-main,1,CM0.6 - CM1.41,Upper Lagoon's Extent to Soquel Avenue,{69C20C09-66F1-4E08-82AE-EEB7062C8DAB},0.0141640067425498
+55,SOQ-east-10,SOQ,SOQ-east,10,CM9.55 - CM10.66,Hinckley Creek Confluence to Soquel Creek Water District Weir,{209E22C3-C61F-46FB-A3D9-680D7DA44EE5},0.0166457636619309
+56,SOQ-east-11,SOQ,SOQ-east,11,CM10.66 - CM11.79,Soquel Creek Water District Weir to Amaya Creek Confluence,{DA0191D2-B4C9-411C-96A4-E57A9DC6B88F},0.0109320977503689
+57,SOQ-east-12a,SOQ,SOQ-east,12a,CM11.79 – 12.56,Amaya Creek Confluence to Gradient Increase,{75389D95-8DD9-40D5-BFFF-02362E5CA5FE},0.0126696796696339
+58,SOQ-east-12b,SOQ,SOQ-east,12b,CM12.56 - CM14.38,Gradient Increase to Ashbury Gulch Confluence,{52664AC4-D899-4FE4-8489-00D24D3D228B},0.025859392367512
+59,SOQ-main-2,SOQ,SOQ-main,2,CM1.41 - CM1.77,Soquel Avenue to First Bend Upstream,{315CE4F1-C262-43F0-9E28-75E1DE1B5268},0.00572820451831234
+60,SOQ-main-3,SOQ,SOQ-main,3,CM1.77 - CM2.70,First Bend Above Soquel Avenue to Above the Bend Closest to Cherryvale Avenue,{24D69349-5E9D-4007-8CD9-851F2DCC89B8},0.0139758784158134
+61,SOQ-main-4,SOQ,SOQ-main,4,CM2.70 – CM3.54,Above the Bend Adj. Cherryvale Ave to Bend at End of Cherryvale Ave,{6A883F68-B7E2-4C95-A391-5AE636AD2D18},0.0138569135167939
+62,SOQ-main-5,SOQ,SOQ-main,5,CM3.54 - CM4.06,Above Proposed Diversion Site to Sharp Bend Above Conference Center,{AA305B91-AC03-49CC-872F-7C95F8BE4E2B},0.00947920591457883
+63,SOQ-main-6,SOQ,SOQ-main,6,CM4.06-CM5.34,Sharp Bend Above Conference Center to the Moores Gulch Confluence,{777DE23C-5E65-42F3-B55E-675AD96B9F0F},0.0145038462873235
+64,SOQ-main-7,SOQ,SOQ-main,7,CM5.34 - CM6.41,Moores Gulch Confluence to Above the Purling Brook Road Crossing,{03D7AD3A-6691-4D92-A790-6A3AF7CBFFD0},0.0174532811739121
+65,SOQ-main-8,SOQ,SOQ-main,8,CM6.41 - CM7.34,Above Purling Brook Road Crossing to West Branch Confluence,{C290D3D2-ADAB-4890-8AC0-51D2ED2F41B3},0.0133775913827559
+66,SOQ-east-9a,SOQ,SOQ-east,9a,CM7.34 - CM9.28,West Branch Confluence to Mill Pond Diversion,{51716B13-AB34-436A-868B-6234DE817369},0.0318172555805915
+67,SOQ-east-9b,SOQ,SOQ-east,9b,CM9.28 - CM9.55,Mill Pond Diversion to Hinckley Creek Confluence,{FED7E754-63F3-4F12-BF55-07B14A2BCEBB},0.00296468572467375
+68,SOQ-west-13,SOQ,SOQ-west,13,CM0.0 - CM0.98,West Branch Confluence to Hester Creek Confluence on West Branch,{BA8E4518-582A-4A0D-9DB4-7DF068F040B5},0.0130085379245597
+69,SOQ-west-14a,SOQ,SOQ-west,14a,CM0.98- CM2.26,Hester Creek Confluence to Girl Scout Falls I,{A7AC58ED-1593-4AAB-9C95-B1F1A965359C},0.019445791363612
+70,SOQ-west-14b,SOQ,SOQ-west,14b,CM2.26 – CM2.89,Girl Scout Falls I to Girl Scout Falls II,{70E340D7-3D86-44D1-A6F7-93DB71A6ECBE},0.00899353148939498
+71,SOQ-west-14c,SOQ,SOQ-west,14c,CM2.89 – CM4.07,Girl Scout Falls II to Tucker Road (Tilly’s Ford),{B9844A95-E0C2-4FFF-94F0-44AAE73BDC38},0.0193927171684643
+72,SOQ-west-14d,SOQ,SOQ-west,14d,CM4.07 - CM6.56,"Tucker Road (Tilly’s Ford) to Laurel Mill Dam 1,465 ft Below Confluence of Laurel and Burns Creeks on West Branch",{15C34138-1A09-449E-B5BC-7B61BCC69E71},0.0317144982938988
+73,PAJ-cass-3,PAJ,PAJ-cass,3, ,From the Casserly Road Bridge crossing to the Gaffey Road Bridge crossing along Mt. Madonna Road,{5E860E9F-AD10-475D-9366-2A4AE2856816},0.0188347756852467

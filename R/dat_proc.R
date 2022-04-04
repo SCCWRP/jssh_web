@@ -36,7 +36,7 @@ fishdat <- readOGR(dsn = dsn, layer = 'Site_Annual_Data') %>%
     Watershed = case_when(
       grepl('^SLR-main', SiteID) ~ 'SLR-main',
       Watershed %in% c('SLR', 'San Lorenzo') ~ 'SLR-trib',
-      Watershed %in% c('APT', 'Aptos') ~ 'APT', 
+      Watershed %in% c('APT', 'Aptos') ~ 'APT',
       Watershed %in% c('PAJ', 'Pajaro') ~ 'PAJ', 
       Watershed %in% c('SOQ', 'Soquel') ~ 'SOQ'
     ),
@@ -132,7 +132,7 @@ SiteIDloc <- SiteIDloc %>%
   summarise(
     X = mean(X, na.rm = T), 
     Y = mean(Y, na.rm = T)
-    ) %>% 
+  ) %>% 
   ungroup
 
 habitat <- sf::st_read(dsn = dsn, layer = 'Habitat') %>% 
@@ -202,7 +202,7 @@ trndst_prep <- fishdat %>%
 
 # separate crds tibble for later joing
 crds <- st_coordinates(trndst_prep) %>% 
-  as.tibble
+  as_tibble
 st_geometry(trndst_prep) <- NULL
 crds <- trndst_prep %>% 
   dplyr::select(SiteID) %>% 
