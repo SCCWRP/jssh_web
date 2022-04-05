@@ -33,6 +33,7 @@ source('R/funcs.R')
 
 data(fishdat)
 data(stream)
+data(commonnames)
 
 # map colors
 cols <- mapviewGetOption("vector.palette")(4)
@@ -68,7 +69,18 @@ spdat <- fishdat %>%
   filter(!is.na(Year)) %>% 
   group_by(Year, species) %>% 
   filter(!duplicated(SiteID)) %>% 
-  ungroup() 
+  ungroup() %>%
+  left_join(commonnames, by = 'species') %>% 
+  mutate(commonname = if_else(is.na(commonname), species, commonname))
+
+# create species choices for the species select items
+spchoices <- spdat %>% 
+  arrange(commonname) %>%
+  pull(species) %>% unique
+
+names(spchoices) <- spdat %>% 
+  arrange(commonname) %>%
+  pull(commonname) %>% unique
 
 # site, wshed lookup
 siteshd <- fishdat
@@ -79,9 +91,149 @@ siteshd <- siteshd %>%
   mutate_if(is.factor, as.character)
 ```
 
+These analyses can be used to evaluate changes in community composition over time using the presence/absence data for all species.  The first two sections show general changes by species and the third section is a multivariate analysis showing ordination and clustering results of the communities for a selected year.  Changes over time can be assessed by comparing the results between years. 
+<br>  
 <br>
 
-These analyses can be used to evaluate changes in community composition over time using the presence/absence data for all species.  The first two sections show general changes by species and the third section is a multivariate analysis showing ordination and clustering results of the communities for a selected year.  Changes over time can be assessed by comparing the results between years. 
+# Frequency occurrence over time
+
+This map shows the occurrence of `r renderText({input$sptm})` at each site from `r renderText({input$yrs2[1]})` to `r renderText({input$yrs2[2]})`.  The colors indicate if a species was commonly (dark green), frequently (light green), occasionally (light red), or rarely (dark red) observed at a site.  Frequency occurrence was the sum of years for which a species was observed divided by the total number of years that a site was sampled.
+
+<span style="color:#33A02C">Common</span>: 76 - 100% of all sampled years 
+
+<span style="color:#B2DF8A">Frequently present</span>: 51 - 75% of all sampled years 
+
+<span style="color:#FB9A99">Occasionally present</span>: 26 - 50% of all sampled years 
+
+<span style="color:#E31A1C">Rare</span>: >0 - 25% of all sampled years 
+
+No fill: Absent
+
+```{r tmsel2}
+column(2, NULL)
+# select a species
+
+column(width = 4,
+ selectInput('sptm2', 'Select a species:', spchoices, selected = 'Sthd')
+)
+
+# year slider
+column(width = 4, 
+  sliderInput("yrs2", label = 'Select year ranges to plot:',  
+        min = 1981, max = max(unique(fishdat$Year)), 
+        value = c(1994, max(unique(fishdat$Year))),
+        sep = '', ticks = FALSE
+      )
+)
+column(2, NULL)
+```
+
+```{r}
+renderLeaflet({spyrsocc()@map})
+```
+
+<br>
+
+
+
+# Presence/absence by year
+
+This map shows species presence/absence for a selected species and year.  Sites that were sampled for the selected year are shown on the map with small red points indicating a selected species was not found and large green points indicating a species was found at a site.  The year selector can be toggled to show only years when a species was present at any site versus all years for which sampling occurred but a species may or may not have been found (default). 
+
+```{r sppinput}
+column(12, 
+      column(2, NULL),
+      # select a species
+      column(width = 4,
+       selectInput('sp', 'Select a species:', spchoices, selected = 'Sthd')
+      ), 
+      
+      column(width = 4, 
+             selectInput('yrsub', 'Select from years when present:', selected = FALSE, choices = c(TRUE, FALSE))
+      ),
+      column(2, NULL)
+)
+
+column(12, 
+       
+      column(2, NULL),
+      
+      column(4,
+      renderUI({
+        
+        # inputs
+        yrsub <- input$yrsub
+        mapsp <- mapsp()
+
+        # get only years when species was found, otherwise all
+        if(yrsub){
+
+          yrs <- mapsp %>%  
+            filter(pa %in% 1) %>% 
+            pull(Year) %>% 
+            unique
+
+        } else {
+
+          yrs <- unique(mapsp$Year)
+
+        }
+
+        # select a year
+        selectInput('yr', 'Select a year:', selected = max(yrs), choices = yrs)
+               
+      })
+      
+      ), 
+      
+      column(6, NULL)
+      
+)
+```
+
+```{r prepmapsp}
+# get selected species data for reactive UI year selection
+mapsp <- reactive({
+  
+  sp <- input$sp
+  
+  out <- spdat %>% 
+    filter(species == sp) 
+  
+  return(out)
+  
+})
+
+# subset year and species,  map
+mapspyr <- reactive({
+  
+  yr <- input$yr
+  mapsp <- mapsp()
+  
+  toplo <- mapsp %>% 
+    filter(Year == yr) %>% 
+    mutate(
+      cexv = ifelse(pa == 1, 7, 3), 
+      pa = factor(pa, levels = c('1', '0'), labels = c('present', 'absent')), 
+      cols = ifelse(pa == 'present', 'lightgreen', 'tomato1')
+      )
+  
+  # colors must be passed as vector
+  cols <- toplo$cols
+  
+  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F, legend = F) +
+    mapview(toplo, zcol = 'pa', cex = toplo$cexv, label = paste0(toplo$SiteID, ': ', toplo$pa), legend = F, homebutton = F, col.region = cols)
+   
+  return(out)
+  
+})
+```
+
+```{r mapsp}
+renderLeaflet({mapspyr()@map})
+```
+<br>
+
 
 # Percent occupied sites over time
 
@@ -91,7 +243,7 @@ These plots show the percent of sampled sites over time that are occupied with a
 column(2, NULL)
 # select a species
 column(width = 4,
- selectInput('sptm', 'Select a species:', sort(unique(spdat$species)), selected = 'Sthd')
+ selectInput('sptm', 'Select a species:', spchoices, selected = 'Sthd')
 )
 
 # year slider
@@ -202,140 +354,6 @@ renderPlot({
                        
 },width = 900, height = 600)
 
-```
-
-# Presence/absence by year
-
-This map shows species presence/absence for a selected species and year.  Sites that were sampled for the selected year are shown on the map with small red points indicating a selected species was not found and large green points indicating a species was found at a site.  The year selector can be toggled to show only years when a species was present at any site versus all years for which sampling occurred but a species may or may not have been found (default). 
-
-```{r sppinput}
-column(12, 
-      column(2, NULL),
-      # select a species
-      column(width = 4,
-       selectInput('sp', 'Select a species:', sort(unique(spdat$species)), selected = 'Sthd')
-      ), 
-      
-      column(width = 4, 
-             selectInput('yrsub', 'Select from years when present:', selected = FALSE, choices = c(TRUE, FALSE))
-      ),
-      column(2, NULL)
-)
-
-column(12, 
-       
-      column(2, NULL),
-      
-      column(4,
-      renderUI({
-        
-        # inputs
-        yrsub <- input$yrsub
-        mapsp <- mapsp()
-
-        # get only years when species was found, otherwise all
-        if(yrsub){
-
-          yrs <- mapsp %>%  
-            filter(pa %in% 1) %>% 
-            pull(Year) %>% 
-            unique
-
-        } else {
-
-          yrs <- unique(mapsp$Year)
-
-        }
-
-        # select a year
-        selectInput('yr', 'Select a year:', selected = max(yrs), choices = yrs)
-               
-      })
-      
-      ), 
-      
-      column(6, NULL)
-      
-)
-```
-
-```{r prepmapsp}
-# get selected species data for reactive UI year selection
-mapsp <- reactive({
-  
-  sp <- input$sp
-  
-  out <- spdat %>% 
-    filter(species == sp) 
-  
-  return(out)
-  
-})
-
-# subset year and species,  map
-mapspyr <- reactive({
-  
-  yr <- input$yr
-  mapsp <- mapsp()
-  
-  toplo <- mapsp %>% 
-    filter(Year == yr) %>% 
-    mutate(
-      cexv = ifelse(pa == 1, 7, 3), 
-      pa = factor(pa, levels = c('1', '0'), labels = c('present', 'absent')), 
-      cols = ifelse(pa == 'present', 'lightgreen', 'tomato1')
-      )
-  
-  # colors must be passed as vector
-  cols <- toplo$cols
-  
-  out <- mapview(stream, label = stream$STREAM_NM, homebutton = F, legend = F) +
-    mapview(toplo, zcol = 'pa', cex = toplo$cexv, label = paste0(toplo$SiteID, ': ', toplo$pa), legend = F, homebutton = F, col.region = cols)
-   
-  return(out)
-  
-})
-```
-
-```{r mapsp}
-renderLeaflet({mapspyr()@map})
-```
-<br>
-
-# Frequency occurrence over time
-
-This map shows the occurrence of `r renderText({input$sptm})` at each site from `r renderText({input$yrs2[1]})` to `r renderText({input$yrs2[2]})`.  The colors indicate if a species was commonly (dark green), frequently (light green), occasionally (light red), or rarely (dark red) observed at a site.  Frequency occurrence was the sum of years for which a species was observed divided by the total number of years that a site was sampled.
-
-<span style="color:#33A02C">Common</span>: 76 - 100% of all sampled years 
-
-<span style="color:#B2DF8A">Frequently present</span>: 51 - 75% of all sampled years 
-
-<span style="color:#FB9A99">Occasionally present</span>: 26 - 50% of all sampled years 
-
-<span style="color:#E31A1C">Rare</span>: >0 - 25% of all sampled years 
-
-No fill: Absent
-
-```{r tmsel2}
-column(2, NULL)
-# select a species
-column(width = 4,
- selectInput('sptm2', 'Select a species:', sort(unique(spdat$species)), selected = 'Sthd')
-)
-
-# year slider
-column(width = 4, 
-  sliderInput("yrs2", label = 'Select year ranges to plot:',  
-        min = 1981, max = max(unique(fishdat$Year)), 
-        value = c(1994, max(unique(fishdat$Year))),
-        sep = '', ticks = FALSE
-      )
-)
-column(2, NULL)
-```
-
-```{r}
-renderLeaflet({spyrsocc()@map})
 ```
 
 <br>
