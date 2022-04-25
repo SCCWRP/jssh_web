@@ -227,8 +227,39 @@ fishdat <- fishdat %>%
 save(fishdat, file = 'data/fishdat.RData')
 
 
+# -------------------------------------------------  floest and fishmtch ------------------------------------------------------------ 
+# This is basically how floest is built
+# library(readxl)
+# library(tidyverse)
+# 
+# flo <- read_excel("~/Desktop/JSSH/floest_wide.xlsx")
+# 
+# floest <- flo %>% 
+#   pivot_longer(names(flo)[which(!names(flo) %in% c('Site', 'month') )], names_to = 'year',values_to = 'flo') %>% 
+#   mutate(date = glue::glue('{month}/15/{year}') %>% as.Date(format = '%m/%d/%Y')) %>%
+#   select(Site, date, flo)
+# 
+# save(floest, file = 'data/floest.RData')
 
+# That code was kept in a separate script. The flow estimate data was sent from 
+# c.hammersmark@cbecoeng.com, g.downs@cbecoeng.com, and Kristen from Santa Cruz County kristen.kittleson@santacruzcounty.us
+# The person to contact would probably be Kristen with Chris and Gavin CC'd on the email.
+# Chris and Gavin put together the flow estimates using linear regression models and send massive excel files that would not be good
+# to keep in the repository. Essentially there is that results sheet (June_Results or September_Results) in the excel file with the site, and the recommended gauge (Big trees or Soquel)
+# and the flow estimate values from both Big trees and Soquel. you have to select the values from the one they recommend you to use, which is also
+# in that same excel file. There are two excel files, one for september and one for June
+# Basically after seeing the excel file it should be apparent how to build floest from that. I had to manipulate the excel file from Chris and Gavin
+# To get the data in long format, which is what the app wants. Bascially they have it such that the columns are the years, and the values in the columns
+# are the actual data values, which is why i had to do a pivot_longer on it
+# also you can see i put the date to be the 15th of the month (6/15/YYYY etc) this is because the value is an estimate for the flow for the month, so
+# we just arbitralily choose the middle of the month for the date
+# The day itself is actually not so important. just the month and year
+# To future me, or whoever takes over this project, i hope this helps
 
+# for the fishmtch dataframe, according to Marcus' original "dat_proc" script, it is just a lookup table. I doubt it needs any updating, so this time around
+# I didnt do anything with that one
+
+# Robert Butler (robertb@sccwrp.org) April 25, 2022
 
 
 

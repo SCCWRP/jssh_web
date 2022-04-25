@@ -556,8 +556,8 @@ raw <- read_excel('../../Data/RawData/flow_ests/16-1022_JSSH_Results_2019-01-18.
 rwsel <- c(4:38)
 
 recs <- raw %>%
-  dplyr::select(Site, X__8) %>% 
-  .[rwsel, ] %>% 
+  dplyr::select(Site, X__8) %>%
+  .[rwsel, ] %>%
   rename(
     rec = X__8
   )
