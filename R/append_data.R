@@ -1,6 +1,7 @@
 # The reason this file is called Arc Dat proc is because it is done with data from Arc Online (or Santa Cruz GIS portal server's REST service or something like that)
 # Either way the source of raw data is a more dynamic source rather than static files, with the exception of habitat
-# It seems like the habitat data is not truly updated in the REST service
+# HOWEVER It seems like the habitat data is not truly updated in the REST service 
+
 # Worst case, the data can be found here
 # https://www.co.santa-cruz.ca.us/Departments/GeographicInformationSystems(GIS).aspx
 # you have to click the tile that says "Data" and search for "Steelhead Monioring Data"
@@ -10,6 +11,33 @@
 # The REST service URL is this: https://services1.arcgis.com/jJfZghspGKh8J9Jm/arcgis/rest/services/JSSH/FeatureServer
 
 # if trying to pull from the REST service doesnt work, one may go to their website and search and manually download the data as csv files, or shapefiles
+
+# In 2022, using the REST service did not work, although we tried it. I cannot remember the exact reason why it did not work, but we were able to 
+# get our hands on the 6 needed CSV's (I want to say we got them off their website, rather than Kristens email)
+
+# As long as we have those 6 CSV's, if they are structured just like the ones below
+# SiteDataJSSH2022.csv
+# SiteAnnualDataJSSH2022.csv
+# ReachDataJSSH2022.csv
+# StreamDataJSSH2022.csv
+# HabitatDataJSSH2022.csv
+# SegmentDataJSSH2022.csv
+# Then running this script should work so long as the path is provided
+
+# If you are taking this project over and are wondering why we didnt just figure a way to make the app dynamically pull from feature layers
+# There are two answers
+# 1. Time
+# 2. Money
+
+# Yes it would be best to figure this out, however, the people paying us for this dont care about that, and just want to see data in their app asap
+# Its fastest to just do it this way, and let them be happy for a year until they need more data. 
+# We did try that but estimated that it was going to be over their budget and stopped proceeding
+
+# They do set aside $7000 a year for this, so it is possible if we finish quickly, that we can go ahead and look into rewriting some code to work this way
+#  which would be a much better practice.
+# However in 2022, it took long enough just to figure out how the data should be structured, how it works with the app, how did Marcus reformat the data?
+# etc.
+
 
 library(httr)
 library(sf)
