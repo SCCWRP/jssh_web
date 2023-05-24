@@ -1,4 +1,4 @@
-# The reason this file is called Arc Dat proc is because it is done with data from Arc Online (or Santa Cruz GIS portal server's REST service or something like that)
+# The reason this file (was) called Arc Dat proc is because it is done with data from Arc Online (or Santa Cruz GIS portal server's REST service or something like that)
 # Either way the source of raw data is a more dynamic source rather than static files, with the exception of habitat
 # HOWEVER It seems like the habitat data is not truly updated in the REST service 
 
@@ -50,23 +50,32 @@ library(raster)
 library(maptools)
 library(rgdal)
 library(rmapshaper)
-#library(proj4shortcut)
+library(proj4shortcut)
 library(MuMIn)
 library(nlme)
 library(lubridate)
-#prj <- geo_wgs84
+prj <- geo_wgs84
 
-sitedata2022 <- read.csv('data/SiteDataJSSH2022.csv')
-siteannual2022 <- read.csv('data/SiteAnnualDataJSSH2022.csv')
-reach2022 <- read.csv('data/ReachDataJSSH2022.csv')
-stream2022 <- read.csv('data/StreamDataJSSH2022.csv')
-habitat2022 <- read.csv('data/HabitatDataJSSH2022.csv')
-segment2022 <- read.csv('data/SegmentDataJSSH2022.csv')
+sitepath <- 'data/JSSH2023_SiteLayer.csv' 
+siteannualpath <- 'data/JSSH2023_SiteAnnualLayer.csv' 
+reachpath <- 'data/JSSH2023_ReachLayer.csv' 
+streampath <- 'data/JSSH2023_StreamLayer.csv' 
+habitatpath <- 'data/JSSH2023_HabitatLayer.csv' 
+segmentpath <- 'data/JSSH2023_SegmentLayer.csv'
+juneflowpath <- 'data/JSSH2023_JuneFlow.xlsx'
+septflowpath <- 'data/JSSH2023_SeptemberFlow.xlsx'
+
+sitedata <- read.csv(sitepath)
+siteannual <- read.csv(siteannualpath)
+reach <- read.csv(reachpath)
+stream <- read.csv(streampath)
+habitat <- read.csv(habitatpath)
+segment <- read.csv(segmentpath)
 
 
 # ----------------------------------------------------------- fishdat ---------------------------------------------------------------
 # Trying to match the naming that Marcus used in the original dat_proc script
-fishdat <- siteannual2022 %>%
+fishdat <- siteannual %>%
   # Below modification to the SiteAnnualData is based on what i see in dat_proc
   mutate(
     Watershed = as.character(Watershed), 
@@ -109,7 +118,7 @@ save(trndst_prep, file = 'data/trndst_prep.RData', compress = 'xz')
 
 
 # ---------------------------------------------------------- habitat aka habnew ---------------------------------------------------------------
-habitat <- habitat2022 %>% 
+habitat <- habitat %>% 
   dplyr::select(-SiteYearID, -StnNumStrt, -StnNumEnd, -HabDetail, -AssessDate, -YearLabel, -GlobalID, -OBJECTID) %>%
   left_join(
     fishdat %>% dplyr::select(SiteID, Year, X, Y, Watershed) %>% distinct, 
@@ -260,16 +269,20 @@ save(fishdat, file = 'data/fishdat.RData')
 # library(readxl)
 # library(tidyverse)
 # 
-# flo <- read_excel("~/Desktop/JSSH/floest_wide.xlsx")
-# 
-# floest <- flo %>% 
-#   pivot_longer(names(flo)[which(!names(flo) %in% c('Site', 'month') )], names_to = 'year',values_to = 'flo') %>% 
-#   mutate(date = glue::glue('{month}/15/{year}') %>% as.Date(format = '%m/%d/%Y')) %>%
-#   select(Site, date, flo)
-# 
-# save(floest, file = 'data/floest.RData')
+juneflo <- read_excel(juneflowpath, sheet = 'Sheet1', skip = 1) %>% mutate(month = 6)
+septflo <- read_excel(septflowpath, sheet = 'Sheet1', skip = 1) %>% mutate(month = 9)
 
-# That code was kept in a separate script. The flow estimate data was sent from 
+flo <- dplyr::bind_rows(juneflo, septflo)
+
+floest <- flo %>%
+  pivot_longer(names(flo)[which(!names(flo) %in% c('Site', 'month') )], names_to = 'year',values_to = 'flo') %>%
+  mutate(date = glue::glue('{month}/15/{year}') %>% as.Date(format = '%m/%d/%Y')) %>%
+  dplyr::select(Site, date, flo)
+
+
+save(floest, file = 'data/floest.RData')
+
+# That code was kept in a separate script before. The flow estimate data was sent from 
 # c.hammersmark@cbecoeng.com, g.downs@cbecoeng.com, and Kristen from Santa Cruz County kristen.kittleson@santacruzcounty.us
 # The person to contact would probably be Kristen with Chris and Gavin CC'd on the email.
 # Chris and Gavin put together the flow estimates using linear regression models and send massive excel files that would not be good
